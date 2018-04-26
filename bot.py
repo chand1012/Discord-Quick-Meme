@@ -7,7 +7,8 @@ def get_post_thing(subs=["funny"]):
 	#subreddit = choice(['funny', 'dankmemes','dank_memes', 'jokes', 'darkjokes'])
 	subreddit = choice(subs)
 	posts = extract_info(subreddit, 30)
-	post_number = randint(0, 27)
+	num_of_posts = len(posts[0]) - 1
+	post_number = randint(0, num_of_posts)
 	pic_e = ['.jpg', '.png', '.jpeg']
 	vid_e = ['.gif', '.gifv']
 	post_type = None
@@ -54,9 +55,14 @@ async def on_message(message):
 			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 		else:
 			raw_msg = ""
+			count=0
 			while True:
+				count+=1
 				raw_msg = get_post_thing([recv[6:]])
 				if not raw_msg[1]==None:
+					break
+				if count>=10:
+					print("Count exceeded!")	
 					break
 			print("Posting:")
 			print(raw_msg[2])
@@ -65,7 +71,13 @@ async def on_message(message):
 			print("\n")
 			embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
 			embed.set_image(url=raw_msg[0])
-			await client.send_message(message.channel, embed=embed, tts=False)
+			if not count>=10:
+				await client.send_message(message.channel, embed=embed, tts=False)
+				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+			else:
+				await client.send_message(message.channel, "Something went wrong, please try again!")
+				await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
+				
 	if message.content.startswith("!joke"):
 		recv = message.content
 		if recv[6:] is '':
@@ -84,9 +96,19 @@ async def on_message(message):
 			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 		else:
 			raw_msg = ""
+			premsg = "Original Post:"
+			count = 0
 			while True:
+				count+=1
 				raw_msg = get_post_thing([recv[6:]])
 				if not raw_msg[1]==None:
+					break
+				if count>=10:
+					print("Count exceeded!")
+					raw_msg[2] = "Something went wrong."
+					raw_msg[0] = "Please try again"
+					raw_msg[3] = "/{}".format(recv[6:])
+					premsg = "Subreddit that caused the issue:"
 					break
 			print("Posting:")
 			print(raw_msg[2])
@@ -95,7 +117,7 @@ async def on_message(message):
 			print("\n")
 			await client.send_message(message.channel, content=raw_msg[2], tts=True)
 			await client.send_message(message.channel, content=raw_msg[0], tts=True)
-			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
 @client.event
 async def on_ready():
 	print('Logged in as')
@@ -106,8 +128,9 @@ async def on_ready():
 while True:
 	try:
 		client.run(token)
-	except KeyboardInterrupt:
-		break
 	except Exception as e:
-		print(e)
-		continue
+		if "KeyboardInterrupt" in str(e):
+			break
+		else:
+			print(e)
+			continue

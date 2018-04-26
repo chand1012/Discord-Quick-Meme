@@ -18,11 +18,12 @@ def extract_info(subreddit='all', limit=1):
     permalinks = []
     submissions = reddit.subreddit(subreddit).hot(limit=limit)
     for submission in submissions:
-        titles += [submission.title]
-        permalinks += [submission.permalink]
-        if not any(n in submission.url for n in url_things):
-            urls += [submission.selftext]
-        else:
-            urls += [submission.url]
+        if not len(submission.selftext)>=2000:
+            titles += [submission.title]
+            permalinks += [submission.permalink]
+            if not any(n in submission.url for n in url_things):
+                urls += [submission.selftext]
+            else:
+                urls += [submission.url]
 
     return [urls, titles, permalinks]
