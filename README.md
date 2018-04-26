@@ -8,5 +8,5 @@ If you are a server owner, just click [here]() and select your channel to add th
 
 - Type !joke for a joke from either [r/jokes](https://www.reddit.com/r/jokes/) or [r/darkjokes](https://www.reddit.com/r/darkjokes/).
 
-###Disclaimer
+### Disclaimer
 This bot is under heavy development and mainence, so it may not be online all the time. If its offline, I am probably working on it.
