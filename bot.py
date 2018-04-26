@@ -38,7 +38,7 @@ async def on_message(message):
 	if message.content.startswith("!meme"):
 		raw_msg = ""
 		while True:
-			raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes","CringeAnarchy"])
+			raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes"])
 			if not raw_msg[1]==None:
 				break
 		print("Posting:")
@@ -75,6 +75,8 @@ async def on_ready():
 while True:
 	try:
 		client.run(token)
+	except KeyboardInterrupt:
+		break
 	except Exception as e:
 		print(e)
 		continue
