@@ -36,35 +36,66 @@ async def on_message(message):
 	if message.author == client.user:
 		return
 	if message.content.startswith("!meme"):
-		raw_msg = ""
-		while True:
-			raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes"])
-			if not raw_msg[1]==None:
-				break
-		print("Posting:")
-		print(raw_msg[2])
-		print(raw_msg[0])
-		print("Original post: https://reddit.com{}".format(raw_msg[3]))
-		print("\n")
-		embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
-		embed.set_image(url=raw_msg[0])
-		await client.send_message(message.channel, embed=embed, tts=False)
-		await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
-
+		recv = message.content
+		if recv[6:] is '':
+			raw_msg = ""
+			while True:
+				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes"])
+				if not raw_msg[1]==None:
+					break
+			print("Posting:")
+			print(raw_msg[2])
+			print(raw_msg[0])
+			print("Original post: https://reddit.com{}".format(raw_msg[3]))
+			print("\n")
+			embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
+			embed.set_image(url=raw_msg[0])
+			await client.send_message(message.channel, embed=embed, tts=False)
+			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+		else:
+			raw_msg = ""
+			while True:
+				raw_msg = get_post_thing([recv[6:]])
+				if not raw_msg[1]==None:
+					break
+			print("Posting:")
+			print(raw_msg[2])
+			print(raw_msg[0])
+			print("Original post: https://reddit.com{}".format(raw_msg[3]))
+			print("\n")
+			embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
+			embed.set_image(url=raw_msg[0])
+			await client.send_message(message.channel, embed=embed, tts=False)
 	if message.content.startswith("!joke"):
-		raw_msg = ""
-		while True:
-			raw_msg = get_post_thing(["jokes", "meanjokes", "darkjokes"])
-			if not raw_msg[1]==None:
-				break
-		print("Posting:")
-		print(raw_msg[2])
-		print(raw_msg[0])
-		print("Original post: https://reddit.com{}".format(raw_msg[3]))
-		print("\n")
-		await client.send_message(message.channel, content=raw_msg[2], tts=True)
-		await client.send_message(message.channel, content=raw_msg[0], tts=True)
-		await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+		recv = message.content
+		if recv[6:] is '':
+			raw_msg = ""
+			while True:
+				raw_msg = get_post_thing(["jokes", "darkjokes"])
+				if not raw_msg[1]==None:
+					break
+			print("Posting:")
+			print(raw_msg[2])
+			print(raw_msg[0])
+			print("Original post: https://reddit.com{}".format(raw_msg[3]))
+			print("\n")
+			await client.send_message(message.channel, content=raw_msg[2], tts=True)
+			await client.send_message(message.channel, content=raw_msg[0], tts=True)
+			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+		else:
+			raw_msg = ""
+			while True:
+				raw_msg = get_post_thing([recv[6:]])
+				if not raw_msg[1]==None:
+					break
+			print("Posting:")
+			print(raw_msg[2])
+			print(raw_msg[0])
+			print("Original post: https://reddit.com{}".format(raw_msg[3]))
+			print("\n")
+			await client.send_message(message.channel, content=raw_msg[2], tts=True)
+			await client.send_message(message.channel, content=raw_msg[0], tts=True)
+			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 @client.event
 async def on_ready():
 	print('Logged in as')
