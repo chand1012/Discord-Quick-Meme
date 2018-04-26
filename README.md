@@ -1,7 +1,7 @@
 # Discord-Quick-Meme
 A discord bot that sends reddit memes to a channel.
 ## To add
-If you are a server owner, just click [here]() and select your channel to add the bot to your channel.
+If you are a server owner, just click [here](https://discordapp.com/oauth2/authorize?client_id=438381344943374346&scope=bot) and select your channel to add the bot to your channel.
 
 ## To use
 - Type !meme for a meme from a list of subreddits, currently [r/funny](https://www.reddit.com/r/funny/), [r/dankmemes](https://www.reddit.com/r/dankmemes/),[r/memes](https://www.reddit.com/r/memes/), and [r/dank_meme](https://www.reddit.com/r/dank_meme/).
