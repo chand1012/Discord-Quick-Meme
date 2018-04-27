@@ -21,7 +21,7 @@ def extract_info(subreddit='all', limit=1):
         if not len(submission.selftext)>=2000:
             titles += [submission.title]
             permalinks += [submission.permalink]
-            if not any(n in submission.url for n in url_things):
+            if not any(n in submission.url for n in url_things) and submission.selftext!='':
                 urls += [submission.selftext]
             else:
                 urls += [submission.url]

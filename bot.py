@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import discord
 from lib import *
 from random import choice, randint
@@ -62,7 +63,7 @@ async def on_message(message):
 				if not raw_msg[1]==None:
 					break
 				if count>=10:
-					print("Count exceeded!")	
+					print("Count exceeded!")
 					break
 			print("Posting:")
 			print(raw_msg[2])
@@ -77,7 +78,7 @@ async def on_message(message):
 			else:
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
-				
+
 	if message.content.startswith("!joke"):
 		recv = message.content
 		if recv[6:] is '':
@@ -110,6 +111,7 @@ async def on_message(message):
 					raw_msg[3] = "/{}".format(recv[6:])
 					premsg = "Subreddit that caused the issue:"
 					break
+
 			print("Posting:")
 			print(raw_msg[2])
 			print(raw_msg[0])
@@ -118,6 +120,31 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=True)
 			await client.send_message(message.channel, content=raw_msg[0], tts=True)
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
+
+	if message.content.startswith('!news'):
+		recv = message.content
+		raw_msg = ""
+		count = 0
+		while True:
+			count+=1
+			if not recv[6:]=='':
+				raw_msg = get_post_thing([recv[6:]], 1, True)
+			else:
+				raw_msg = get_post_thing(["UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"])
+			if not raw_msg[1]==None:
+				break
+			if count>=10:
+				print("Count exceeded!")
+				raw_msg[2] = "Something went wrong."
+				raw_msg[0] = "Please try again"
+				raw_msg[3] = "/{}".format(recv[6:])
+				premsg = "Subreddit that caused the issue:"
+				break
+		print("Posting:")
+		print(raw_msg[2])
+		print(raw_msg[0])
+		await client.send_message(message.channel, content=raw_msg[2], tts=True)
+		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
 @client.event
 async def on_ready():
 	print('Logged in as')
@@ -129,7 +156,8 @@ while True:
 	try:
 		client.run(token)
 	except Exception as e:
-		if "KeyboardInterrupt" in str(e):
+		if "Event loop" in str(e):
+			print("\nStopping bot....")
 			break
 		else:
 			print(e)
