@@ -19,7 +19,7 @@ def get_post_thing(subs=["funny"]):
 		post_permalink = posts[2][post_number]
 		post_type = True
 	except Exception as e:
-		post_link = 'https://mediaconnectpartners.staticscdn.com/wp-content/uploads/oops-header.png'
+		#post_link = 'https://mediaconnectpartners.staticscdn.com/wp-content/uploads/oops-header.png'
 		post_title = 'Please try again.'
 		post_type = None
 		print("Error!")
