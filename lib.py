@@ -64,7 +64,7 @@ def get_post_thing(subs=["funny"], nsfw=False):
                     break
             if count>=10:
                 post_link = "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?"
-                post_title = "Error!!!!
+                post_title = "Error!!!!"
                 post_permalink = False
                 break
     except Exception as e:
