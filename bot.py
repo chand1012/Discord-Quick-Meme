@@ -4,30 +4,6 @@ from lib import *
 from random import choice, randint
 
 url_things = ['.jpg', '.png', '.jpeg']
-def get_post_thing(subs=["funny"]):
-	#subreddit = choice(['funny', 'dankmemes','dank_memes', 'jokes', 'darkjokes'])
-	subreddit = choice(subs)
-	posts = extract_info(subreddit, 30)
-	num_of_posts = len(posts[0]) - 1
-	post_number = randint(0, num_of_posts)
-	pic_e = ['.jpg', '.png', '.jpeg']
-	vid_e = ['.gif', '.gifv']
-	post_type = None
-	try:
-		post_link = posts[0][post_number]
-		post_title = posts[1][post_number]
-		post_permalink = posts[2][post_number]
-		post_type = True
-	except Exception as e:
-		#post_link = 'https://mediaconnectpartners.staticscdn.com/wp-content/uploads/oops-header.png'
-		post_title = 'Please try again.'
-		post_type = None
-		print("Error!")
-		print(e)
-		print("Retrying....\n")
-
-	return [post_link, post_type, post_title, post_permalink]
-
 
 token = json_extract('token')
 
@@ -49,7 +25,7 @@ async def on_message(message):
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("\n")
+			print("------")
 			embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
 			embed.set_image(url=raw_msg[0])
 			await client.send_message(message.channel, embed=embed, tts=False)
@@ -69,7 +45,7 @@ async def on_message(message):
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("\n")
+			print("------")
 			embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
 			embed.set_image(url=raw_msg[0])
 			if not count>=10:
@@ -91,7 +67,7 @@ async def on_message(message):
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("\n")
+			print("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=True)
 			await client.send_message(message.channel, content=raw_msg[0], tts=True)
 			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
@@ -116,7 +92,7 @@ async def on_message(message):
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("\n")
+			print("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=True)
 			await client.send_message(message.channel, content=raw_msg[0], tts=True)
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
@@ -143,6 +119,7 @@ async def on_message(message):
 		print("Posting:")
 		print(raw_msg[2])
 		print(raw_msg[0])
+		print("------")
 		await client.send_message(message.channel, content=raw_msg[2], tts=True)
 		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
 @client.event
