@@ -16,6 +16,7 @@ async def on_message(message):
 	if not channel in channel_list:
 		channel_list += [channel]
 	'''
+    nsfw = message.channel.is_nsfw()
 	if message.author == client.user:
 		return
 	if message.content.startswith("!meme"):
@@ -23,7 +24,7 @@ async def on_message(message):
 		if recv[6:] is '':
 			raw_msg = ""
 			while True:
-				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes"])
+				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes"], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
 			print("Posting:")
@@ -40,7 +41,7 @@ async def on_message(message):
 			count=0
 			while True:
 				count+=1
-				raw_msg = get_post_thing([recv[6:]])
+				raw_msg = get_post_thing([recv[6:]], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
 				if count>=10:
@@ -65,7 +66,7 @@ async def on_message(message):
 		if recv[6:] is '':
 			raw_msg = ""
 			while True:
-				raw_msg = get_post_thing(["jokes", "darkjokes"])
+				raw_msg = get_post_thing(["jokes", "darkjokes"], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
 			print("Posting:")
@@ -82,7 +83,7 @@ async def on_message(message):
 			count = 0
 			while True:
 				count+=1
-				raw_msg = get_post_thing([recv[6:]])
+				raw_msg = get_post_thing([recv[6:]], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
 				if count>=10:
@@ -109,7 +110,7 @@ async def on_message(message):
 		while True:
 			count+=1
 			if not recv[6:]=='':
-				raw_msg = get_post_thing([recv[6:]], 1, True)
+				raw_msg = get_post_thing([recv[6:]], 1, True, nsfw)
 			else:
 				raw_msg = get_post_thing(["UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"])
 			if not raw_msg[1]==None:
