@@ -19,7 +19,7 @@ async def on_message(message):
 	recv = message.content
 	channel = message.channel
 	nsfw = False
-	if str(message.channel) == "nsfw":
+	if nsfw in str(message.channel):
 		nsfw = True
 	if message.author == client.user:
 		return
