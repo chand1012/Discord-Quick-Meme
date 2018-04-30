@@ -11,7 +11,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - If the meme or joke is nsfw, it will not be used on a regular channel. The channel must have `nsfw` in the title to allow for the post to go through. Otherwise, it spits out an error.
 
 ## Dependencies
-- discord.py (rewrite) found [here](https://github.com/Rapptz/discord.py/tree/rewrite).
+- discord.py found [here](https://github.com/Rapptz/discord.py/).
 - Praw found [here](https://github.com/praw-dev/praw).
 - the included lib file
 
