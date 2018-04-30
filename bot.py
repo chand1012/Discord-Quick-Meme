@@ -12,33 +12,40 @@ client = discord.Client()
 @client.event
 async def on_message(message):
 	# getting nsfw filter working is first priority
-	#nsfw = message.channel.is_nsfw()
-	nsfw = False
 
 	#channel = str(message.channel)
 	#if not channel in channel_list:
 	#	channel_list += [channel]
-
-
+	recv = message.content
+	channel = message.channel
+	nsfw = False
+	if str(message.channel) == "nsfw":
+		nsfw = True
 	if message.author == client.user:
 		return
 	if message.content.startswith("!meme"):
-		recv = message.content
 		if recv[6:] is '':
 			raw_msg = ""
 			while True:
-				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_memes"], nsfw=nsfw)
+				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
-			print("Posting:")
-			print(raw_msg[2])
-			print(raw_msg[0])
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
-			embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
-			embed.set_image(url=raw_msg[0])
-			await client.send_message(message.channel, embed=embed, tts=False)
-			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+			if nsfw==False and raw_msg[3]==False:
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("------")
+				await client.send_message(message.channel, content=raw_msg[2])
+				await client.send_message(message.channel, content=raw_msg[0])
+			else:
+				print("Posting:")
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("Original post: https://reddit.com{}".format(raw_msg[3]))
+				print("------")
+				embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
+				embed.set_image(url=raw_msg[0])
+				await client.send_message(message.channel, embed=embed, tts=False)
+				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 		else:
 			raw_msg = ""
 			count=0
@@ -50,22 +57,29 @@ async def on_message(message):
 				if count>=10:
 					print("Count exceeded!")
 					break
-			print("Posting:")
-			print(raw_msg[2])
-			print(raw_msg[0])
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
-			embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
-			embed.set_image(url=raw_msg[0])
-			if not count>=10:
-				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
-			else:
+			if nsfw==False and raw_msg[3]==False:
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("------")
+				await client.send_message(message.channel, content=raw_msg[2])
+				await client.send_message(message.channel, content=raw_msg[0])
+			elif count>=10:
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
+			else:
+				print("Posting:")
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("Original post: https://reddit.com{}".format(raw_msg[3]))
+				print("------")
+				embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
+				embed.set_image(url=raw_msg[0])
+				await client.send_message(message.channel, embed=embed, tts=False)
+				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+
+
 
 	if message.content.startswith("!joke"):
-		recv = message.content
 		if recv[6:] is '':
 			raw_msg = ""
 			while True:
@@ -107,7 +121,6 @@ async def on_message(message):
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
 
 	if message.content.startswith('!news'):
-		recv = message.content
 		raw_msg = ""
 		count = 0
 		while True:

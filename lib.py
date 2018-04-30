@@ -15,7 +15,7 @@ reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
 reddit_agent = json_extract('user_agent')
 
-def extract_info(subreddit='all', limit=1, nsfw=False):
+def extract_info(subreddit='all', limit=1):
     reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
     url_things = ['.jpg', '.png', '.jpeg']
     urls = []
@@ -41,7 +41,7 @@ def extract_info(subreddit='all', limit=1, nsfw=False):
 def get_post_thing(subs=["funny"], nsfw=False):
 	#subreddit = choice(['funny', 'dankmemes','dank_memes', 'jokes', 'darkjokes'])
     subreddit = choice(subs)
-    posts = extract_info(subreddit, 30, nsfw)
+    posts = extract_info(subreddit, 30)
     num_of_posts = len(posts[0]) - 1
     post_type = None
     count = 0
@@ -54,13 +54,18 @@ def get_post_thing(subs=["funny"], nsfw=False):
             post_permalink = posts[2][post_number]
             post_nsfw = posts[3][post_number]
             post_type = True
-            if not nsfw:
-                if not post_nsfw:
+            if nsfw:
+                if post_nsfw:
+                    break
+            else:
+                if post_nsfw:
+                    pass
+                else:
                     break
             if count>=10:
                 post_link = "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?"
-                post_title = "Error!!!"
-                post_permalink = None
+                post_title = "Error!!!!
+                post_permalink = False
                 break
     except Exception as e:
 		#post_link = 'https://mediaconnectpartners.staticscdn.com/wp-content/uploads/oops-header.png'
