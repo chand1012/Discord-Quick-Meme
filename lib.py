@@ -21,7 +21,7 @@ def extract_info(subreddit='all', limit=1, nsfw=False):
     urls = []
     titles = []
     permalinks = []
-    nsfwTags = []
+    nsfw_tags = []
     submissions = reddit.subreddit(subreddit).hot(limit=limit)
     for submission in submissions:
         if not len(submission.selftext)>=2000:
@@ -40,12 +40,12 @@ def extract_info(subreddit='all', limit=1, nsfw=False):
 
 def get_post_thing(subs=["funny"], nsfw=False):
 	#subreddit = choice(['funny', 'dankmemes','dank_memes', 'jokes', 'darkjokes'])
-	subreddit = choice(subs)
-	posts = extract_info(subreddit, 30, nsfw)
-	num_of_posts = len(posts[0]) - 1
-	post_type = None
+    subreddit = choice(subs)
+    posts = extract_info(subreddit, 30, nsfw)
+    num_of_posts = len(posts[0]) - 1
+    post_type = None
     count = 0
-	try:
+    try:
         while True:
             count += 1
             post_number = randint(0, num_of_posts)
@@ -62,16 +62,16 @@ def get_post_thing(subs=["funny"], nsfw=False):
                 post_title = "Error!!!"
                 post_permalink = None
                 break
-	except Exception as e:
+    except Exception as e:
 		#post_link = 'https://mediaconnectpartners.staticscdn.com/wp-content/uploads/oops-header.png'
-		post_title = 'Please try again.'
-		post_type = None
-		print("Error!")
-		print(e)
-		print("Retrying....")
-		print("------")
+        post_title = 'Please try again.'
+        post_type = None
+        print("Error!")
+        print(e)
+        print("Retrying....")
+        print("------")
 
-	return [post_link, post_type, post_title, post_permalink]
+    return [post_link, post_type, post_title, post_permalink]
 
 def log_channels(channels):
     currentlist = open("channels.log").readlines().close()

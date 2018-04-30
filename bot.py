@@ -11,12 +11,15 @@ client = discord.Client()
 
 @client.event
 async def on_message(message):
-	'''
-	channel = str(message.channel)
-	if not channel in channel_list:
-		channel_list += [channel]
-	'''
-    nsfw = message.channel.is_nsfw()
+	# getting nsfw filter working is first priority
+	#nsfw = message.channel.is_nsfw()
+	nsfw = False
+
+	#channel = str(message.channel)
+	#if not channel in channel_list:
+	#	channel_list += [channel]
+
+
 	if message.author == client.user:
 		return
 	if message.content.startswith("!meme"):
@@ -128,6 +131,7 @@ async def on_message(message):
 		print("------")
 		await client.send_message(message.channel, content=raw_msg[2], tts=True)
 		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
+
 @client.event
 async def on_ready():
 	print('Logged in as')
