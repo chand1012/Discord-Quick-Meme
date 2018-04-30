@@ -1,5 +1,6 @@
 import praw
 from json import loads
+from random import choice, randint
 
 def json_extract(thing='', filename='data.json'):
     json_file = open(filename)

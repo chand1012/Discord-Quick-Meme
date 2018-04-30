@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import discord
 from lib import *
-from random import choice, randint
 
 url_things = ['.jpg', '.png', '.jpeg']
 
