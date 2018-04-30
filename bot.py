@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 import discord
 from lib import *
-
+#import time
+# get automatic channel logging working
+#t = time.time()
 url_things = ['.jpg', '.png', '.jpeg']
-
 token = json_extract('token')
-
+#channel_list = []
 client = discord.Client()
 
 @client.event
 async def on_message(message):
+	'''
+	channel = str(message.channel)
+	if not channel in channel_list:
+		channel_list += [channel]
+	'''
 	if message.author == client.user:
 		return
 	if message.content.startswith("!meme"):
@@ -128,9 +134,18 @@ async def on_ready():
 	print(client.user.id)
 	print('------')
 
+#shows server restart
+#log_channels(['--------------'])
+
 while True:
 	try:
 		client.run(token)
+		'''
+		current = time.time()
+		if current>=t:
+			log_channels(channel_list)
+			t = current+300
+		'''
 	except Exception as e:
 		if "Event loop" in str(e):
 			print("\nStopping bot....")

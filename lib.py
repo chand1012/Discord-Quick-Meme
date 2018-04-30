@@ -55,3 +55,11 @@ def get_post_thing(subs=["funny"]):
 		print("------")
 
 	return [post_link, post_type, post_title, post_permalink]
+
+def log_channels(channels):
+    currentlist = open("channels.log").readlines().close()
+    for channel in channels:
+        if not channel in currentlist:
+            chlist = open("channel.log", "a")
+            chlist.write("{}\n".format(channel))
+            chlist.close()
