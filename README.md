@@ -18,7 +18,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 ### Disclaimer
 I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE DISCRETION OF THE SERVER OWNER AND USERS.
 
-This bot is under heavy development and maintenance, so it may not be online all the time. If its offline, I am probably working on it.
+~~This bot is under heavy development and maintenance, so it may not be online all the time. If its offline, I am probably working on it.~~
 
 ### To do
 - ~~make the code simpler and therefore faster~~ Refactoring is for chumps lol.
