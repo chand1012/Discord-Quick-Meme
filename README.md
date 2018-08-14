@@ -21,6 +21,6 @@ I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE 
 This bot is under heavy development and maintenance, so it may not be online all the time. If its offline, I am probably working on it.
 
 ### To do
-- make the code simpler and therefore faster
-- migrate the bot from a Raspberry Pi to an actual server
-- add more features
+- ~~make the code simpler and therefore faster~~ Refactoring is for chumps lol.
+- ~~migrate the bot from a Raspberry Pi to an actual server~~ It works so I'm just gonna keep it for now.
+- ~~add more features~~ The bot is finished for now, I have school to deal with.
