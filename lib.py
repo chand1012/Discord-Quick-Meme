@@ -15,19 +15,19 @@ reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
 reddit_agent = json_extract('user_agent')
 
-def extract_info(subreddit='all', limit=1):
+def extract_info(subreddit='all', limit=1): # grabs the info from the sub
     reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
-    url_things = ['.jpg', '.png', '.jpeg' , 'v.']
+    url_things = ['.jpg', '.png', '.jpeg' ] # will only get the link if these are in it
     urls = []
     titles = []
     permalinks = []
     nsfw_tags = []
-    submissions = reddit.subreddit(subreddit).hot(limit=limit)
-    for submission in submissions:
+    submissions = reddit.subreddit(subreddit).hot(limit=limit) # get the hot ones
+    for submission in submissions: # loop through the submissions
         if not len(submission.selftext)>=2000:
             titles += [submission.title]
             permalinks += [submission.permalink]
-            if submission.over_18:
+            if submission.over_18: # check for nsfw
                 nsfw_tags += [True]
             else:
                 nsfw_tags += [False]
@@ -38,7 +38,7 @@ def extract_info(subreddit='all', limit=1):
 
     return [urls, titles, permalinks, nsfw_tags]
 
-def get_post_thing(subs=["funny"], nsfw=False):
+def get_post_thing(subs=["funny"], nsfw=False): #grabs a random post from the extract_info def
 	#subreddit = choice(['funny', 'dankmemes','dank_memes', 'jokes', 'darkjokes'])
     subreddit = choice(subs)
     posts = extract_info(subreddit, 30)
@@ -68,7 +68,6 @@ def get_post_thing(subs=["funny"], nsfw=False):
                 post_permalink = False
                 break
     except Exception as e:
-		#post_link = 'https://mediaconnectpartners.staticscdn.com/wp-content/uploads/oops-header.png'
         post_title = 'Please try again.'
         post_type = None
         print("Error!")
