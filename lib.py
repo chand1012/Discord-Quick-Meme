@@ -17,7 +17,7 @@ reddit_agent = json_extract('user_agent')
 
 def extract_info(subreddit='all', limit=1):
     reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
-    url_things = ['.jpg', '.png', '.jpeg']
+    url_things = ['.jpg', '.png', '.jpeg' , 'v.']
     urls = []
     titles = []
     permalinks = []
