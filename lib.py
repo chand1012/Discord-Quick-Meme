@@ -22,11 +22,13 @@ def extract_info(subreddit='all', limit=1): # grabs the info from the sub
     titles = []
     permalinks = []
     nsfw_tags = []
+    scores = []
     submissions = reddit.subreddit(subreddit).hot(limit=limit) # get the hot ones
     for submission in submissions: # loop through the submissions
         if not len(submission.selftext)>=2000:
             titles += [submission.title]
             permalinks += [submission.permalink]
+            scores += [submission.score]
             if submission.over_18: # check for nsfw
                 nsfw_tags += [True]
             else:
@@ -36,7 +38,7 @@ def extract_info(subreddit='all', limit=1): # grabs the info from the sub
             else:
                 urls += [submission.url]
 
-    return [urls, titles, permalinks, nsfw_tags]
+    return [urls, titles, permalinks, nsfw_tags, scores]
 
 def get_post_thing(subs=["funny"], nsfw=False): #grabs a random post from the extract_info def
 	#subreddit = choice(['funny', 'dankmemes','dank_memes', 'jokes', 'darkjokes'])

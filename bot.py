@@ -38,7 +38,7 @@ async def on_message(message):
 				embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://refddit.com{}".format(raw_msg[5], raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
 			raw_msg = ""
 			count=0
