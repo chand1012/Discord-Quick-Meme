@@ -55,6 +55,7 @@ def get_post_thing(subs=["funny"], nsfw=False): #grabs a random post from the ex
             post_title = posts[1][post_number]
             post_permalink = posts[2][post_number]
             post_nsfw = posts[3][post_number]
+            post_score = posts[4][post_number]
             post_type = True
             if nsfw:
                 if post_nsfw:
@@ -77,7 +78,7 @@ def get_post_thing(subs=["funny"], nsfw=False): #grabs a random post from the ex
         print("Retrying....")
         print("------")
 
-    return [post_link, post_type, post_title, post_permalink]
+    return [post_link, post_type, post_title, post_permalink, post_score]
 
 def log_channels(channels):
     currentlist = open("channels.log").readlines().close()
