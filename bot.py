@@ -42,7 +42,7 @@ async def on_message(message):
 		if "~" in recv[6:]:
 			raw_msg = ""
 			while True: # loop so if it fails it can find another post
-				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
+				raw_msg = raw_msg = get_post_thing([recv[8:]], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
 			if nsfw==False and raw_msg[3]==False: # post the error message if it fails
@@ -59,6 +59,7 @@ async def on_message(message):
 				print("------")
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://refddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
 			raw_msg = ""
 			count=0
@@ -88,7 +89,7 @@ async def on_message(message):
 				embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+				await client.send_message(message.channel, content="Score:{}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 
 	if message.content.startswith("!joke"): # for jokes
 		if recv[6:] is '': # gets it from the default subreddits
@@ -102,9 +103,15 @@ async def on_message(message):
 			print(raw_msg[0]) 
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
 			print("------")
+<<<<<<< HEAD
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=raw_msg[0], tts=False)
 			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+=======
+			await client.send_message(message.channel, content=raw_msg[2], tts=True)
+			await client.send_message(message.channel, content=raw_msg[0], tts=True)
+			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+>>>>>>> 419d1b4428f8ed167f70651efe9d0f0a0b5efa6f
 		else: # if a sub is specified
 			raw_msg = ""
 			premsg = "Original Post:"
