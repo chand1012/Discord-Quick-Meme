@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import discord
 from lib import *
-url_things = ['.jpg', '.png', '.jpeg']
 token = json_extract('token')
 client = discord.Client()
 
@@ -29,6 +28,15 @@ async def on_message(message):
 				print("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
+			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0]:
+				print("Posting:")
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("Original post: https://reddit.com{}".format(raw_msg[3]))
+				print("------")
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
+				await client.send_message(message.channel, content=raw_msg[2], tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			else: # post the meme if it works
 				print("Posting:")
 				print(raw_msg[2])
@@ -58,8 +66,8 @@ async def on_message(message):
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
 				print("------")
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
-				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://refddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				await client.send_message(message.channel, content=raw_msg[2], tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
 			raw_msg = ""
 			count=0
@@ -80,6 +88,15 @@ async def on_message(message):
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
+			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0]:
+				print("Posting:")
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("Original post: https://reddit.com{}".format(raw_msg[3]))
+				print("------")
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
+				await client.send_message(message.channel, content=raw_msg[2], tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			else: # if it finds an ok post
 				print("Posting:")
 				print(raw_msg[2])
