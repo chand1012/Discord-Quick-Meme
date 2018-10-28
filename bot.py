@@ -57,7 +57,7 @@ async def on_message(message):
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
 				print("------")
-				await client.send_message(message.channel, content=str(raw_msg[2]), tts=False)
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://refddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
