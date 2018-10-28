@@ -28,7 +28,7 @@ async def on_message(message):
 				print("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
-			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0]:
+			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0] or 'gfycat' in raw_msg[0]:
 				print("Posting:")
 				print(raw_msg[2])
 				print(raw_msg[0])
@@ -88,7 +88,7 @@ async def on_message(message):
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
-			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0]:
+			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0] or 'gfycat' in raw_msg[0]:
 				print("Posting:")
 				print(raw_msg[2])
 				print(raw_msg[0])
