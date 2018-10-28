@@ -39,6 +39,26 @@ async def on_message(message):
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
 				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+		if "~" in recv[6:]:
+			raw_msg = ""
+			while True: # loop so if it fails it can find another post
+				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
+				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
+					break
+			if nsfw==False and raw_msg[3]==False: # post the error message if it fails
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("------")
+				await client.send_message(message.channel, content=raw_msg[2])
+				await client.send_message(message.channel, content=raw_msg[0])
+			else: # post the meme if it works
+				print("Posting:")
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("Original post: https://reddit.com{}".format(raw_msg[3]))
+				print("------")
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
+				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
 			raw_msg = ""
 			count=0
@@ -82,8 +102,8 @@ async def on_message(message):
 			print(raw_msg[0]) 
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
 			print("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=True)
-			await client.send_message(message.channel, content=raw_msg[0], tts=True)
+			await client.send_message(message.channel, content=raw_msg[2], tts=False)
+			await client.send_message(message.channel, content=raw_msg[0], tts=False)
 			await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
 		else: # if a sub is specified
 			raw_msg = ""
@@ -107,8 +127,8 @@ async def on_message(message):
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
 			print("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=True)
-			await client.send_message(message.channel, content=raw_msg[0], tts=True)
+			await client.send_message(message.channel, content=raw_msg[2], tts=False)
+			await client.send_message(message.channel, content=raw_msg[0], tts=False)
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
 
 	if message.content.startswith('!news'): # for news
