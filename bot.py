@@ -42,7 +42,7 @@ async def on_message(message):
 		if "~" in recv[6:]:
 			raw_msg = ""
 			while True: # loop so if it fails it can find another post
-				raw_msg = raw_msg = get_post_thing([recv[8:]], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
+				raw_msg = raw_msg = get_post_thing([recv[7:]], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
 			if nsfw==False and raw_msg[3]==False: # post the error message if it fails
