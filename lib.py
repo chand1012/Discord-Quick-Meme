@@ -17,7 +17,7 @@ reddit_agent = json_extract('user_agent')
 
 def extract_info(subreddit='all', limit=1): # grabs the info from the sub
     reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
-    url_things = ['.jpg', '.png', '.jpeg', '.gif', '.gifv' ] # will only get the link if these are in it
+    url_things = ['.jpg', '.png', '.jpeg', '.gif', '.gifv', 'gfycat'] # will only get the link if these are in it
     urls = []
     titles = []
     permalinks = []
