@@ -6,9 +6,10 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 ## To use
 - Type `!meme` for a meme from a list of Subreddits, currently [r/funny](https://www.reddit.com/r/funny/), [r/dankmemes](https://www.reddit.com/r/dankmemes/), [r/memes](https://www.reddit.com/r/memes/), and [r/dank_meme](https://www.reddit.com/r/dank_meme/).
 - Type `!joke` for a joke from either [r/jokes](https://www.reddit.com/r/jokes/) or [r/darkjokes](https://www.reddit.com/r/darkjokes/).
-- Type `news` for a random news article from [r/news](https://www.reddit.com/r/news/), [r/worldnews](https://www.reddit.com/r/worldnews/), [r/FloridaMan](https://www.reddit.com/r/FloridaMan/), or [r/nottheonion](https://www.reddit.com/r/nottheonion/).
+- Type `!news` for a random news article from [r/news](https://www.reddit.com/r/news/), [r/worldnews](https://www.reddit.com/r/worldnews/), [r/FloridaMan](https://www.reddit.com/r/FloridaMan/), or [r/nottheonion](https://www.reddit.com/r/nottheonion/).
 - Type `!news`, `!joke`, or `!meme` followed by a subreddit name (without the r/) to pull a random top post from that subreddit. Example: `!joke meanjokes`
 - If the meme or joke is nsfw, it will not be used on a regular channel. The channel must have `nsfw` in the title to allow for the post to go through. Otherwise, it spits out an error.
+- If a `~` is at the beginning of the subreddit name when calling a `!meme` invocation, such as `!meme ~animemes`, will force the bot to post a link rather than an embed. This is because Discord hasn't liked embeds recently.
 
 ## Dependencies
 - discord.py found [here](https://github.com/Rapptz/discord.py/).

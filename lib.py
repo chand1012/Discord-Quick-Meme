@@ -71,11 +71,16 @@ def get_post_thing(subs=["funny"], nsfw=False): #grabs a random post from the ex
                 post_permalink = False
                 break
     except Exception as e:
-        post_title = 'Please try again.'
-        post_type = None
+        if "403" in str(e):
+            post_type = "403"
+            post_permalink = False
+            post_link = "Too many requests at once! Please slow down and try again later."
+            post_title = 'Error HTTP 403'
+        else:
+            post_title = 'Please try again.'
+            post_type = None
         print("Error!")
         print(e)
-        print("Retrying....")
         print("------")
 
     return [post_link, post_type, post_title, post_permalink, post_score]
