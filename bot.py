@@ -80,7 +80,7 @@ async def on_message(message):
 				if count>=10:
 					print("Count exceeded!")
 					break
-			if nsfw==False and raw_msg[3]==False: # if the post search fails
+			if nsfw==False and "Tries" in raw_msg[4]: # if the post search fails
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("------")
