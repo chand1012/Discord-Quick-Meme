@@ -23,12 +23,14 @@ async def on_message(message):
 				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
-			if nsfw==False and raw_msg[3]==False: # post the error message if it fails
+			if nsfw==False and "Tries" in raw_msg[4]: # post the error message if it fails
 				print(raw_msg[2])
 				print(raw_msg[0])
+				print(raw_msg[4])
 				print("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
+				await client.send_message(message.channel, content=raw_msg[4])
 			elif any(n in raw_msg[0] for n in video_url):
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
@@ -47,19 +49,20 @@ async def on_message(message):
 				embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Original post: https://reddit.com{}".format(raw_msg[3]), tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		if "~" in recv[6:]:
 			raw_msg = ""
 			while True: # loop so if it fails it can find another post
 				raw_msg = raw_msg = get_post_thing([recv[7:]], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if raw_msg[1]!=None: # break if it finds a vaild post, marked with a None value
 					break
-			if nsfw==False and raw_msg[3]==False: # post the error message if it fails
+			if nsfw==False and "Tries" in raw_msg[4]: # post the error message if it fails
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
+				await client.send_message(message.channel, content=raw_msg[4])
 			else: # post the meme if it works
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
@@ -86,6 +89,7 @@ async def on_message(message):
 				print("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
+				await client.send_message(message.channel, content=raw_msg[4])
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				# await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
