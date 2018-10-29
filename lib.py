@@ -28,7 +28,7 @@ def extract_info(subreddit='all', limit=1): # grabs the info from the sub
     for submission in submissions: # loop through the submissions
         if any(str(submission.author)==str(n) for n in mods): # ignores a mod's post
             continue
-        elif not len(submission.selftext)>=2000:
+        elif len(submission.selftext)<=2000:
             titles += [submission.title]
             permalinks += [submission.permalink]
             scores += [submission.score]
@@ -67,7 +67,7 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=30): #grabs a random post f
                     pass
                 else:
                     break
-            if count>=10:
+            if count>=len(posts):
                 post_link = "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?"
                 post_title = "Error!!!!"
                 post_permalink = "/r/{}".format(choice(subs))
