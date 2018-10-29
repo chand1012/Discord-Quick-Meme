@@ -111,7 +111,7 @@ async def on_message(message):
 				embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Score:{}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 
 	if message.content.startswith("!joke"): # for jokes
 		if recv[6:] is '': # gets it from the default subreddits

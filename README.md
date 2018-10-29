@@ -16,11 +16,11 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 ## Dependencies
 - discord.py found [here](https://github.com/Rapptz/discord.py/).
 - Praw found [here](https://github.com/praw-dev/praw).
-- the included lib file
+- the included lib file.
 
 ### Disclaimer
 I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE DISCRETION OF THE SERVER OWNER AND USERS, AS YOU CAN TECHNICALLY GRAB PORNOGRAPHY OFF OF CERTIAN NSFW SUBREDDITS.
 
 If its offline, I am probably working on it.
 
-Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823) 
+Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
