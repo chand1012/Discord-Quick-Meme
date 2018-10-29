@@ -3,6 +3,7 @@ import discord
 from lib import *
 token = json_extract('token')
 client = discord.Client()
+video_url = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be']
 
 @client.event
 async def on_message(message):
@@ -28,7 +29,7 @@ async def on_message(message):
 				print("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
-			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0] or 'gfycat' in raw_msg[0] or 'v.redd.it' in raw_msg[0]:
+			elif any(n in raw_msg[0] for n in video_url):
 				print("Posting:")
 				print(raw_msg[2])
 				print(raw_msg[0])
@@ -65,8 +66,8 @@ async def on_message(message):
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
 				print("------")
-				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
 			raw_msg = ""
@@ -88,14 +89,14 @@ async def on_message(message):
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
-			elif 'gif' in raw_msg[0] or 'gifv' in raw_msg[0] or 'gfycat' in raw_msg[0] or 'v.redd.it' in raw_msg[0]:
+			elif any(n in raw_msg[0] for n in video_url):
 				print("Posting:")
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
 				print("------")
-				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			else: # if it finds an ok post
 				print("Posting:")
@@ -174,6 +175,24 @@ async def on_message(message):
 		await client.send_message(message.channel, content=raw_msg[2], tts=True)
 		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
 
+	if message.content.startswith('!5050') or message.content.startswith('!fiftyfifty'):
+		raw_msg = ""
+
+		if nsfw in str(message.channel):
+			while True:
+				raw_msg = get_post_thing(["fiftyfifty"], nsfw=True)
+				if not raw_msg[1]==None:
+					break
+			print("Posting:")
+				print(raw_msg[2])
+				print(raw_msg[0])
+				print("Original post: https://reddit.com{}".format(raw_msg[3]))
+				print("------")
+				await client.send_message(message.channel, content=raw_msg[2], tts=False)
+				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
+				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+		else:
+			await client.send_message(message.channel, content="Sorry, this command is not supported in a non-NSFW channel, as it tends to have a lot of NSFW content.", tts=False)
 @client.event # the on_ready event
 async def on_ready():
 	print('Logged in as')
