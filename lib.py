@@ -24,8 +24,11 @@ def extract_info(subreddit='all', limit=1): # grabs the info from the sub
     nsfw_tags = []
     scores = []
     submissions = reddit.subreddit(subreddit).hot(limit=limit) # get the hot ones
+    mods = reddit.subreddit(subreddit).moderator()
     for submission in submissions: # loop through the submissions
-        if not len(submission.selftext)>=2000:
+        if any(str(submission.author)==str(n) for n in mods): # ignores a mod's post
+            continue
+        elif not len(submission.selftext)>=2000:
             titles += [submission.title]
             permalinks += [submission.permalink]
             scores += [submission.score]
