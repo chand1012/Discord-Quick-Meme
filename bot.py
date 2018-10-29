@@ -30,7 +30,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 			elif any(n in raw_msg[0] for n in video_url):
-				print("Posting:")
+				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -39,7 +39,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			else: # post the meme if it works
-				print("Posting:")
+				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -61,7 +61,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 			else: # post the meme if it works
-				print("Posting:")
+				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -90,7 +90,7 @@ async def on_message(message):
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				# await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
 			elif any(n in raw_msg[0] for n in video_url):
-				print("Posting:")
+				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -99,7 +99,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			else: # if it finds an ok post
-				print("Posting:")
+				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -116,7 +116,7 @@ async def on_message(message):
 				raw_msg = get_post_thing(["jokes", "darkjokes"], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
-			print("Posting:")#post it after the loop
+			print("Posting on {}:".format(message.channel))#post it after the loop
 			print(raw_msg[2])
 			print(raw_msg[0]) 
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -141,7 +141,7 @@ async def on_message(message):
 					premsg = "Subreddit that caused the issue:"
 					break
 
-			print("Posting:") # executes both if it fails or if it works
+			print("Posting on {}:".format(message.channel)) # executes both if it fails or if it works
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -168,7 +168,7 @@ async def on_message(message):
 				raw_msg[3] = "/{}".format(recv[6:])
 				premsg = "Subreddit that caused the issue:"
 				break
-		print("Posting:") # for both if it does and does not fail
+		print("Posting on {}:".format(message.channel)) # for both if it does and does not fail
 		print(raw_msg[2])
 		print(raw_msg[0])
 		print("------")
@@ -182,7 +182,7 @@ async def on_message(message):
 				raw_msg = get_post_thing(["fiftyfifty"], nsfw=True)
 				if not raw_msg[1]==None:
 					break
-			print("Posting:")
+			print("Posting on {}:".format(message.channel))
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -195,7 +195,7 @@ async def on_message(message):
 				raw_msg = get_post_thing(["fiftyfifty"], nsfw=False)
 				if not raw_msg[1]==None:
 					break
-			print("Posting:")
+			print("Posting on {}:".format(message.channel))
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
