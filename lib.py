@@ -71,6 +71,7 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=30): #grabs a random post f
                 post_link = "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?"
                 post_title = "Error!!!!"
                 post_permalink = "/r/{}".format(choice(subs))
+                post_score = "6739i"
                 break
     except Exception as e:
         if "403" in str(e):
