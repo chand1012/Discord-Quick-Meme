@@ -2,3 +2,6 @@ data.json
 __pycache__
 *.log
 .vscode
+build
+dist
+*.spec

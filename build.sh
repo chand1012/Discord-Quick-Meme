@@ -1,0 +1,1 @@
+pyinstaller bot.py -F -n DiscordQuickMeme.x86_64
