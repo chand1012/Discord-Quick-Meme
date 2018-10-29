@@ -177,7 +177,7 @@ async def on_message(message):
 
 	if message.content.startswith('!5050') or message.content.startswith('!fiftyfifty'):
 		raw_msg = ""
-		if nsfw in str(message.channel):
+		if 'nsfw' in str(message.channel):
 			while True:
 				raw_msg = get_post_thing(["fiftyfifty"], nsfw=True)
 				if not raw_msg[1]==None:
