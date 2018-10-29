@@ -191,7 +191,18 @@ async def on_message(message):
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		else:
-			await client.send_message(message.channel, content="Sorry, this command is not supported in a non-NSFW channel, as it tends to have a lot of NSFW content.", tts=False)
+			while True:
+				raw_msg = get_post_thing(["fiftyfifty"], nsfw=False)
+				if not raw_msg[1]==None:
+					break
+			print("Posting:")
+			print(raw_msg[2])
+			print(raw_msg[0])
+			print("Original post: https://reddit.com{}".format(raw_msg[3]))
+			print("------")
+			await client.send_message(message.channel, content=raw_msg[2], tts=False)
+			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
+			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 @client.event # the on_ready event
 async def on_ready():
 	print('Logged in as')
