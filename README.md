@@ -1,5 +1,6 @@
 # Discord-Quick-Meme
 A discord bot that sends Reddit memes and news to a channel.
+
 ## To add
 If you are a server owner, just click [here](https://discordapp.com/oauth2/authorize?client_id=438381344943374346&scope=bot) and select your channel to add the bot to your channel.
 
@@ -20,9 +21,6 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 ### Disclaimer
 I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE DISCRETION OF THE SERVER OWNER AND USERS, AS YOU CAN TECHNICALLY GRAB PORNOGRAPHY OFF OF CERTIAN NSFW SUBREDDITS.
 
-~~This bot is under heavy development and maintenance, so it may not be online all the time.~~ If its offline, I am probably working on it, or my power went out.
+If its offline, I am probably working on it.
 
-### To do
-- ~~make the code simpler and therefore faster~~ Refactoring is for chumps lol.
-- migrate the bot from a Raspberry Pi to an actual server.
-- ~~add more features~~ The bot is finished for now, I have school to deal with.
+Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823) 
