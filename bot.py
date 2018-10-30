@@ -93,7 +93,7 @@ async def on_message(message):
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				# await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
-			elif any(n in raw_msg[0] for n in video_url):
+			else: #elif any(n in raw_msg[0] for n in video_url):
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
@@ -102,7 +102,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
-			else: # if it finds an ok post
+			'''else: # if it finds an ok post
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
@@ -112,7 +112,7 @@ async def on_message(message):
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
-
+'''
 	if message.content.startswith("!joke"): # for jokes
 		if recv[6:] is '': # gets it from the default subreddits
 			raw_msg = ""
