@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import discord
-from lib import *
+from lib import get_post_thing, json_extract
 token = json_extract('token')
 client = discord.Client()
 video_url = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be']
@@ -9,7 +9,6 @@ video_url = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be']
 async def on_message(message):
 	# The recv stuff
 	recv = message.content
-	channel = message.channel
 	#Check if nsfw
 	nsfw = False
 	if 'nsfw' in str(message.channel):
@@ -160,7 +159,7 @@ async def on_message(message):
 		while True:
 			count+=1
 			if not recv[6:]=='':
-				raw_msg = get_post_thing([recv[6:]], 1, True, nsfw)
+				raw_msg = get_post_thing(subs=[recv[6:]], nsfw=nsfw)
 			else:
 				raw_msg = get_post_thing(["UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"])
 			if not raw_msg[1]==None:
