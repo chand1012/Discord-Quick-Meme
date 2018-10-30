@@ -3,7 +3,7 @@ import discord
 from lib import get_post_thing, json_extract
 token = json_extract('token')
 client = discord.Client()
-video_url = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be']
+filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
 
 @client.event
 async def on_message(message):
@@ -30,7 +30,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 				await client.send_message(message.channel, content=raw_msg[4])
-			elif any(n in raw_msg[0] for n in video_url):
+			elif any(n in raw_msg[0] for n in filetypes):
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
@@ -92,7 +92,7 @@ async def on_message(message):
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				# await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
-			else: #elif any(n in raw_msg[0] for n in video_url):
+			elif any(n in raw_msg[0] for n in filetypes):
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
 				print(raw_msg[0])
