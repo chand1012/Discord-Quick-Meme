@@ -1,3 +1,5 @@
+[![Discord Bots](https://discordbots.org/api/widget/status/438381344943374346.svg)](https://discordbots.org/bot/438381344943374346)
+
 # Discord-Quick-Meme
 A discord bot that sends Reddit memes and news to a channel.
 
