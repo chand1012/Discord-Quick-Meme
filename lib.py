@@ -105,7 +105,7 @@ def get_post_by_id(subid=None, nsfw=False):
     except Exception as e:
         return [str(e), None, "Error!", None, "nil"]
     else:
-        if not submission.over_18 and not nsfw:
+        if submission.over_18 and not nsfw:
             return ["Error: Post is NSFW being posted in an SFW chat.", None, "Error!", "redd.it/{}".format(subid), "Tries: 1"]
         else:
             if not any(n in submission.url for n in url_things) and submission.selftext!='':
