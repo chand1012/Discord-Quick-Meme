@@ -186,6 +186,25 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+	
+	if message.content.startswith("!post"):
+		raw_msg = ""
+		if recv[6:]==''
+			await client.send_message(message.channel, content="Error, no post specified! Please try again.", tts=False)
+		else:
+			postid = recv[6:]
+			raw_msg = get_post_by_id(subid=postid, nsfw=nsfw)
+			print("Posting on {}:".format(message.channel))
+			print(raw_msg[2])
+			print(raw_msg[0])
+			print("Original post: https://reddit.com{}".format(raw_msg[3]))
+			print("------")
+			await client.send_message(message.channel, content=raw_msg[2], tts=False)
+			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
+			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+
+
+
 @client.event # the on_ready event
 async def on_ready():
 	print('Logged in as')

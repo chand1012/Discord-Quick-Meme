@@ -77,10 +77,11 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post 
         if "403" in str(e):
             post_type = "403"
             post_permalink = False
-            post_link = "Too many requests at once! Please slow down and try again later."
+            post_link = "The server denied our request!"
             post_title = 'Error HTTP 403'
         else:
             post_title = 'Please try again.'
+            post_link = str(e)
             post_type = None
         print("Error!")
         print(e)
@@ -95,3 +96,21 @@ def log_channels(channels):
             chlist = open("channel.log", "a")
             chlist.write("{}\n".format(channel))
             chlist.close()
+
+def get_post_by_id(subid=None, nsfw=False):
+    reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
+    url = ""
+    try:
+        submission = reddit.submission(id=subid)
+    except Exception as e:
+        return [str(e), None, "Error!", None, "nil"]
+    else:
+        if not submission.over_18 and not nsfw:
+            return ["Error: Post is NSFW being posted in an SFW chat.", None, "Error!", "redd.it/{}".format(subid), "Tries: 1"]
+        else:
+            if not any(n in submission.url for n in url_things) and submission.selftext!='':
+                url = submission.selftext
+            else:
+                url = submission.url
+            return [url, True, submission.title, submission.permalink, submission.score]
+
