@@ -13,7 +13,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - Type `!5050` or `!fiftyfifty` to pull a post from [r/fiftyfifty](https://reddit.com/r/fiftyfifty).
 - Type `!news`, `!joke`, or `!meme` followed by a subreddit name (without the r/) to pull a random top post from that subreddit. Example: `!joke meanjokes`
 - If the meme or joke is nsfw, it will not be used on a regular channel. The channel must have `nsfw` in the title to allow for the post to go through. If the bot cannot find a SFW post on the subreddit given, it spits out an error.
-- If a `~` is at the beginning of the subreddit name when calling a `!meme` invocation, such as `!meme ~animemes`, it will force the bot to post a link rather than an embed. This is because Discord hasn't liked embeds recently.
+
 
 ## Dependencies
 - discord.py found [here](https://github.com/Rapptz/discord.py/).
@@ -26,3 +26,7 @@ I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE 
 If its offline, I am probably working on it.
 
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
+
+### To Do
+- need to add temporary post blacklist
+- get more users

@@ -22,7 +22,7 @@ async def on_message(message):
 				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
-			if nsfw==False and "Tries" in str(raw_msg[4]): # post the error message if it fails
+			if "Tries" in str(raw_msg[4]): # post the error message if it fails
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print(raw_msg[4])
@@ -49,28 +49,6 @@ async def on_message(message):
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
-		if "~" in recv[6:]:
-			raw_msg = ""
-			while True: # loop so if it fails it can find another post
-				raw_msg = raw_msg = get_post_thing([recv[7:]], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
-				if raw_msg[1]!=None: # break if it finds a vaild post, marked with a None value
-					break
-			if nsfw==False and "Tries" in str(raw_msg[4]): # post the error message if it fails
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("------")
-				await client.send_message(message.channel, content=raw_msg[2])
-				await client.send_message(message.channel, content=raw_msg[0])
-				await client.send_message(message.channel, content=raw_msg[4])
-			else: # post the meme if it works
-				print("Posting on {}:".format(message.channel))
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("Original post: https://reddit.com{}".format(raw_msg[3]))
-				print("------")
-				await client.send_message(message.channel, content=raw_msg[2], tts=False)
-				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		else: # if there is a subreddit after the command
 			raw_msg = ""
 			count=0
@@ -82,7 +60,7 @@ async def on_message(message):
 				if count>=10:
 					print("Count exceeded!")
 					break
-			if nsfw==False and "Tries" in str(raw_msg[4]): # if the post search fails
+			if "Tries" in str(raw_msg[4]): # if the post search fails
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("------")
@@ -101,6 +79,8 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				#this block of code below thats commented out was causing issues when pulling from basically any subreddit other than the default
+				#listed ones, so I made that the previous block's duty to pull from unofficial subreddits
 			'''else: # if it finds an ok post
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
@@ -112,7 +92,7 @@ async def on_message(message):
 				await client.send_message(message.channel, embed=embed, tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 '''
-	if message.content.startswith("!joke"): # for jokes
+	if message.content.startswith("!joke") or message.content.startswith("!text"): # for jokes
 		if recv[6:] is '': # gets it from the default subreddits
 			raw_msg = ""
 			while True:
@@ -153,7 +133,7 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[0], tts=False)
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
 
-	if message.content.startswith('!news'): # for news
+	if message.content.startswith('!news') or message.content.startswith("!link"): # for news
 		raw_msg = ""
 		count = 0
 		while True:
