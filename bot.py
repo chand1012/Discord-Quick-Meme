@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import discord
-from lib import get_post_thing, json_extract
+from lib import get_post_thing, json_extract, get_post_by_id
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
