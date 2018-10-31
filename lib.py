@@ -108,7 +108,7 @@ def get_post_by_id(subid=None, nsfw=False):
         if submission.over_18 and not nsfw:
             return ["Error: Post is NSFW being posted in an SFW chat.", None, "Error!", "/error404", "Tries: 1"]
         else:
-            if not any(n in submission.url for n in url_things) and submission.selftext!='':
+            if submission.is_self:
                 url = submission.selftext
             else:
                 url = submission.url
