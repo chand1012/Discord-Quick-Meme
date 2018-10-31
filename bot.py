@@ -189,7 +189,7 @@ async def on_message(message):
 	
 	if message.content.startswith("!post"):
 		raw_msg = ""
-		if recv[6:]==''
+		if recv[6:]=='':
 			await client.send_message(message.channel, content="Error, no post specified! Please try again.", tts=False)
 		else:
 			postid = recv[6:]
