@@ -59,14 +59,10 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post 
             post_nsfw = posts[3][post_number]
             post_score = posts[4][post_number]
             post_type = True
-            if nsfw:
-                if post_nsfw:
-                    break
+            if not nsfw and post_nsfw:
+                pass
             else:
-                if post_nsfw:
-                    pass
-                else:
-                    break
+                break
             if count>=len(posts):
                 post_link = "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?"
                 post_title = "Error!!!!"
