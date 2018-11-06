@@ -22,7 +22,7 @@ async def on_message(message):
 				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
-			if "Tries" in str(raw_msg[4]): # post the error message if it fails
+			if "Error" in str(raw_msg[2]): # post the error message if it fails
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print(raw_msg[4])
@@ -60,7 +60,7 @@ async def on_message(message):
 				if count>=10:
 					print("Count exceeded!")
 					break
-			if "Tries" in str(raw_msg[4]): # if the post search fails
+			if "Error" in str(raw_msg[2]): # if the post search fails
 				print(raw_msg[2])
 				print(raw_msg[0])
 				print("------")
