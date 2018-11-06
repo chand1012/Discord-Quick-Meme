@@ -17,29 +17,35 @@ reddit_agent = json_extract('user_agent')
 url_things = ['.jpg', '.png', '.jpeg', '.gif', '.gifv', 'gfycat'] # will only get the link if these are in it
 
 def extract_info(subreddit='all', limit=1): # grabs the info from the sub
-    reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
     urls = []
     titles = []
     permalinks = []
     nsfw_tags = []
     scores = []
-    submissions = reddit.subreddit(subreddit).hot(limit=limit) # get the hot ones
-    mods = reddit.subreddit(subreddit).moderator()
-    for submission in submissions: # loop through the submissions
-        if any(str(submission.author)==str(n) for n in mods): # ignores a mod's post
-            continue
-        elif len(submission.selftext)<=2000:
-            titles += [submission.title]
-            permalinks += [submission.permalink]
-            scores += [submission.score]
-            if submission.over_18: # check for nsfw
-                nsfw_tags += [True]
-            else:
-                nsfw_tags += [False]
-            if not any(n in submission.url for n in url_things) and submission.selftext!='':
-                urls += [submission.selftext]
-            else:
-                urls += [submission.url]
+    try:
+        reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
+    except Exception as e:
+        urls = [None]
+        titles = [None]
+        permalinks = [None]
+    else:
+        submissions = reddit.subreddit(subreddit).hot(limit=limit) # get the hot ones
+        mods = reddit.subreddit(subreddit).moderator()
+        for submission in submissions: # loop through the submissions
+            if any(str(submission.author)==str(n) for n in mods): # ignores a mod's post
+                continue
+            elif len(submission.selftext)<=2000:
+                titles += [submission.title]
+                permalinks += [submission.permalink]
+                scores += [submission.score]
+                if submission.over_18: # check for nsfw
+                    nsfw_tags += [True]
+                else:
+                    nsfw_tags += [False]
+                if not any(n in submission.url for n in url_things) and submission.selftext!='':
+                    urls += [submission.selftext]
+                else:
+                    urls += [submission.url]
 
     return [urls, titles, permalinks, nsfw_tags, scores]
 
@@ -59,6 +65,11 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post 
             post_nsfw = posts[3][post_number]
             post_score = posts[4][post_number]
             post_type = True
+            if post_link==None and post_title==None and post_permalink==None:
+                post_title = "Error 404: Subreddit not found! Please check your spelling or retry."
+                post_permalink = "/r/{}".format(subreddit)
+                post_link = None
+                post_score = "1 Tries"
             if not nsfw and post_nsfw:
                 pass
             else:

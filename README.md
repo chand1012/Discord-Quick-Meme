@@ -29,5 +29,6 @@ If its offline, I am probably working on it.
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
 
 ### To Do
+- make it so that `!post` can be used for links, images, and text posts
 - need to add temporary post blacklist
 - get more users
