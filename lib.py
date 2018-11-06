@@ -24,7 +24,7 @@ def extract_info(subreddit='all', limit=1): # grabs the info from the sub
     scores = []
     try:
         reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
-    except praw.exceptions as e:
+    except:
         urls = [None]
         titles = [None]
         permalinks = [None]
