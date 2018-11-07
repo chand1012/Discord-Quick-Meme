@@ -1,6 +1,7 @@
 import praw
-from json import loads
+from json import loads, dumps
 from random import choice, randint
+from datetime import datetime
 
 def json_extract(thing='', filename='data.json'):
     json_file = open(filename)
@@ -11,12 +12,34 @@ def json_extract(thing='', filename='data.json'):
     else:
         return json_data
 
+def blacklist(post_id, post_info, channel):
+    # this functions opens the blacklist json file
+    # recovers the blacklist data, named as the post id
+    # the json also contains date for the post and the channel it was sent to
+    # if it detects the post was sent to the channel requesting a meme in the last 24 hours
+    # it returns True and extract_info skips the post
+    # if the post is not found it adds the post to the blacklist
+    # and allows the post through, returning False
+    blacklist = None
+    with open("blacklist.json") as f:
+        raw_json = f.read()
+        blacklist = loads(raw_json)
+    if post_id in blacklist:
+        post = blacklist[post_id]
+        nowtime = datetime.now().strftime("%m-%d")
+        if post["date"]==nowtime and post["channel"]==channel:
+            return True
+    else:
+        with open("blacklist.json", "a") as f:
+            blacklist[post_id] = # finish this function
+    
+
 reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
 reddit_agent = json_extract('user_agent')
 url_things = ['.jpg', '.png', '.jpeg', '.gif', '.gifv', 'gfycat'] # will only get the link if these are in it
 
-def extract_info(subreddit='all', limit=1): # grabs the info from the sub
+def extract_info(subreddit='all', limit=1, channel=None): # grabs the info from the sub
     urls = []
     titles = []
     permalinks = []
@@ -65,11 +88,6 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post 
             post_nsfw = posts[3][post_number]
             post_score = posts[4][post_number]
             post_type = True
-            if post_link==None and post_title==None and post_permalink==None:
-                post_title = "Error 404: Subreddit not found! Please check your spelling or retry."
-                post_permalink = "/r/{}".format(subreddit)
-                post_link = None
-                post_score = "1 Tries"
             if not nsfw and post_nsfw:
                 pass
             else:
