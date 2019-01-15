@@ -17,7 +17,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 
 
 ## Dependencies
-- discord.py found [here](https://github.com/Rapptz/discord.py/).
+- discord.py rewrite found [here](https://github.com/Rapptz/discord.py/tree/rewrite).
 - Praw found [here](https://github.com/praw-dev/praw).
 - the included lib file.
 
@@ -29,6 +29,6 @@ If its offline, I am probably working on it.
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
 
 ### To Do
-- make it so that `!post` can be used for links, images, and text posts
+- ~~make it so that `!post` can be used for links, images, and text posts~~
 - need to add temporary post blacklist
 - get more users
