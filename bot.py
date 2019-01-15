@@ -19,8 +19,9 @@ async def on_message(message):
 	# The recv stuff
 	recv = message.content
 	#Check if nsfw
-	nsfw = message.channel.is_nsfw()
-	
+	nsfw = False
+	if 'nsfw' in str(message.channel):  # future reference: so there is a function that adds a nsfw checker,
+		nsfw = True						# BUT IT DOESNT FUCKING WORK
 	if message.author == client.user: # have the bot ignore its own messages
 		return
 	if message.content.startswith("!meme"): # for memes 
