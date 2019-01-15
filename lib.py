@@ -12,6 +12,7 @@ def json_extract(thing='', filename='data.json'):
     else:
         return json_data
 
+# this needs to be implimented
 def blacklist(post_id, post_info, channel):
     # this functions opens the blacklist json file
     # recovers the blacklist data, named as the post id
@@ -138,4 +139,3 @@ def get_post_by_id(subid=None, nsfw=False):
             else:
                 url = submission.url
             return [url, True, submission.title, submission.permalink, submission.score]
-

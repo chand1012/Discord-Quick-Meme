@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 import discord
+import logging
 from lib import get_post_thing, json_extract, get_post_by_id
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
+
+
+#logging things
+logger = logging.getLogger('discord')
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 @client.event
 async def on_message(message):
 	# The recv stuff
 	recv = message.content
 	#Check if nsfw
-	nsfw = False
-	if 'nsfw' in str(message.channel):
-		nsfw = True
+	nsfw = message.channel.is_nsfw()
+	
 	if message.author == client.user: # have the bot ignore its own messages
 		return
 	if message.content.startswith("!meme"): # for memes 
