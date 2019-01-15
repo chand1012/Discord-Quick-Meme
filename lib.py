@@ -13,6 +13,7 @@ def json_extract(thing='', filename='data.json'):
         return json_data
 
 # this needs to be implimented
+'''
 def blacklist(post_id, post_info, channel):
     # this functions opens the blacklist json file
     # recovers the blacklist data, named as the post id
@@ -34,7 +35,7 @@ def blacklist(post_id, post_info, channel):
         with open("blacklist.json", "a") as f:
             blacklist[post_id] = # finish this function
     
-
+'''
 reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
 reddit_agent = json_extract('user_agent')
