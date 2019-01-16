@@ -21,7 +21,7 @@ async def on_message(message):
 	now = time.time()
 
 	# spam filter code
-	if channels[message.channel]==None: # if a channel is not in the dictionary, check for it.
+	if not message.channel in channels: # if a channel is not in the dictionary, check for it.
 		channels[message.channel] = [time.time(), 0] # later this should be made a json
 
 	if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now:
