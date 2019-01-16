@@ -7,6 +7,7 @@ token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
 channels = {}
+commands = ["!meme", "!joke", "!5050", "!news", "!fiftyfifty", "!text", "!post"]
 #logging things
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -19,22 +20,23 @@ async def on_message(message):
 	# The recv stuff
 	recv = message.content
 	now = time.time()
-'''
-	# spam filter code
-	if not message.channel in channels: # if a channel is not in the dictionary, check for it.
-		channels[message.channel] = [time.time(), 0, True] # later this should be made a json
 
-	if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now and channels[message.channel][2]:
-		await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
-		channels[message.channel] = False
-		return
-	elif channels[message.channel][1]<5 and channels[message.channel][0]+60>now:
-		channels[message.channel][1] += 1
-	elif channels[message.channel][1]<5 and channels[message.channel][0]+60<now:
-		channels[message.channel][1] = 0
-		channels[message.channel][0] = time.time()
-		channels[message.channel][2] = True
-	'''
+	# spam filter code
+	if any(message.content.startswith(thing) for thing in commands):
+		if not message.channel in channels: # if a channel is not in the dictionary, check for it.
+			channels[message.channel] = [time.time(), 0, True] # later this should be made a json
+
+		if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now and channels[message.channel][2]:
+			await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
+			channels[message.channel] = False
+			return
+		elif channels[message.channel][1]<5 and channels[message.channel][0]+60>now:
+			channels[message.channel][1] += 1
+		elif channels[message.channel][1]<5 and channels[message.channel][0]+60<now:
+			channels[message.channel][1] = 0
+			channels[message.channel][0] = time.time()
+			channels[message.channel][2] = True
+	
 	
 	#Check if nsfw
 	nsfw = False
