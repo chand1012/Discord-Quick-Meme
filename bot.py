@@ -6,7 +6,6 @@ from lib import get_post_thing, json_extract, get_post_by_id
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
-counter = 0
 channels = {}
 #logging things
 logger = logging.getLogger('discord')
@@ -18,16 +17,23 @@ logger.addHandler(handler)
 @client.event
 async def on_message(message):
 	# The recv stuff
-	if channels[message.channel]==None:
-		channels[message.channel] = [time.time(), 0, False]
-	counter+=1
 	recv = message.content
+	now = time.time()
 
+	# spam filter code
+	if channels[message.channel]==None: # if a channel is not in the dictionary, check for it.
+		channels[message.channel] = [time.time(), 0] # later this should be made a json
 
-	if channels[message.channel][2]==True:
+	if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now:
 		await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
+		return
+	elif channels[message.channel][1]<5 and channels[message.channel][0]+60>now:
+		channels[message.channel][1] += 1
+	elif channels[message.channel][1]<5 and channels[message.channel][0]+60<now:
+		channels[message.channel][1] = 0
+		channels[message.channel][0] = time.time()
 	
-
+	
 	#Check if nsfw
 	nsfw = False
 	if 'nsfw' in str(message.channel):  # future reference: so there is a function that adds a nsfw checker,
@@ -49,6 +55,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 				await client.send_message(message.channel, content=raw_msg[4])
+				return
 			elif any(n in raw_msg[0] for n in filetypes):
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
@@ -58,6 +65,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				return
 			else: # post the meme if it works
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
@@ -68,6 +76,7 @@ async def on_message(message):
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				return
 		else: # if there is a subreddit after the command
 			raw_msg = ""
 			count=0
@@ -86,8 +95,10 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 				await client.send_message(message.channel, content=raw_msg[4])
+				return
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
+				return
 				# await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
 			elif any(n in raw_msg[0] for n in filetypes):
 				print("Posting on {}:".format(message.channel))
@@ -98,6 +109,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				return
 				#this block of code below thats commented out was causing issues when pulling from basically any subreddit other than the default
 				#listed ones, so I made that the previous block's duty to pull from unofficial subreddits
 			'''else: # if it finds an ok post
@@ -126,6 +138,7 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=True)
 			await client.send_message(message.channel, content=raw_msg[0], tts=True)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			return
 		else: # if a sub is specified
 			raw_msg = ""
 			premsg = "Original Post:"
@@ -151,6 +164,7 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=raw_msg[0], tts=False)
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
+			return
 
 	if message.content.startswith('!news') or message.content.startswith("!link"): # for news
 		raw_msg = ""
@@ -176,6 +190,7 @@ async def on_message(message):
 		print("------")
 		await client.send_message(message.channel, content=raw_msg[2], tts=True)
 		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
+		return
 
 	if message.content.startswith('!5050') or message.content.startswith('!fiftyfifty'):
 		raw_msg = ""
@@ -192,6 +207,7 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			return
 		else:
 			while True:
 				raw_msg = get_post_thing(["fiftyfifty"], nsfw=False)
@@ -205,6 +221,7 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			return
 	
 	if message.content.startswith("!post"):
 		raw_msg = ""
@@ -221,6 +238,7 @@ async def on_message(message):
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			return
 
 
 
