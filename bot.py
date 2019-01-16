@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import discord
 import logging
+import time
 from lib import get_post_thing, json_extract, get_post_by_id
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
-
-
+counter = 0
+channels = {}
 #logging things
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -17,7 +18,16 @@ logger.addHandler(handler)
 @client.event
 async def on_message(message):
 	# The recv stuff
+	if channels[message.channel]==None:
+		channels[message.channel] = [time.time(), 0, False]
+	counter+=1
 	recv = message.content
+
+
+	if channels[message.channel][2]==True:
+		await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
+	
+
 	#Check if nsfw
 	nsfw = False
 	if 'nsfw' in str(message.channel):  # future reference: so there is a function that adds a nsfw checker,

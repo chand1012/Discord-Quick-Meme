@@ -2,6 +2,8 @@ import praw
 from json import loads, dumps
 from random import choice, randint
 from datetime import datetime
+import time
+import threading
 
 def json_extract(thing='', filename='data.json'):
     json_file = open(filename)
@@ -140,3 +142,12 @@ def get_post_by_id(subid=None, nsfw=False):
             else:
                 url = submission.url
             return [url, True, submission.title, submission.permalink, submission.score]
+''' # also needs finished
+def channel_reset(channel):
+    return 
+
+def overload_handle(channel):
+    overload = [5, 60]
+    now = time.time()
+    if channel[1]>=5 and :
+'''
