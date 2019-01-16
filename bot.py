@@ -20,15 +20,13 @@ async def on_message(message):
 	# The recv stuff
 	recv = message.content
 	now = time.time()
-
+	if not message.channel in channels: # if a channel is not in the dictionary, check for it.
+			channels[message.channel] = [time.time(), 0, True] # later this should be made a json
 	# spam filter code
 	if any(message.content.startswith(thing) for thing in commands):
-		if not message.channel in channels: # if a channel is not in the dictionary, check for it.
-			channels[message.channel] = [time.time(), 0, True] # later this should be made a json
-
 		if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now and channels[message.channel][2]:
-			await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
 			channels[message.channel] = False
+			await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
 			return
 		elif channels[message.channel][1]<5 and channels[message.channel][0]+60>now:
 			channels[message.channel][1] += 1
