@@ -20,7 +20,7 @@ async def on_message(message):
 	# The recv stuff
 	recv = message.content
 	now = time.time()
-	if not message.channel in channels: # if a channel is not in the dictionary, check for it.
+	if not message.channel in channels: # if a channel is not in the dictionary, put it in the dictionary.
 			channels[message.channel] = [time.time(), 0, True] # later this should be made a json
 	# spam filter code
 	if any(message.content.startswith(thing) for thing in commands):
@@ -101,7 +101,6 @@ async def on_message(message):
 			elif count>=10: # also a failsafe
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				return
-				# await client.send_message(message.channel, "Problem subreddit: https://reddit.com/{}".format(recv[6:]))
 			elif any(n in raw_msg[0] for n in filetypes):
 				print("Posting on {}:".format(message.channel))
 				print(raw_msg[2])
@@ -112,19 +111,7 @@ async def on_message(message):
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
-				#this block of code below thats commented out was causing issues when pulling from basically any subreddit other than the default
-				#listed ones, so I made that the previous block's duty to pull from unofficial subreddits
-			'''else: # if it finds an ok post
-				print("Posting on {}:".format(message.channel))
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("Original post: https://reddit.com{}".format(raw_msg[3]))
-				print("------")
-				embed = discord.Embed(title=raw_msg[2], url="https://reddit.com{}".format(raw_msg[3]))
-				embed.set_image(url=raw_msg[0])
-				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
-'''
+				
 	if message.content.startswith("!joke") or message.content.startswith("!text"): # for jokes
 		if recv[6:] is '': # gets it from the default subreddits
 			raw_msg = ""
@@ -232,7 +219,7 @@ async def on_message(message):
 		else:
 			postid = recv[6:]
 			raw_msg = get_post_by_id(subid=postid, nsfw=nsfw)
-			print("Posting on {}:".format(message.channel))
+			print("Posting on {}:".format(messa	sx	ge.channel))
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
@@ -254,12 +241,6 @@ async def on_ready():
 while True: # run the bot forever
 	try:
 		client.run(token) # the bot run command
-		'''
-		current = time.time()
-		if current>=t:
-			log_channels(channel_list)
-			t = current+300
-		'''
 	except Exception as e: # kill it if a keyboard interrupt is invoked
 		if "Event loop" in str(e):
 			print("\nStopping bot....")

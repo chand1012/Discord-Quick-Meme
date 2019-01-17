@@ -41,7 +41,7 @@ def blacklist(post_id, post_info, channel):
 reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
 reddit_agent = json_extract('user_agent')
-url_things = ['.jpg', '.png', '.jpeg', '.gif', '.gifv', 'gfycat'] # will only get the link if these are in it
+url_things = ['.jpg', '.png', '.jpeg', '.gif', '.gifv', 'gfycat', 'youtube', 'youtu.be'] # will only get the link if these are in it
 
 def extract_info(subreddit='all', limit=1, channel=None): # grabs the info from the sub
     urls = []
