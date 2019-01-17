@@ -35,9 +35,12 @@ def blacklist(post_id, post_info, channel):
             return True
     else:
         with open("blacklist.json", "a") as f:
-            blacklist[post_id] = # finish this function
-    
-'''
+            postdict = {
+
+            }
+            blacklist[post_id] = postdict
+   ''' 
+
 reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
 reddit_agent = json_extract('user_agent')
