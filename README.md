@@ -18,6 +18,10 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 ## Support
 If any support is needed, please post an Issue on the Issues page. 
 
+## Additional Random Info and Facts
+- The bot will not allow you to post more than 5 memes a minute per channel. This was a preventative measure so that the VPS the bot is running on does not get overloaded.
+- This bot was made as a side project of mine, an idea as some of my friends were not really Reddit users but I always talked about the memes and posts. They use Reddit now.
+
 ## Dependencies
 - discord.py rewrite found [here](https://github.com/Rapptz/discord.py/tree/rewrite).
 - Praw found [here](https://github.com/praw-dev/praw).
