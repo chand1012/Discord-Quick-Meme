@@ -15,31 +15,6 @@ def json_extract(thing='', filename='data.json'):
         return json_data
 
 # this needs to be implimented
-'''
-def blacklist(post_id, post_info, channel):
-    # this functions opens the blacklist json file
-    # recovers the blacklist data, named as the post id
-    # the json also contains date for the post and the channel it was sent to
-    # if it detects the post was sent to the channel requesting a meme in the last 24 hours
-    # it returns True and extract_info skips the post
-    # if the post is not found it adds the post to the blacklist
-    # and allows the post through, returning False
-    blacklist = None
-    with open("blacklist.json") as f:
-        raw_json = f.read()
-        blacklist = loads(raw_json)
-    if post_id in blacklist:
-        post = blacklist[post_id]
-        nowtime = datetime.now().strftime("%m-%d")
-        if post["date"]==nowtime and post["channel"]==channel:
-            return True
-    else:
-        with open("blacklist.json", "a") as f:
-            postdict = {
-
-            }
-            blacklist[post_id] = postdict
-   ''' 
 
 reddit_client = json_extract('client_id')
 reddit_secret = json_extract('client_secret')
