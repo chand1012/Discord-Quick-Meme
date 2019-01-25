@@ -219,7 +219,7 @@ async def on_message(message):
 		else:
 			postid = recv[6:]
 			raw_msg = get_post_by_id(subid=postid, nsfw=nsfw)
-			print("Posting on {}:".format(messa	sx	ge.channel))
+			print("Posting on {}:".format(message.channel))
 			print(raw_msg[2])
 			print(raw_msg[0])
 			print("Original post: https://reddit.com{}".format(raw_msg[3]))
