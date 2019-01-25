@@ -15,6 +15,8 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - Type `!news`, `!joke`, or `!meme` followed by a subreddit name (without the r/) to pull a random top post from that subreddit. Example: `!joke meanjokes`
 - If the meme or joke is nsfw, it will not be used on a regular channel. The channel must have `nsfw` in the title to allow for the post to go through. If the bot cannot find a SFW post on the subreddit given, it spits out an error.
 
+## Support
+If any support is needed, please post an Issue on the Issues page. 
 
 ## Dependencies
 - discord.py rewrite found [here](https://github.com/Rapptz/discord.py/tree/rewrite).
