@@ -2,18 +2,39 @@
 import discord
 import logging
 import time
-from lib import get_post_thing, json_extract, get_post_by_id
+from lib import get_post_thing, json_extract, get_post_by_id, blacklist
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
+postfile = 'posts.json'
 channels = {}
 commands = ["!meme", "!joke", "!5050", "!news", "!fiftyfifty", "!text", "!post"]
 #logging things
-logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+logger = None
+def initialize_logger(output_dir):
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+     
+    # create console handler and set level to info
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+ 
+    # create error file handler and set level to error
+    handler = logging.FileHandler(os.path.join(output_dir, "error.log"),"w", encoding=None, delay="true")
+    handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter("%(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+
+ 
+    # create debug file handler and set level to debug
+    handler = logging.FileHandler(os.path.join(output_dir, "all.log"),"w")
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 @client.event
 async def on_message(message):
@@ -50,30 +71,30 @@ async def on_message(message):
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
 			if "Error" in str(raw_msg[2]): # post the error message if it fails
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print(raw_msg[4])
-				print("------")
+				logging.info(raw_msg[2])
+				logging.info(raw_msg[0])
+				logging.info(raw_msg[4])
+				logging.info("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 				await client.send_message(message.channel, content=raw_msg[4])
 				return
 			elif any(n in raw_msg[0] for n in filetypes):
-				print("Posting on {}:".format(message.channel))
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("Original post: https://reddit.com{}".format(raw_msg[3]))
-				print("------")
+				logging.info("Posting on {}:".format(message.channel))
+				logging.info(raw_msg[2])
+				logging.info(raw_msg[0])
+				logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+				logging.info("------")
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
 			else: # post the meme if it works
-				print("Posting on {}:".format(message.channel))
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("Original post: https://reddit.com{}".format(raw_msg[3]))
-				print("------")
+				logging.info("Posting on {}:".format(message.channel))
+				logging.info(raw_msg[2])
+				logging.info(raw_msg[0])
+				logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+				logging.info("------")
 				embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
 				embed.set_image(url=raw_msg[0])
 				await client.send_message(message.channel, embed=embed, tts=False)
@@ -88,12 +109,12 @@ async def on_message(message):
 				if not raw_msg[1]==None:
 					break
 				if count>=10:
-					print("Count exceeded!")
+					logging.info("Count exceeded!")
 					break
 			if "Error" in str(raw_msg[2]): # if the post search fails
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("------")
+				logging.info(raw_msg[2])
+				logging.info(raw_msg[0])
+				logging.info("------")
 				await client.send_message(message.channel, content=raw_msg[2])
 				await client.send_message(message.channel, content=raw_msg[0])
 				await client.send_message(message.channel, content=raw_msg[4])
@@ -102,11 +123,11 @@ async def on_message(message):
 				await client.send_message(message.channel, "Something went wrong, please try again!")
 				return
 			elif any(n in raw_msg[0] for n in filetypes):
-				print("Posting on {}:".format(message.channel))
-				print(raw_msg[2])
-				print(raw_msg[0])
-				print("Original post: https://reddit.com{}".format(raw_msg[3]))
-				print("------")
+				logging.info("Posting on {}:".format(message.channel))
+				logging.info(raw_msg[2])
+				logging.info(raw_msg[0])
+				logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+				logging.info("------")
 				await client.send_message(message.channel, content=raw_msg[2], tts=False)
 				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
@@ -119,11 +140,11 @@ async def on_message(message):
 				raw_msg = get_post_thing(["jokes", "darkjokes"], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
-			print("Posting on {}:".format(message.channel))#post it after the loop
-			print(raw_msg[2])
-			print(raw_msg[0]) 
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
+			logging.info("Posting on {}:".format(message.channel))#post it after the loop
+			logging.info(raw_msg[2])
+			logging.info(raw_msg[0]) 
+			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+			logging.info("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=True)
 			await client.send_message(message.channel, content=raw_msg[0], tts=True)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
@@ -138,18 +159,18 @@ async def on_message(message):
 				if not raw_msg[1]==None:
 					break
 				if count>=10: # if it fails
-					print("Count exceeded!") 
+					logging.info("Count exceeded!") 
 					raw_msg[2] = "Something went wrong."
 					raw_msg[0] = "Please try again"
 					raw_msg[3] = "/{}".format(recv[6:])
 					premsg = "Subreddit that caused the issue:"
 					break
 
-			print("Posting on {}:".format(message.channel)) # executes both if it fails or if it works
-			print(raw_msg[2])
-			print(raw_msg[0])
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
+			logging.info("Posting on {}:".format(message.channel)) # executes both if it fails or if it works
+			logging.info(raw_msg[2])
+			logging.info(raw_msg[0])
+			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+			logging.info("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=raw_msg[0], tts=False)
 			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
@@ -167,16 +188,16 @@ async def on_message(message):
 			if not raw_msg[1]==None:
 				break
 			if count>=10: # if it fails
-				print("Count exceeded!")
+				logging.info("Count exceeded!")
 				raw_msg[2] = "Something went wrong."
 				raw_msg[0] = "Please try again"
 				raw_msg[3] = "/{}".format(recv[6:])
 				premsg = "Subreddit that caused the issue:"
 				break
-		print("Posting on {}:".format(message.channel)) # for both if it does and does not fail
-		print(raw_msg[2])
-		print(raw_msg[0])
-		print("------")
+		logging.info("Posting on {}:".format(message.channel)) # for both if it does and does not fail
+		logging.info(raw_msg[2])
+		logging.info(raw_msg[0])
+		logging.info("------")
 		await client.send_message(message.channel, content=raw_msg[2], tts=True)
 		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
 		return
@@ -188,11 +209,11 @@ async def on_message(message):
 				raw_msg = get_post_thing(["fiftyfifty"], nsfw=True)
 				if not raw_msg[1]==None:
 					break
-			print("Posting on {}:".format(message.channel))
-			print(raw_msg[2])
-			print(raw_msg[0])
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
+			logging.info("Posting on {}:".format(message.channel))
+			logging.info(raw_msg[2])
+			logging.info(raw_msg[0])
+			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+			logging.info("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
@@ -202,11 +223,11 @@ async def on_message(message):
 				raw_msg = get_post_thing(["fiftyfifty"], nsfw=False)
 				if not raw_msg[1]==None:
 					break
-			print("Posting on {}:".format(message.channel))
-			print(raw_msg[2])
-			print(raw_msg[0])
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
+			logging.info("Posting on {}:".format(message.channel))
+			logging.info(raw_msg[2])
+			logging.info(raw_msg[0])
+			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+			logging.info("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
@@ -219,11 +240,11 @@ async def on_message(message):
 		else:
 			postid = recv[6:]
 			raw_msg = get_post_by_id(subid=postid, nsfw=nsfw)
-			print("Posting on {}:".format(message.channel))
-			print(raw_msg[2])
-			print(raw_msg[0])
-			print("Original post: https://reddit.com{}".format(raw_msg[3]))
-			print("------")
+			logging.info("Posting on {}:".format(message.channel))
+			logging.info(raw_msg[2])
+			logging.info(raw_msg[0])
+			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
+			logging.info("------")
 			await client.send_message(message.channel, content=raw_msg[2], tts=False)
 			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
 			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
@@ -233,18 +254,18 @@ async def on_message(message):
 
 @client.event # the on_ready event
 async def on_ready():
-	print('Logged in as')
-	print(client.user.name)
-	print(client.user.id)
-	print('------')
+	logging.info('Logged in as')
+	logging.info(client.user.name)
+	logging.info(client.user.id)
+	logging.info('------')
 
 while True: # run the bot forever
 	try:
 		client.run(token) # the bot run command
 	except Exception as e: # kill it if a keyboard interrupt is invoked
 		if "Event loop" in str(e):
-			print("\nStopping bot....")
+			logging.info("\nStopping bot....")
 			break
 		else:
-			print(e)
+			logging.info(e)
 			continue

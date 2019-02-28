@@ -1,4 +1,6 @@
 data.json
+test.py
+posts.json
 __pycache__
 *.log
 .vscode

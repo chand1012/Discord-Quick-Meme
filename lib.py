@@ -90,9 +90,9 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post 
             post_title = 'Please try again.'
             post_link = str(e)
             post_type = None
-        print("Error!")
-        print(e)
-        print("------")
+        logging.error("Error!")
+        logging.error(str(e))
+        logging.error("------")
 
     return [post_link, post_type, post_title, post_permalink, post_score]
 
@@ -120,4 +120,35 @@ def get_post_by_id(subid=None, nsfw=False):
             else:
                 url = submission.url
             return [url, True, submission.title, submission.permalink, submission.score]
+
+def check_blacklist(channel, postlink):
+    with open("posts.json") as postfile:
+        rawdata = loads(postfile.read())
+        channeldata = rawdata[channel]
+        if postlink in channeldata:
+            now = time.time()
+            post = channeldata[postlink]
+            if post<now:
+                return False
+            else:
+                return True
+        else:
+            return False
+
+def add_blacklist(channel, postlink):
+    rawdata = None
+    with open('posts.json') as postfile:
+        rawdata = loads(postfile.read())
+    if not channel in rawdata:
+        rawdata[channel] = {}
+    channeldata = rawdata[channel]
+    post = time.time() + 86400 # seconds in a day
+    channeldata[postlink] = post
+    rawdata[channel] = channeldata
+    with open('posts.json', "w") as postfile:
+        dump(rawdata, postfile)
+
+
+
+
 
