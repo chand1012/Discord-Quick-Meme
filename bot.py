@@ -2,6 +2,7 @@
 import discord
 import logging
 import time
+import os
 from lib import get_post_thing, json_extract, get_post_by_id, blacklist
 token = json_extract('token')
 client = discord.Client()
@@ -46,7 +47,7 @@ async def on_message(message):
 	# spam filter code
 	if any(message.content.startswith(thing) for thing in commands):
 		if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now and channels[message.channel][2]:
-			channels[message.channel] = False
+			channels[message.channel][2] = False
 			await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
 			return
 		elif channels[message.channel][1]<5 and channels[message.channel][0]+60>now:
