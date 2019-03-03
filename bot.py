@@ -37,6 +37,8 @@ def initialize_logger(output_dir):
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
+initialize_logger('.')
+
 @client.event
 async def on_message(message):
 	# The recv stuff
