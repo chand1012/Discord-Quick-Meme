@@ -50,7 +50,7 @@ async def on_message(message):
 	if any(message.content.startswith(thing) for thing in commands):
 		if channels[message.channel][1]>=5 and channels[message.channel][0]+60>now and channels[message.channel][2]:
 			channels[message.channel][2] = False
-			await client.send_message(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
+			await message.channel.send(message.channel, content="You guys have been sending a lot of messages, why don't you slow down a bit?") 
 			return
 		elif channels[message.channel][1]<5 and channels[message.channel][0]+60>now:
 			channels[message.channel][1] += 1
@@ -78,9 +78,9 @@ async def on_message(message):
 				logging.info(raw_msg[0])
 				logging.info(raw_msg[4])
 				logging.info("------")
-				await client.send_message(message.channel, content=raw_msg[2])
-				await client.send_message(message.channel, content=raw_msg[0])
-				await client.send_message(message.channel, content=raw_msg[4])
+				await message.channel.send(message.channel, content=raw_msg[2])
+				await message.channel.send(message.channel, content=raw_msg[0])
+				await message.channel.send(message.channel, content=raw_msg[4])
 				return
 			elif any(n in raw_msg[0] for n in filetypes):
 				logging.info("Posting on {}:".format(message.channel))
@@ -88,9 +88,9 @@ async def on_message(message):
 				logging.info(raw_msg[0])
 				logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 				logging.info("------")
-				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-				await client.send_message(message.channel, content=raw_msg[2], tts=False)
-				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				await message.channel.send(message.channel, content=str(raw_msg[0]), tts=False)
+				await message.channel.send(message.channel, content=raw_msg[2], tts=False)
+				await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
 			else: # post the meme if it works
 				logging.info("Posting on {}:".format(message.channel))
@@ -100,8 +100,8 @@ async def on_message(message):
 				logging.info("------")
 				embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
 				embed.set_image(url=raw_msg[0])
-				await client.send_message(message.channel, embed=embed, tts=False)
-				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				await message.channel.send(message.channel, embed=embed, tts=False)
+				await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
 		else: # if there is a subreddit after the command
 			raw_msg = ""
@@ -118,12 +118,12 @@ async def on_message(message):
 				logging.info(raw_msg[2])
 				logging.info(raw_msg[0])
 				logging.info("------")
-				await client.send_message(message.channel, content=raw_msg[2])
-				await client.send_message(message.channel, content=raw_msg[0])
-				await client.send_message(message.channel, content=raw_msg[4])
+				await message.channel.send(message.channel, content=raw_msg[2])
+				await message.channel.send(message.channel, content=raw_msg[0])
+				await message.channel.send(message.channel, content=raw_msg[4])
 				return
 			elif count>=10: # also a failsafe
-				await client.send_message(message.channel, "Something went wrong, please try again!")
+				await message.channel.send(message.channel, "Something went wrong, please try again!")
 				return
 			elif any(n in raw_msg[0] for n in filetypes):
 				logging.info("Posting on {}:".format(message.channel))
@@ -131,9 +131,9 @@ async def on_message(message):
 				logging.info(raw_msg[0])
 				logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 				logging.info("------")
-				await client.send_message(message.channel, content=raw_msg[2], tts=False)
-				await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-				await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+				await message.channel.send(message.channel, content=raw_msg[2], tts=False)
+				await message.channel.send(message.channel, content=str(raw_msg[0]), tts=False)
+				await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
 				
 	if message.content.startswith("!joke") or message.content.startswith("!text"): # for jokes
@@ -148,9 +148,9 @@ async def on_message(message):
 			logging.info(raw_msg[0]) 
 			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 			logging.info("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=True)
-			await client.send_message(message.channel, content=raw_msg[0], tts=True)
-			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			await message.channel.send(message.channel, content=raw_msg[2], tts=True)
+			await message.channel.send(message.channel, content=raw_msg[0], tts=True)
+			await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			return
 		else: # if a sub is specified
 			raw_msg = ""
@@ -174,9 +174,9 @@ async def on_message(message):
 			logging.info(raw_msg[0])
 			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 			logging.info("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=False)
-			await client.send_message(message.channel, content=raw_msg[0], tts=False)
-			await client.send_message(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
+			await message.channel.send(message.channel, content=raw_msg[2], tts=False)
+			await message.channel.send(message.channel, content=raw_msg[0], tts=False)
+			await message.channel.send(message.channel, content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
 			return
 
 	if message.content.startswith('!news') or message.content.startswith("!link"): # for news
@@ -201,8 +201,8 @@ async def on_message(message):
 		logging.info(raw_msg[2])
 		logging.info(raw_msg[0])
 		logging.info("------")
-		await client.send_message(message.channel, content=raw_msg[2], tts=True)
-		await client.send_message(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
+		await message.channel.send(message.channel, content=raw_msg[2], tts=True)
+		await message.channel.send(message.channel, content="Link: {}".format(raw_msg[0]), tts=False)
 		return
 
 	if message.content.startswith('!5050') or message.content.startswith('!fiftyfifty'):
@@ -217,9 +217,9 @@ async def on_message(message):
 			logging.info(raw_msg[0])
 			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 			logging.info("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=False)
-			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			await message.channel.send(message.channel, content=raw_msg[2], tts=False)
+			await message.channel.send(message.channel, content=str(raw_msg[0]), tts=False)
+			await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			return
 		else:
 			while True:
@@ -231,15 +231,15 @@ async def on_message(message):
 			logging.info(raw_msg[0])
 			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 			logging.info("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=False)
-			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			await message.channel.send(message.channel, content=raw_msg[2], tts=False)
+			await message.channel.send(message.channel, content=str(raw_msg[0]), tts=False)
+			await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			return
 	
 	if message.content.startswith("!post"):
 		raw_msg = ""
 		if recv[6:]=='':
-			await client.send_message(message.channel, content="Error, no post specified! Please try again.", tts=False)
+			await message.channel.send(message.channel, content="Error, no post specified! Please try again.", tts=False)
 		else:
 			postid = recv[6:]
 			raw_msg = get_post_by_id(subid=postid, nsfw=nsfw)
@@ -248,9 +248,9 @@ async def on_message(message):
 			logging.info(raw_msg[0])
 			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 			logging.info("------")
-			await client.send_message(message.channel, content=raw_msg[2], tts=False)
-			await client.send_message(message.channel, content=str(raw_msg[0]), tts=False)
-			await client.send_message(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+			await message.channel.send(message.channel, content=raw_msg[2], tts=False)
+			await message.channel.send(message.channel, content=str(raw_msg[0]), tts=False)
+			await message.channel.send(message.channel, content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			return
 
 
