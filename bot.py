@@ -3,7 +3,7 @@ import discord
 import logging
 import time
 import os
-from lib import get_post_thing, json_extract, get_post_by_id
+from lib import get_rnd_post, json_extract, get_post_by_id
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
@@ -30,14 +30,6 @@ def initialize_logger(output_dir):
     handler.setLevel(logging.ERROR)
     formatter = logging.Formatter("%(levelname)s - %(message)s")
     handler.setFormatter(formatter)
-
- 
-    # create debug file handler and set level to debug
-    #handler = logging.FileHandler(os.path.join(output_dir, "all.log"),"w")
-    #handler.setLevel(logging.DEBUG)
-    #formatter = logging.Formatter("%(levelname)s - %(message)s")
-    #handler.setFormatter(formatter)
-    #logger.addHandler(handler)
 
 initialize_logger('.')
 
@@ -72,7 +64,7 @@ async def on_message(message):
 		if recv[6:] is '': # if the command is just '!meme'
 			raw_msg = ""
 			while True: # loop so if it fails it can find another post
-				raw_msg = get_post_thing(subs=memesubs, nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
+				raw_msg = get_rnd_post(subs=memesubs, nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
 			if "Error" in str(raw_msg[2]): # post the error message if it fails
@@ -110,7 +102,7 @@ async def on_message(message):
 			count=0
 			while True:
 				count+=1
-				raw_msg = get_post_thing([recv[6:]], nsfw=nsfw) # get a random post from the subreddit
+				raw_msg = get_rnd_post([recv[6:]], nsfw=nsfw) # get a random post from the subreddit
 				if not raw_msg[1]==None:
 					break
 				if count>=10:
@@ -142,7 +134,7 @@ async def on_message(message):
 		if recv[6:] is '': # gets it from the default subreddits
 			raw_msg = ""
 			while True:
-				raw_msg = get_post_thing(["jokes", "darkjokes"], nsfw=nsfw)
+				raw_msg = get_rnd_post(["jokes", "darkjokes"], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
 			logging.info("Posting on {}:".format(message.channel))#post it after the loop
@@ -161,7 +153,7 @@ async def on_message(message):
 			count = 0
 			while True:
 				count+=1
-				raw_msg = get_post_thing([recv[6:]], nsfw=nsfw)
+				raw_msg = get_rnd_post([recv[6:]], nsfw=nsfw)
 				if not raw_msg[1]==None:
 					break
 				if count>=10: # if it fails
@@ -189,9 +181,9 @@ async def on_message(message):
 		while True:
 			count+=1
 			if not recv[6:]=='':
-				raw_msg = get_post_thing(subs=[recv[6:]], nsfw=nsfw)
+				raw_msg = get_rnd_post(subs=[recv[6:]], nsfw=nsfw)
 			else:
-				raw_msg = get_post_thing(["UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"])
+				raw_msg = get_rnd_post(["UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"])
 			if not raw_msg[1]==None:
 				break
 			if count>=10: # if it fails
@@ -214,7 +206,7 @@ async def on_message(message):
 		raw_msg = ""
 		if 'nsfw' in str(message.channel):
 			while True:
-				raw_msg = get_post_thing(["fiftyfifty"], nsfw=True)
+				raw_msg = get_rnd_post(["fiftyfifty"], nsfw=True)
 				if not raw_msg[1]==None:
 					break
 			logging.info("Posting on {}:".format(message.channel))
@@ -228,7 +220,7 @@ async def on_message(message):
 			return
 		else:
 			while True:
-				raw_msg = get_post_thing(["fiftyfifty"], nsfw=False)
+				raw_msg = get_rnd_post(["fiftyfifty"], nsfw=False)
 				if not raw_msg[1]==None:
 					break
 			logging.info("Posting on {}:".format(message.channel))
@@ -259,13 +251,11 @@ async def on_message(message):
 			return
 	
 	if message.content.startswith("!hentai"):
-		raw_msg = get_post_thing(subs=hentai, nsfw=True)
+		raw_msg = get_rnd_post(subs=hentai, nsfw=True)
 		await message.channel.send(content="{} from r/{}".format(raw_msg[2], raw_msg[5]), tts=False)
 		await message.channel.send(content=str(raw_msg[0]), tts=False)
 		await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		return
-
-
 
 @client.event # the on_ready event
 async def on_ready():

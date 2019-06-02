@@ -55,7 +55,7 @@ def extract_info(subreddit='all', limit=1, channel=None): # grabs the info from 
 
     return [urls, titles, permalinks, nsfw_tags, scores]
 
-def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post from the extract_info def
+def get_rnd_post(subs=["funny"], nsfw=False, limit=100): #grabs a random post from the extract_info def
     subreddit = choice(subs)
     posts = extract_info(subreddit, limit)
     num_of_posts = len(posts[0]) - 1
