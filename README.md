@@ -19,13 +19,12 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 If any support is needed, please post an Issue on the Issues page. 
 
 ## Additional Random Info and Facts
-- The bot will not allow you to post more than 5 memes a minute per channel. This was a preventative measure so that the VPS the bot is running on does not get overloaded.
+- The bot will not allow you to post more than 5 memes a minute per channel. This was a preventative measure so that the ~~VPS~~ server the bot is running on does not get overloaded.
 - This bot was made as a side project of mine, an idea as some of my friends were not really Reddit users but I always talked about the memes and posts. They use Reddit now.
 
 ## Dependencies
-- discord.py rewrite found [here](https://github.com/Rapptz/discord.py/tree/rewrite).
+- discord.py rewrite found [here](https://github.com/Rapptz/discord.py/).
 - Praw found [here](https://github.com/praw-dev/praw).
-- the included lib file.
 
 ### Disclaimer
 I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE DISCRETION OF THE SERVER OWNER AND USERS, AS YOU CAN ~~TECHNICALLY~~ DEFINITELY GRAB PORNOGRAPHY OFF OF CERTIAN NSFW SUBREDDITS.
@@ -35,6 +34,5 @@ If its offline, I am probably working on it.
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
 
 ### To Do
-- ~~make it so that `!post` can be used for links, images, and text posts~~
-- need to add temporary post blacklist
+- need to add temporary post blacklist on a per channel basis (using a dictionary will get RAM intensive, maybe a JSON or database)
 - get more users
