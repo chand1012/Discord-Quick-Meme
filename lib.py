@@ -3,6 +3,7 @@ from json import loads, dumps
 from random import choice, randint
 from datetime import datetime
 import time
+import logging
 import threading
 
 def json_extract(thing='', filename='data.json'):
@@ -94,7 +95,7 @@ def get_post_thing(subs=["funny"], nsfw=False, limit=100): #grabs a random post 
         logging.error(str(e))
         logging.error("------")
 
-    return [post_link, post_type, post_title, post_permalink, post_score]
+    return [post_link, post_type, post_title, post_permalink, post_score, subreddit]
 
 def log_channels(channels):
     currentlist = open("channels.log").readlines().close()
@@ -146,7 +147,7 @@ def add_blacklist(channel, postlink):
     channeldata[postlink] = post
     rawdata[channel] = channeldata
     with open('posts.json', "w") as postfile:
-        dump(rawdata, postfile)
+        dumps(rawdata, postfile)
 
 
 

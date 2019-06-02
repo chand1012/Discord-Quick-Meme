@@ -9,6 +9,8 @@ client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
 postfile = 'posts.json'
 channels = {}
+memesubs = ["dankmemes", "funny", "memes", "dank_meme", "comedyheaven", ]
+hentai = ['ahegao', 'Artistic_Hentai', 'Hentai', 'MonsterGirl', 'slimegirls', 'wholesomehentai', 'quick_hentai', 'HentaiParadise'] # my friends are sick fucks
 commands = ["!meme", "!joke", "!5050", "!news", "!fiftyfifty", "!text", "!post"]
 #logging things
 logger = None
@@ -70,7 +72,7 @@ async def on_message(message):
 		if recv[6:] is '': # if the command is just '!meme'
 			raw_msg = ""
 			while True: # loop so if it fails it can find another post
-				raw_msg = get_post_thing(["dankmemes","funny","memes","dank_meme"], nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
+				raw_msg = get_post_thing(subs=memesubs, nsfw=nsfw) # get a random post from a random choice of this random list of random subreddits
 				if not raw_msg[1]==None: # break if it finds a vaild post, marked with a None value
 					break
 			if "Error" in str(raw_msg[2]): # post the error message if it fails
@@ -131,7 +133,7 @@ async def on_message(message):
 				logging.info(raw_msg[0])
 				logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 				logging.info("------")
-				await message.channel.send(content=raw_msg[2], tts=False)
+				await message.channel.send(content="{} from r/{}".format(raw_msg[2], raw_msg[5]), tts=False)
 				await message.channel.send(content=str(raw_msg[0]), tts=False)
 				await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
@@ -150,6 +152,7 @@ async def on_message(message):
 			logging.info("------")
 			await message.channel.send(content=raw_msg[2], tts=True)
 			await message.channel.send(content=raw_msg[0], tts=True)
+			await message.channel.send(content=raw_msg[5], tts=True)
 			await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			return
 		else: # if a sub is specified
@@ -176,6 +179,7 @@ async def on_message(message):
 			logging.info("------")
 			await message.channel.send(content=raw_msg[2], tts=False)
 			await message.channel.send(content=raw_msg[0], tts=False)
+			await message.channel.send(content=raw_msg[5], tts=True)
 			await message.channel.send(content="{} https://reddit.com{}".format(premsg, raw_msg[3]), tts=False)
 			return
 
@@ -202,6 +206,7 @@ async def on_message(message):
 		logging.info(raw_msg[0])
 		logging.info("------")
 		await message.channel.send(content=raw_msg[2], tts=True)
+		await message.channel.send(content=raw_msg[5], tts=True)
 		await message.channel.send(content="Link: {}".format(raw_msg[0]), tts=False)
 		return
 
@@ -248,10 +253,17 @@ async def on_message(message):
 			logging.info(raw_msg[0])
 			logging.info("Original post: https://reddit.com{}".format(raw_msg[3]))
 			logging.info("------")
-			await message.channel.send(content=raw_msg[2], tts=False)
+			await message.channel.send(content="{} from r/{}".format(raw_msg[2], raw_msg[5]), tts=False)
 			await message.channel.send(content=str(raw_msg[0]), tts=False)
 			await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 			return
+	
+	if message.content.startswith("!hentai"):
+		raw_msg = get_post_thing(subs=hentai, nsfw=True)
+		await message.channel.send(content="{} from r/{}".format(raw_msg[2], raw_msg[5]), tts=False)
+		await message.channel.send(content=str(raw_msg[0]), tts=False)
+		await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
+		return
 
 
 
