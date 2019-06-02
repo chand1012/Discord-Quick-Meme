@@ -9,8 +9,7 @@ client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
 postfile = 'posts.json'
 channels = {}
-memesubs = ["dankmemes", "funny", "memes", "dank_meme", "comedyheaven", ]
-hentai = ['ahegao', 'Artistic_Hentai', 'Hentai', 'MonsterGirl', 'slimegirls', 'wholesomehentai', 'quick_hentai', 'HentaiParadise'] # my friends are sick fucks
+memesubs = ["dankmemes", "funny", "memes", "dank_meme", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"]
 commands = ["!meme", "!joke", "!5050", "!news", "!fiftyfifty", "!text", "!post"]
 #logging things
 logger = None
@@ -251,6 +250,7 @@ async def on_message(message):
 			return
 	
 	if message.content.startswith("!hentai"):
+		hentai = ['ahegao', 'Artistic_Hentai', 'Hentai', 'MonsterGirl', 'slimegirls', 'wholesomehentai', 'quick_hentai', 'HentaiParadise'] # my friends are sick fucks
 		raw_msg = get_rnd_post(subs=hentai, nsfw=True)
 		await message.channel.send(content="{} from r/{}".format(raw_msg[2], raw_msg[5]), tts=False)
 		await message.channel.send(content=str(raw_msg[0]), tts=False)
