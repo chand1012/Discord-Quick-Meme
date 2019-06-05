@@ -122,7 +122,7 @@ def trump_counter(subs=['politics', 'POLITIC', 'news', 'neutralnews'], sample=10
         for sub in subs:
             submissions = reddit.subreddit(sub).hot(limit=samplesize)
             for submission in submissions:
-                if 'trump' in submission.title.lower():
+                if 'trump' in submission.title.lower() or 'russia' in submission.title.lower():
                     count += 1
 
         return [count, sample, samplesize, subs]
