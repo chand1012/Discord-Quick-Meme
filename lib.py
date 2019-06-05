@@ -2,7 +2,6 @@ import praw
 from json import loads
 from random import choice, randint
 import logging
-import threading
 
 def json_extract(thing='', filename='data.json'):
     json_file = open(filename)
