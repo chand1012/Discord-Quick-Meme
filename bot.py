@@ -262,7 +262,7 @@ async def on_message(message):
 		tcount = tcount_raw[0]
 		sample = tcount_raw[1]
 		samplesize = tcount_raw[2]
-		await message.channel.send(content="As of a few seconds ago, the number of times Trump was mentioned on r/politics, r/POLITIC, r/news, and r/neutralnews is {}".format(tcount))
+		await message.channel.send(content="As of a few seconds ago, the number of times Trump or Russia was mentioned on r/politics, r/POLITIC, r/news, and r/neutralnews is {}.".format(tcount))
 		await message.channel.send(content="This was done with a total sample of {}, with {} per subreddit.".format(sample, samplesize))
 
 @client.event # the on_ready event
