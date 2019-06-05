@@ -3,7 +3,7 @@ import discord
 import logging
 import time
 import os
-from lib import get_rnd_post, json_extract, get_post_by_id
+from lib import get_rnd_post, json_extract, get_post_by_id, trump_counter
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
@@ -256,6 +256,14 @@ async def on_message(message):
 		await message.channel.send(content=str(raw_msg[0]), tts=False)
 		await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 		return
+	
+	if message.content.startswith("!trumpcount"):
+		tcount_raw = trump_counter()
+		tcount = tcount_raw[0]
+		sample = tcount_raw[1]
+		samplesize = tcount_raw[2]
+		await message.channel.send(content="As of a few seconds ago, the number of times Trump was mentioned on r/politics, r/POLITIC, r/news, and r/neutralnews is {}".format(tcount))
+		await message.channel.send(content="This was done with a total sample of {}, with {} per subreddit.".format(sample, samplesize))
 
 @client.event # the on_ready event
 async def on_ready():

@@ -1,7 +1,5 @@
 import praw
-from json import loads, dumps
 from random import choice, randint
-from datetime import datetime
 import time
 import logging
 import threading
@@ -97,14 +95,6 @@ def get_rnd_post(subs=["funny"], nsfw=False, limit=100): #grabs a random post fr
 
     return [post_link, post_type, post_title, post_permalink, post_score, subreddit]
 
-def log_channels(channels):
-    currentlist = open("channels.log").readlines().close()
-    for channel in channels:
-        if not channel in currentlist:
-            chlist = open("channel.log", "a")
-            chlist.write("{}\n".format(channel))
-            chlist.close()
-
 def get_post_by_id(subid=None, nsfw=False):
     reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
     url = ""
@@ -122,34 +112,19 @@ def get_post_by_id(subid=None, nsfw=False):
                 url = submission.url
             return [url, True, submission.title, submission.permalink, submission.score]
 
-def check_blacklist(channel, postlink):
-    with open("posts.json") as postfile:
-        rawdata = loads(postfile.read())
-        channeldata = rawdata[channel]
-        if postlink in channeldata:
-            now = time.time()
-            post = channeldata[postlink]
-            if post<now:
-                return False
-            else:
-                return True
-        else:
-            return False
+def trump_counter(subs=['politics', 'POLITIC', 'news', 'neutralnews'], sample=100): 
+    samplesize = round(sample/len(subs))
+    count = 0
+    try:
+        reddit = praw.Reddit(client_id=reddit_client, client_secret=reddit_secret, user_agent=reddit_agent)
+    except:
+        return None
+    else:
+        for sub in subs:
+            submissions = reddit.subreddit(sub).hot(limit=samplesize)
+            for submission in submissions:
+                if 'trump' in submission.title.lower():
+                    count += 1
 
-def add_blacklist(channel, postlink):
-    rawdata = None
-    with open('posts.json') as postfile:
-        rawdata = loads(postfile.read())
-    if not channel in rawdata:
-        rawdata[channel] = {}
-    channeldata = rawdata[channel]
-    post = time.time() + 86400 # seconds in a day
-    channeldata[postlink] = post
-    rawdata[channel] = channeldata
-    with open('posts.json', "w") as postfile:
-        dumps(rawdata, postfile)
-
-
-
-
-
+        return [count, sample, samplesize, subs]
+            
