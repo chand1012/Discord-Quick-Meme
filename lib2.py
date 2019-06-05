@@ -1,5 +1,6 @@
 from json import loads, dumps
 from datetime import datetime
+import time
 
 def log_channels(channels):
     currentlist = open("channels.log").readlines().close()

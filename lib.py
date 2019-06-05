@@ -1,6 +1,6 @@
 import praw
+from json import loads
 from random import choice, randint
-import time
 import logging
 import threading
 
