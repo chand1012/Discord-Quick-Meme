@@ -3,7 +3,8 @@ import discord
 import logging
 import time
 import os
-from lib import get_rnd_post, json_extract, get_post_by_id, trump_counter
+from lib import get_rnd_post, get_post_by_id, trump_counter
+from json_extract import json_extract
 token = json_extract('token')
 client = discord.Client()
 filetypes = ['gif', 'gifv', 'gfycat', 'v.redd.it', 'youtube', 'youtu.be', '.jpg', '.png', '.jpeg']
