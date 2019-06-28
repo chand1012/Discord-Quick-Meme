@@ -1,3 +1,5 @@
+package jsonHandler
+
 import (
 	"encoding/json"
 	"os"
@@ -10,10 +12,10 @@ type Keys struct {
 	botId	     string	 `json:token`
 	clientId     string  `json:client_id`
 	clientSecret string  `json:client_secret`
-	userAgent	 string  `Discord-Quick-Meme`
+	userAgent	 string  `json:user_agent`
 }
 
-func json_extract(filename string) {
+func extract(filename string) {
 	jsonfile, err := os.Open(filename)
 
 	if err != nil {
@@ -28,5 +30,5 @@ func json_extract(filename string) {
 
 	json.Unmarshall(rawjson, &keys)
 
-	return keys
+	return keys, err
 }
