@@ -4,7 +4,7 @@ import (
 	"lib/jsonHandler"
 	"lib/redditHandler"
 	"fmt"
-	"github.com/turnage/graw"
+	"github.com/bwmarrin/discordgo"
 )
 var (
 	commandPrefix string
