@@ -1,7 +1,7 @@
 # This branch is the Go rewrite and will not be in use for probably a few weeks.
 Dependencies:
-    - [discordgo](https://github.com/bwmarrin/discordgo)
-    - [graw](https://github.com/turnage/graw)
+- [discordgo](https://github.com/bwmarrin/discordgo)
+- [graw](https://github.com/turnage/graw)
 
 
 # Discord-Quick-Meme
@@ -39,5 +39,6 @@ If its offline, I am probably working on it.
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
 
 ### To Do
-- need to add temporary post blacklist on a per channel basis (using a dictionary will get RAM intensive, maybe a JSON or database)
+- redo this thing in GoLang
+- need to add temporary post blacklist on a per channel basis (using a dictionary will get RAM intensive, maybe a ~~JSON or~~ database)
 - get more users
