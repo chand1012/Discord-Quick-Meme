@@ -27,7 +27,6 @@ If any support is needed, please post an Issue on the Issues page.
 - Praw found [here](https://github.com/praw-dev/praw).
 
 ### Disclaimer
-I AM NOT RESPONSIBLE FOR ANY CONTENT THAT IS POSTED WITH THIS BOT. IT IS AT THE DISCRETION OF THE SERVER OWNER AND USERS, AS YOU CAN ~~TECHNICALLY~~ DEFINITELY GRAB PORNOGRAPHY OFF OF CERTIAN NSFW SUBREDDITS.
 
 If its offline, I am probably working on it.
 
