@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -51,6 +53,34 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	// this will be epanded upon in the near future
 	content := message.Content
 	fmt.Println(content)
+}
+
+func getDiscordPost() (*discordgo.MessageEmbed, bool) {
+	var embed discordgo.MessageEmbed
+	err := nil
+	subs := []string{"dankmemes", "funny", "memes", "dank_meme", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
+	imageEndings := [6]string{".jpg", ".png", ".jpeg", ".gif", ".gifv", "gfycat"}
+	limit := 100
+	score, url, title, nsfw := GetPost(subs, limit)
+	if strings.ContainsAny(url, imageEndings) {
+		embed := &discordgo.MessageEmbed{
+			Author:      &discordgo.MessageEmbedAuthor{},
+			Color:       0x00ff00,
+			Description: "Score: " + string(score),
+			Image: &discordgo.MessageEmbedImage{
+				URL: url,
+			},
+			Thumbnail: &discordgo.MessageEmbedThumbnail{
+				URL: url,
+			},
+			Timestamp: time.Now().Format(time.RFC3339),
+			Title:     title,
+		}
+	} else {
+		err = "Url endings not in acceptable range."
+	}
+
+	return embed, nsfw, err
 }
 
 func errCheck(msg string, err error) {

@@ -1,5 +1,6 @@
 data.json
 test.py
+agent.yml
 posts.json
 __pycache__
 *.log

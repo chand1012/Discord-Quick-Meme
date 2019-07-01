@@ -94,7 +94,7 @@ async def on_message(message):
 				logging.info("------")
 				embed = discord.Embed(title=raw_msg[2], url=raw_msg[0])
 				embed.set_image(url=raw_msg[0])
-				await message.channel.send( embed=embed, tts=False)
+				await message.channel.send(embed=embed, tts=False)
 				await message.channel.send(content="Score: {}\nOriginal post: https://reddit.com{}".format(raw_msg[4], raw_msg[3]), tts=False)
 				return
 		else: # if there is a subreddit after the command

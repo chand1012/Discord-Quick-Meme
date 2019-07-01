@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// type for json keys
 type Keys struct {
 	BotId string `json:"token"`
 }
