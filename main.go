@@ -1,23 +1,28 @@
 package main
 
 import (
-	"lib/jsonHandler"
-	"lib/redditHandler"
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 )
+
 var (
 	commandPrefix string
-	botId		  string
+	botId         string
 )
 
 func main() {
-	keys, err := jsonHandler.extract("data.json")
+	var err error
+	var file string
+	var key string
+	file = "data.json"
+	key, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
-	discord, err := discordgo.New("Bot " + keys.botId)
+	//fmt.Println(keys.botId)
+	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
 	user, err := discord.User("@me")
-  	errCheck("error retrieving account", err)
+	errCheck("error retrieving account", err)
 	botId = user.ID
 	discord.AddHandler(commandHandler)
 	discord.AddHandler(readyHandler)
@@ -30,7 +35,7 @@ func main() {
 }
 
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
-	err = discord.updateStatus(0, "A Reddit meme bot.")
+	err := discord.UpdateStatus(0, "with spacetime.")
 	if err != nil {
 		fmt.Println("Error attempting to set the status.")
 	}
@@ -40,11 +45,12 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	user := message.Author
-	if user.ID == botID || user.Bot {
+	if user.Bot {
 		return
 	}
 	// this will be epanded upon in the near future
 	content := message.Content
+	fmt.Println(content)
 }
 
 func errCheck(msg string, err error) {
