@@ -9,12 +9,13 @@ import (
 )
 
 //gets image post
-func GetPost(subs []string, limit int) (int32, string, string, bool) {
+func GetPost(subs []string, limit int) (int32, string, string, bool, string, string) {
 	var scores []int32
 	var urls []string
 	var titles []string
 	var nsfws []bool
-	bot, err := reddit.NewBotFromAgentFile("agent.yml", 5*time.Second)
+	var links []string
+	bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
 	if err != nil {
 		panic(err)
 	}
@@ -27,10 +28,11 @@ func GetPost(subs []string, limit int) (int32, string, string, bool) {
 		urls = append(urls, post.URL)
 		titles = append(titles, post.Title)
 		nsfws = append(nsfws, post.NSFW)
+		links = append(links, post.Permalink)
 	}
 
 	s := rand.Intn(limit)
 
-	return scores[s], urls[s], titles[s], nsfws[s]
+	return scores[s], urls[s], titles[s], nsfws[s], links[s], sub
 
 }
