@@ -9,7 +9,7 @@ import (
 
 // type for json keys
 type Keys struct {
-	BotId string `json:"token"`
+	BotID string `json:"token"`
 }
 
 func jsonExtract(filename string) (string, error) {
@@ -27,5 +27,5 @@ func jsonExtract(filename string) (string, error) {
 
 	json.Unmarshal(rawjson, &keys)
 
-	return keys.BotId, err
+	return keys.BotID, err
 }
