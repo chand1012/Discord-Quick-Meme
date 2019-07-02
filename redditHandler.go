@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/turnage/graw/reddit"
@@ -16,6 +17,7 @@ func GetMediaPost(subs []string, limit int) (int32, string, string, bool, string
 	var titles []string
 	var nsfws []bool
 	var links []string
+	urlItems := []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
 	bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
 	if err != nil {
 		panic(err)
@@ -25,14 +27,16 @@ func GetMediaPost(subs []string, limit int) (int32, string, string, bool, string
 	harvest, err := bot.Listing("/r/"+sub, "")
 	fmt.Println("Getting posts.....")
 	for _, post := range harvest.Posts[:limit] {
-		scores = append(scores, post.Score)
-		urls = append(urls, post.URL)
-		titles = append(titles, post.Title)
-		nsfws = append(nsfws, post.NSFW)
-		links = append(links, post.Permalink)
+		if !strings.Contains(post.URL, "v.redd.it") && ContainsAnySubstring(post.URL, urlItems) {
+			scores = append(scores, post.Score)
+			urls = append(urls, post.URL)
+			titles = append(titles, post.Title)
+			nsfws = append(nsfws, post.NSFW)
+			links = append(links, post.Permalink)
+		}
 	}
 
-	s := rand.Intn(limit)
+	s := rand.Intn(len(urls))
 
 	return scores[s], urls[s], titles[s], nsfws[s], links[s], sub
 
@@ -61,7 +65,7 @@ func GetTextPost(subs []string, limit int) (int32, string, string, bool, string,
 		links = append(links, post.Permalink)
 	}
 
-	s := rand.Intn(limit)
+	s := rand.Intn(len(text))
 
 	return scores[s], text[s], titles[s], nsfws[s], links[s], sub
 }
