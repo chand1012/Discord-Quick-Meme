@@ -1,12 +1,12 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -23,7 +23,6 @@ func main() {
 	file = "data.json"
 	key, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
-	//fmt.Println(keys.botId)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
 	user, err := discord.User("@me")
@@ -50,6 +49,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	var err error
+	var subs []string
 	user := message.Author
 	if user.ID == botID || user.Bot {
 		return
@@ -59,10 +59,40 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	channel := message.ChannelID
 	channelName := getChannelName(discord, channel)
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
-	if strings.HasPrefix(content, "!meme") {
-		err = getMemePost(discord, channel, nsfw)
-	} else if strings.HasPrefix(content, "!joke") {
-		err = getJokePost(discord, channel, nsfw)
+	contentLength := utf8.RuneCountInString(content)
+	if strings.HasPrefix(content, "!meme") && contentLength <= 5 {
+		subs = []string{"dankmemes", "funny", "memes", "dank_meme", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
+		err = getMediaPost(discord, channel, nsfw, subs)
+	} else if strings.HasPrefix(content, "!meme") && contentLength >= 5 {
+		sub := content[6:]
+		subs = []string{sub}
+		err = getMediaPost(discord, channel, nsfw, subs)
+	} else if strings.HasPrefix(content, "!joke") && contentLength <= 5 {
+		subs = []string{"jokes", "darkjokes", "antijokes"}
+		err = getTextPost(discord, channel, nsfw, subs)
+	} else if (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5 {
+		sub := content[6:]
+		subs = []string{sub}
+		err = getTextPost(discord, channel, nsfw, subs)
+	} else if strings.HasPrefix(content, "!news") {
+		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
+		err = getLinkPost(discord, channel, nsfw, subs)
+	} else if strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050") {
+		subs = []string{"fiftyfifty"}
+		err = getLinkPost(discord, channel, nsfw, subs)
+	} else if strings.HasPrefix(content, "!hentai") {
+		// This is still only here because a friend of mine suggested this
+		subs = []string{"ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
+		err = getMediaPost(discord, channel, nsfw, subs)
+	} else if strings.HasPrefix(content, "!all") {
+		randchoice := rand.Intn(4)
+		if randchoice == 0 {
+			err = getLinkPost(discord, channel, nsfw, []string{"all"})
+		} else if randchoice == 1 {
+			err = getTextPost(discord, channel, nsfw, []string{"all"})
+		} else {
+			err = getMediaPost(discord, channel, nsfw, []string{"all"})
+		}
 	}
 	errCheck("Error gettings post info:", err)
 }
@@ -90,7 +120,7 @@ func ContainsAnySubstring(testString string, strArray []string) bool {
 	return false
 }
 
-func getMemePost(discord *discordgo.Session, channel string, channelNsfw bool) error {
+func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string) error {
 	var err error
 	var score int32
 	var url string
@@ -100,9 +130,8 @@ func getMemePost(discord *discordgo.Session, channel string, channelNsfw bool) e
 	var sub string
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
-	subs := []string{"dankmemes", "funny", "memes", "dank_meme", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
 	imageEndings := []string{".jpg", ".png", ".jpeg"}
-	limit := 100
+	limit := 25
 	toggled := false
 	for i := 0; i < 10; i++ {
 		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit)
@@ -117,10 +146,8 @@ func getMemePost(discord *discordgo.Session, channel string, channelNsfw bool) e
 			break
 		}
 	}
-	if !toggled {
-		err = errors.New("too many attempts to find non nsfw post")
-	}
-	if ContainsAnySubstring(url, imageEndings) {
+
+	if ContainsAnySubstring(url, imageEndings) && toggled {
 		embed := &discordgo.MessageEmbed{
 			Author:      &discordgo.MessageEmbedAuthor{},
 			Color:       randColor,
@@ -128,26 +155,26 @@ func getMemePost(discord *discordgo.Session, channel string, channelNsfw bool) e
 			Image: &discordgo.MessageEmbedImage{
 				URL: url,
 			},
-			Thumbnail: &discordgo.MessageEmbedThumbnail{
-				URL: url,
-			},
 			Timestamp: time.Now().Format(time.RFC3339),
 			Title:     title,
 		}
-		discord.ChannelMessageSend(channel, "From r/"+sub)
-		discord.ChannelMessageSendEmbed(channel, embed)
-		discord.ChannelMessageSend(channel, "From https://reddit.com"+postlink)
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSendEmbed(channel, embed)
+		_, err = discord.ChannelMessageSend(channel, "From https://reddit.com"+postlink)
+	} else if toggled {
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSend(channel, url)
+		_, err = discord.ChannelMessageSend(channel, title)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
-		discord.ChannelMessageSend(channel, "From r/"+sub)
-		discord.ChannelMessageSend(channel, url)
-		discord.ChannelMessageSend(channel, title)
-		discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?")
 	}
 
 	return err
 }
 
-func getJokePost(discord *discordgo.Session, channel string, channelNsfw bool) error {
+func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string) error {
 	var err error
 	var score int32
 	var text string
@@ -155,8 +182,7 @@ func getJokePost(discord *discordgo.Session, channel string, channelNsfw bool) e
 	var nsfw bool
 	var postlink string
 	var sub string
-	subs := []string{"jokes", "darkjokes", "antijokes"}
-	limit := 100
+	limit := 25
 	toggled := false
 	for i := 0; i < 10; i++ {
 		score, text, title, nsfw, postlink, sub = GetTextPost(subs, limit)
@@ -171,13 +197,52 @@ func getJokePost(discord *discordgo.Session, channel string, channelNsfw bool) e
 			break
 		}
 	}
-	if !toggled {
-		err = errors.New("too many attempts to find non nsfw post")
+
+	if toggled {
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSend(channel, title)
+		_, err = discord.ChannelMessageSend(channel, text)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?")
 	}
-	discord.ChannelMessageSend(channel, "From r/"+sub)
-	discord.ChannelMessageSend(channel, text)
-	discord.ChannelMessageSend(channel, title)
-	discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	return err
+}
+
+func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string) error {
+	var err error
+	var score int32
+	var url string
+	var title string
+	var nsfw bool
+	var postlink string
+	var sub string
+	limit := 25
+	toggled := false
+	for i := 0; i < 10; i++ {
+		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit)
+		if channelNsfw {
+			toggled = true
+			break
+		} else if channelNsfw && !nsfw {
+			toggled = true
+			break
+		} else if !channelNsfw && !nsfw {
+			toggled = true
+			break
+		}
+	}
+
+	if toggled {
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSend(channel, url)
+		_, err = discord.ChannelMessageSend(channel, title)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?")
+	}
 	return err
 }
 
