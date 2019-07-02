@@ -148,7 +148,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	imageEndings := []string{".jpg", ".png", ".jpeg"}
 	limit := 25
 	toggled := false
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 5; i++ {
 		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit)
 		if channelNsfw {
 			toggled = true
