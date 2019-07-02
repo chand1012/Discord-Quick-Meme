@@ -10,9 +10,10 @@ import (
 // type for json keys
 type Keys struct {
 	BotID string `json:"token"`
+	Admin string `json:"admin"`
 }
 
-func jsonExtract(filename string) (string, error) {
+func jsonExtract(filename string) (string, string, error) {
 	jsonfile, err := os.Open(filename)
 
 	if err != nil {
@@ -27,5 +28,5 @@ func jsonExtract(filename string) (string, error) {
 
 	json.Unmarshal(rawjson, &keys)
 
-	return keys.BotID, err
+	return keys.BotID, keys.Admin, err
 }

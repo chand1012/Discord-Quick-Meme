@@ -14,14 +14,19 @@ import (
 var (
 	commandPrefix string
 	botID         string
+	// ServerMap
+	// this is all of the servers an the servers
+	// this gets wiped from memory as soon as the Bot gets killed
+	ServerMap map[string]string
 )
 
 func main() {
 	var err error
 	var file string
 	var key string
+	ServerMap = make(map[string]string)
 	file = "data.json"
-	key, err = jsonExtract(file)
+	key, _, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
@@ -50,14 +55,17 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	var err error
 	var subs []string
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all"}
 	user := message.Author
+	content := message.Content
 	if user.ID == botID || user.Bot {
 		return
+	} else if !ContainsAnySubstring(content, commands) {
+		return
 	}
-
-	content := message.Content
 	channel := message.ChannelID
 	channelName := getChannelName(discord, channel)
+	fmt.Println("Command '" + content + "' from #" + channelName + " (" + channel + ")")
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
 	contentLength := utf8.RuneCountInString(content)
 	if strings.HasPrefix(content, "!meme") && contentLength <= 5 {
@@ -94,16 +102,23 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			err = getMediaPost(discord, channel, nsfw, []string{"all"})
 		}
 	}
+	fmt.Println("Posted.")
 	errCheck("Error gettings post info:", err)
 }
 
 func getChannelName(discord *discordgo.Session, channelid string) string {
-	for _, guild := range discord.State.Guilds {
-		channels, _ := discord.GuildChannels(guild.ID)
+	fmt.Println("Getting channel name....")
+	if _, ok := ServerMap[channelid]; ok {
+		return ServerMap[channelid]
+	} else {
+		for _, guild := range discord.State.Guilds {
+			channels, _ := discord.GuildChannels(guild.ID)
 
-		for _, channel := range channels {
-			if channel.ID == channelid {
-				return channel.Name
+			for _, channel := range channels {
+				if channel.ID == channelid {
+					ServerMap[channelid] = channel.Name
+					return channel.Name
+				}
 			}
 		}
 	}
@@ -146,7 +161,6 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 			break
 		}
 	}
-
 	if ContainsAnySubstring(url, imageEndings) && toggled {
 		embed := &discordgo.MessageEmbed{
 			Author:      &discordgo.MessageEmbedAuthor{},

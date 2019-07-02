@@ -2,6 +2,7 @@ package main
 
 //https://turnage.gitbooks.io/graw/content/graw.html
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -22,7 +23,7 @@ func GetMediaPost(subs []string, limit int) (int32, string, string, bool, string
 	rand.Seed(time.Now().Unix())
 	sub := subs[rand.Intn(len(subs))]
 	harvest, err := bot.Listing("/r/"+sub, "")
-
+	fmt.Println("Getting posts.....")
 	for _, post := range harvest.Posts[:limit] {
 		scores = append(scores, post.Score)
 		urls = append(urls, post.URL)
