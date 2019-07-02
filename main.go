@@ -69,7 +69,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
 	contentLength := utf8.RuneCountInString(content)
 	if strings.HasPrefix(content, "!meme") && contentLength <= 5 {
-		subs = []string{"dankmemes", "funny", "memes", "dank_meme", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
+		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
 		err = getMediaPost(discord, channel, nsfw, subs)
 	} else if strings.HasPrefix(content, "!meme") && contentLength >= 5 {
 		sub := content[6:]
