@@ -68,37 +68,43 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	fmt.Println("Command '" + content + "' from #" + channelName + " (" + channel + ")")
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
 	contentLength := utf8.RuneCountInString(content)
-	if strings.HasPrefix(content, "!meme") && contentLength <= 5 {
+	switch {
+	case strings.HasPrefix(content, "!meme") && contentLength <= 5:
 		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
 		err = getMediaPost(discord, channel, nsfw, subs)
-	} else if strings.HasPrefix(content, "!meme") && contentLength >= 5 {
+	case strings.HasPrefix(content, "!meme") && contentLength >= 5:
 		sub := content[6:]
 		subs = []string{sub}
 		err = getMediaPost(discord, channel, nsfw, subs)
-	} else if strings.HasPrefix(content, "!joke") && contentLength <= 5 {
+	case strings.HasPrefix(content, "!joke") && contentLength <= 5:
 		subs = []string{"jokes", "darkjokes", "antijokes"}
 		err = getTextPost(discord, channel, nsfw, subs)
-	} else if (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5 {
+	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5:
 		sub := content[6:]
 		subs = []string{sub}
 		err = getTextPost(discord, channel, nsfw, subs)
-	} else if strings.HasPrefix(content, "!news") {
+	case strings.HasPrefix(content, "!news") && contentLength <= 5:
 		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
 		err = getLinkPost(discord, channel, nsfw, subs)
-	} else if strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050") {
+	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength >= 5:
+		sub := content[6:]
+		subs = []string{sub}
+		err = getLinkPost(discord, channel, nsfw, subs)
+	case strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050"):
 		subs = []string{"fiftyfifty"}
 		err = getLinkPost(discord, channel, nsfw, subs)
-	} else if strings.HasPrefix(content, "!hentai") {
+	case strings.HasPrefix(content, "!hentai"):
 		// This is still only here because a friend of mine suggested this
 		subs = []string{"ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
 		err = getMediaPost(discord, channel, nsfw, subs)
-	} else if strings.HasPrefix(content, "!all") {
+	case strings.HasPrefix(content, "!all"):
 		randchoice := rand.Intn(4)
-		if randchoice == 0 {
+		switch randchoice {
+		case 0:
 			err = getLinkPost(discord, channel, nsfw, []string{"all"})
-		} else if randchoice == 1 {
+		case 1:
 			err = getTextPost(discord, channel, nsfw, []string{"all"})
-		} else {
+		default:
 			err = getMediaPost(discord, channel, nsfw, []string{"all"})
 		}
 	}
