@@ -14,12 +14,12 @@ import (
 var (
 	commandPrefix string
 	botID         string
-	//CacheTime     int64
+	CacheTime     int64
 	// ServerMap
 	// this is all of the servers an the servers
 	// this gets wiped from memory as soon as the Bot gets killed
 	ServerMap map[string]string
-	//PostCache map[string][]reddit.Post
+	PostCache map[string][]QuickPost
 )
 
 func main() {
@@ -27,6 +27,7 @@ func main() {
 	var file string
 	var key string
 	ServerMap = make(map[string]string)
+	PostCache = make(map[string][]QuickPost)
 	file = "data.json"
 	key, _, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
@@ -124,31 +125,36 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 
 	case strings.HasPrefix(content, "!quickmeme"):
 		//fmt.Println(content)
-		thing := content[11:]
+		thing := content[10:]
 		//fmt.Println(thing)
 		switch thing {
-		//case "help":
+		//case " help":
 		//discord.ChannelMessageSend("") // finish this later
-		case "status":
+		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
 			discord.ChannelMessageSend(channel, "Discord-Quick-Meme is active and ready on "+strconv.Itoa(len(servers))+" servers for "+strconv.Itoa(userCount)+" users.")
-		case "test":
+		// case " clearcachetime":
+		// 	CacheTime = 0
+		// 	discord.ChannelMessageSend(channel, "Set cache time to zero.")
+		// 	fmt.Println("Set cache time to zero.")
+		case " test":
 			var count int
 			var total int64
-			var result float64
-			discord.ChannelMessageSend(channel, "Starting Quick-Meme Reddit speed test...")
-			fmt.Println("Starting Discord-Quick-Meme Reddit speed test....")
+			var redditResult float64
+			discord.ChannelMessageSend(channel, "Starting Quick-Meme speed test...")
+			fmt.Println("Starting Discord-Quick-Meme speed test....")
 			for i := 0; i < 10; i++ {
 				starttime := GetMillis()
-				_, _, _, _, _, _ = GetMediaPost([]string{"all"}, 100, "")
+				_ = PingReddit()
 				endtime := GetMillis()
 				total += (endtime - starttime)
 				count = i
 			}
-			result = float64(total) / float64(count)
-			discord.ChannelMessageSend(channel, "The results are in! Average Reddit response time over 10 trials: "+strconv.FormatFloat(result, 'f', 1, 64)+"ms")
-			fmt.Println("Average Reddit response time over 10 trials: " + strconv.FormatFloat(result, 'f', 1, 64) + "ms")
+			redditResult = float64(total) / float64(count)
+			discord.ChannelMessageSend(channel, "Average Reddit response time over 10 trials: "+strconv.FormatFloat(redditResult, 'f', 1, 64)+"ms")
+			fmt.Println("Average Reddit response time over 10 trials: " + strconv.FormatFloat(redditResult, 'f', 1, 64) + "ms")
+
 		}
 	}
 	fmt.Println("Posted.")
@@ -182,6 +188,12 @@ func getNumberOfUsers(discord *discordgo.Session) int {
 	return count
 }
 
+func GetMillis() int64 {
+	now := time.Now()
+	nanos := now.UnixNano()
+	return nanos / 1000000
+}
+
 // ContainsAnySubstring Checks if any of the strings in the array are in the test string
 func ContainsAnySubstring(testString string, strArray []string) bool {
 	for _, str := range strArray {
@@ -193,6 +205,7 @@ func ContainsAnySubstring(testString string, strArray []string) bool {
 }
 
 func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
+	var returnPost QuickPost
 	var err error
 	var score int32
 	var url string
@@ -206,7 +219,12 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	limit := 100
 	toggled := false
 	for i := 0; i < 5; i++ {
-		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit, sort)
+		returnPost, sub = GetMediaPost(subs, limit, sort)
+		score = returnPost.Score
+		url = returnPost.Content
+		title = returnPost.Title
+		postlink = returnPost.Permalink
+		nsfw = returnPost.Nsfw
 		if channelNsfw {
 			toggled = true
 			break
@@ -246,6 +264,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 }
 
 func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
+	var returnPost QuickPost
 	var err error
 	var score int32
 	var text string
@@ -256,7 +275,12 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		score, text, title, nsfw, postlink, sub = GetTextPost(subs, limit, sort)
+		returnPost, sub = GetMediaPost(subs, limit, sort)
+		score = returnPost.Score
+		text = returnPost.Content
+		title = returnPost.Title
+		postlink = returnPost.Permalink
+		nsfw = returnPost.Nsfw
 		if channelNsfw {
 			toggled = true
 			break
@@ -281,13 +305,8 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	return err
 }
 
-func GetMillis() int64 {
-	now := time.Now()
-	nanos := now.UnixNano()
-	return nanos / 1000000
-}
-
 func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
+	var returnPost QuickPost
 	var err error
 	var score int32
 	var url string
@@ -298,7 +317,12 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		score, url, title, nsfw, postlink, sub = GetLinkPost(subs, limit, sort)
+		returnPost, sub = GetMediaPost(subs, limit, sort)
+		score = returnPost.Score
+		url = returnPost.Content
+		title = returnPost.Title
+		postlink = returnPost.Permalink
+		nsfw = returnPost.Nsfw
 		if channelNsfw {
 			toggled = true
 			break

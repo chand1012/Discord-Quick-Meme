@@ -15,23 +15,21 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - Type `!joke` for a joke from either [r/jokes](https://www.reddit.com/r/jokes/) or [r/darkjokes](https://www.reddit.com/r/darkjokes/).
 - Type `!news` for a random news article from [r/news](https://www.reddit.com/r/news/), [r/worldnews](https://www.reddit.com/r/worldnews/), [r/FloridaMan](https://www.reddit.com/r/FloridaMan/), or [r/nottheonion](https://www.reddit.com/r/nottheonion/).
 - Type `!5050` or `!fiftyfifty` to pull a post from [r/fiftyfifty](https://reddit.com/r/fiftyfifty).
-- ~~Type `!post` followed by a post ID to directly pull a post from reddit. Example: `!post 8f3wan`.~~
 - A few secret commands if you're willing to look at the source code.
-- Type `!news`, `!joke`, or `!meme` followed by a subreddit name (without the r/) to pull a random top post from that subreddit. Example: `!joke meanjokes`
+- Type `!news`, `!link`, `!joke`, `!text`, or `!meme` followed by a subreddit name (without the r/) to pull a random top post from that subreddit. The `!text` and `!joke` commands post text directly to the chat. The `!link` and `!news` commands get a post that links a website or webpage. Finally, `!meme` get a piece of media, either a photo, a GIF, or a video. Example: `!joke meanjokes`
 
 ## Support
 If any support is needed, please post an Issue on the Issues page. 
 
 ## Additional Random Info and Facts
-- The bot will not allow you to post more than 5 memes a minute per channel. This was a preventative measure so that the ~~VPS~~ server the bot is running on does not get overloaded.
+- This bot caches the 100 "hottest" posts on all subreddits called upon it to decrease the response time to the minimum.
 - This bot was made as a side project of mine, an idea as some of my friends were not really Reddit users but I always talked about the memes and posts. They use Reddit now.
 
 ## Dependencies
-- discord.py rewrite found [here](https://github.com/Rapptz/discord.py/).
-- Praw found [here](https://github.com/praw-dev/praw).
+- DiscordGo rewrite found [discordgo](https://github.com/bwmarrin/discordgo).
+- Graw found [graw](https://github.com/turnage/graw).
 
 ### Disclaimer
-
 If its offline, I am probably working on it.
 
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
