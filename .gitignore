@@ -4,6 +4,7 @@ test.py
 user.txt
 agent.yml
 posts.json
+test.go
 __pycache__
 *.log
 .vscode

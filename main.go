@@ -55,7 +55,8 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	var err error
 	var subs []string
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all"}
+	//helpMessage := ""
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme"}
 	user := message.Author
 	content := message.Content
 	if user.ID == botID || user.Bot {
@@ -116,11 +117,19 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		default:
 			err = getMediaPost(discord, channel, nsfw, []string{"all"})
 		}
-        case strings.HasPrefix(content, "!quickmeme"):
-                thing := content[12:]
-                switch thing {
-                case "help":
-                }
+
+	case strings.HasPrefix(content, "!quickmeme"):
+		//fmt.Println(content)
+		thing := content[11:]
+		//fmt.Println(thing)
+		switch thing {
+		//case "help":
+		//discord.ChannelMessageSend("") // finish this later
+		case "status":
+			servers := discord.State.Guilds
+			userCount := getNumberOfUsers(discord)
+			discord.ChannelMessageSend(channel, "Discord-Quick-Meme is active and ready on "+strconv.Itoa(len(servers))+" servers for "+strconv.Itoa(userCount)+" users.")
+		}
 	}
 	fmt.Println("Posted.")
 	errCheck("Error gettings post info:", err)
@@ -143,6 +152,14 @@ func getChannelName(discord *discordgo.Session, channelid string) string {
 		}
 	}
 	return ""
+}
+
+func getNumberOfUsers(discord *discordgo.Session) int {
+	count := 0
+	for _, guild := range discord.State.Guilds {
+		count += len(guild.Members)
+	}
+	return count
 }
 
 // ContainsAnySubstring checks if any of the strings in the array are in the test string
