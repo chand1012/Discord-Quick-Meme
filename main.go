@@ -70,34 +70,34 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	contentLength := utf8.RuneCountInString(content)
 	switch {
 	case strings.HasPrefix(content, "!meme") && contentLength <= 5:
-		fmt.Println("Case 1")
+		//fmt.Println("Case 1")
 		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
 		err = getMediaPost(discord, channel, nsfw, subs)
 	case strings.HasPrefix(content, "!meme") && contentLength >= 5:
-		fmt.Println("Case 2")
+		//fmt.Println("Case 2")
 		sub := content[6:]
 		subs = []string{sub}
 		err = getMediaPost(discord, channel, nsfw, subs)
 	case strings.HasPrefix(content, "!joke") && contentLength <= 5:
-		fmt.Println("Case 3")
+		//fmt.Println("Case 3")
 		subs = []string{"jokes", "darkjokes", "antijokes"}
 		err = getTextPost(discord, channel, nsfw, subs)
 	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5:
-		fmt.Println("Case 4")
+		//fmt.Println("Case 4")
 		sub := content[6:]
 		subs = []string{sub}
 		err = getTextPost(discord, channel, nsfw, subs)
 	case strings.HasPrefix(content, "!news") && contentLength <= 5:
-		fmt.Println("Case 5")
+		//fmt.Println("Case 5")
 		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
 		err = getLinkPost(discord, channel, nsfw, subs)
 	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength >= 5:
-		fmt.Println("Case 6")
+		//fmt.Println("Case 6")
 		sub := content[6:]
 		subs = []string{sub}
 		err = getLinkPost(discord, channel, nsfw, subs)
 	case strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050"):
-		fmt.Println("Case 7")
+		//fmt.Println("Case 7")
 		subs = []string{"fiftyfifty"}
 		err = getLinkPost(discord, channel, nsfw, subs)
 	case strings.HasPrefix(content, "!hentai"):
@@ -106,7 +106,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		subs = []string{"ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
 		err = getMediaPost(discord, channel, nsfw, subs)
 	case strings.HasPrefix(content, "!all"):
-		fmt.Println("Case 9")
+		//fmt.Println("Case 9")
 		randchoice := rand.Intn(4)
 		switch randchoice {
 		case 0:
@@ -116,6 +116,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		default:
 			err = getMediaPost(discord, channel, nsfw, []string{"all"})
 		}
+        case strings.HasPrefix(content, "!quickmeme"):
+                thing := content[12:]
+                switch thing {
+                case "help":
+                }
 	}
 	fmt.Println("Posted.")
 	errCheck("Error gettings post info:", err)
