@@ -1,8 +1,3 @@
-# This branch is the Go rewrite and will not be in use for probably a few weeks.
-Dependencies:
-- [discordgo](https://github.com/bwmarrin/discordgo)
-- [graw](https://github.com/turnage/graw)
-
 
 # Discord-Quick-Meme
 A discord bot that sends Reddit memes and news to a channel.
