@@ -14,10 +14,12 @@ import (
 var (
 	commandPrefix string
 	botID         string
+	//CacheTime     int64
 	// ServerMap
 	// this is all of the servers an the servers
 	// this gets wiped from memory as soon as the Bot gets killed
 	ServerMap map[string]string
+	//PostCache map[string][]reddit.Post
 )
 
 func main() {
@@ -54,6 +56,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	var err error
+	var sort string
 	var subs []string
 	//helpMessage := ""
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme"}
@@ -66,56 +69,57 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	}
 	channel := message.ChannelID
 	channelName := getChannelName(discord, channel)
-	fmt.Println("Command '" + content + "' from #" + channelName + " (" + channel + ")")
+	fmt.Println("Command '" + content + "' from " + user.Username + " on #" + channelName + " (" + channel + ")")
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
 	contentLength := utf8.RuneCountInString(content)
+	sort = "hot"
 	switch {
 	case strings.HasPrefix(content, "!meme") && contentLength <= 5:
 		//fmt.Println("Case 1")
 		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "CyanideandHappiness", "therewasanattempt", "wholesomememes", "instant_regret"}
-		err = getMediaPost(discord, channel, nsfw, subs)
+		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!meme") && contentLength >= 5:
 		//fmt.Println("Case 2")
 		sub := content[6:]
 		subs = []string{sub}
-		err = getMediaPost(discord, channel, nsfw, subs)
+		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!joke") && contentLength <= 5:
 		//fmt.Println("Case 3")
 		subs = []string{"jokes", "darkjokes", "antijokes"}
-		err = getTextPost(discord, channel, nsfw, subs)
+		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5:
 		//fmt.Println("Case 4")
 		sub := content[6:]
 		subs = []string{sub}
-		err = getTextPost(discord, channel, nsfw, subs)
+		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!news") && contentLength <= 5:
 		//fmt.Println("Case 5")
 		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
-		err = getLinkPost(discord, channel, nsfw, subs)
+		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength >= 5:
 		//fmt.Println("Case 6")
 		sub := content[6:]
 		subs = []string{sub}
-		err = getLinkPost(discord, channel, nsfw, subs)
+		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050"):
 		//fmt.Println("Case 7")
 		subs = []string{"fiftyfifty"}
-		err = getLinkPost(discord, channel, nsfw, subs)
+		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!hentai"):
 		// This is still only here because a friend of mine suggested this
-		fmt.Println("Case 8")
+		//fmt.Println("Case 8")
 		subs = []string{"ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
-		err = getMediaPost(discord, channel, nsfw, subs)
+		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!all"):
 		//fmt.Println("Case 9")
 		randchoice := rand.Intn(4)
 		switch randchoice {
 		case 0:
-			err = getLinkPost(discord, channel, nsfw, []string{"all"})
+			err = getLinkPost(discord, channel, nsfw, []string{"all"}, "")
 		case 1:
-			err = getTextPost(discord, channel, nsfw, []string{"all"})
+			err = getTextPost(discord, channel, nsfw, []string{"all"}, "")
 		default:
-			err = getMediaPost(discord, channel, nsfw, []string{"all"})
+			err = getMediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
 
 	case strings.HasPrefix(content, "!quickmeme"):
@@ -129,6 +133,22 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
 			discord.ChannelMessageSend(channel, "Discord-Quick-Meme is active and ready on "+strconv.Itoa(len(servers))+" servers for "+strconv.Itoa(userCount)+" users.")
+		case "test":
+			var count int
+			var total int64
+			var result float64
+			discord.ChannelMessageSend(channel, "Starting Quick-Meme Reddit speed test...")
+			fmt.Println("Starting Discord-Quick-Meme Reddit speed test....")
+			for i := 0; i < 10; i++ {
+				starttime := GetMillis()
+				_, _, _, _, _, _ = GetMediaPost([]string{"all"}, 100, "")
+				endtime := GetMillis()
+				total += (endtime - starttime)
+				count = i
+			}
+			result = float64(total) / float64(count)
+			discord.ChannelMessageSend(channel, "The results are in! Average Reddit response time over 10 trials: "+strconv.FormatFloat(result, 'f', 1, 64)+"ms")
+			fmt.Println("Average Reddit response time over 10 trials: " + strconv.FormatFloat(result, 'f', 1, 64) + "ms")
 		}
 	}
 	fmt.Println("Posted.")
@@ -162,7 +182,7 @@ func getNumberOfUsers(discord *discordgo.Session) int {
 	return count
 }
 
-// ContainsAnySubstring checks if any of the strings in the array are in the test string
+// ContainsAnySubstring Checks if any of the strings in the array are in the test string
 func ContainsAnySubstring(testString string, strArray []string) bool {
 	for _, str := range strArray {
 		if strings.Contains(testString, str) {
@@ -172,7 +192,7 @@ func ContainsAnySubstring(testString string, strArray []string) bool {
 	return false
 }
 
-func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string) error {
+func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
 	var err error
 	var score int32
 	var url string
@@ -183,10 +203,10 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
 	imageEndings := []string{".jpg", ".png", ".jpeg"}
-	limit := 25
+	limit := 100
 	toggled := false
 	for i := 0; i < 5; i++ {
-		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit)
+		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit, sort)
 		if channelNsfw {
 			toggled = true
 			break
@@ -225,7 +245,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	return err
 }
 
-func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string) error {
+func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
 	var err error
 	var score int32
 	var text string
@@ -233,10 +253,10 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	var nsfw bool
 	var postlink string
 	var sub string
-	limit := 25
+	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		score, text, title, nsfw, postlink, sub = GetTextPost(subs, limit)
+		score, text, title, nsfw, postlink, sub = GetTextPost(subs, limit, sort)
 		if channelNsfw {
 			toggled = true
 			break
@@ -261,7 +281,13 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	return err
 }
 
-func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string) error {
+func GetMillis() int64 {
+	now := time.Now()
+	nanos := now.UnixNano()
+	return nanos / 1000000
+}
+
+func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
 	var err error
 	var score int32
 	var url string
@@ -269,10 +295,10 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	var nsfw bool
 	var postlink string
 	var sub string
-	limit := 25
+	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		score, url, title, nsfw, postlink, sub = GetMediaPost(subs, limit)
+		score, url, title, nsfw, postlink, sub = GetLinkPost(subs, limit, sort)
 		if channelNsfw {
 			toggled = true
 			break
