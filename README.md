@@ -30,11 +30,19 @@ If any support is needed, please post an Issue on the Issues page.
 - Graw found [graw](https://github.com/turnage/graw).
 
 ### Disclaimer
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8d53af72751cfc6372948aa5a8ea43d8548e4983
 If its offline, I am probably working on it.
 
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
 
 ### To Do
+<<<<<<< HEAD
 - redo this thing in GoLang
 - need to add temporary post blacklist on a per channel basis (using a dictionary will get RAM intensive, maybe a ~~JSON or~~ database)
+=======
+- need to add temporary post blacklist on a per channel basis (using a dictionary will get RAM intensive, maybe a JSON or database)
+>>>>>>> 8d53af72751cfc6372948aa5a8ea43d8548e4983
 - get more users
