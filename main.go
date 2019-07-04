@@ -205,12 +205,17 @@ func getChannelName(discord *discordgo.Session, channelid string) string {
 	if _, ok := ServerMap[channelid]; ok {
 		return ServerMap[channelid]
 	} else {
+		starttime := GetMillis()
 		for _, guild := range discord.State.Guilds {
 			channels, _ := discord.GuildChannels(guild.ID)
 
 			for _, channel := range channels {
 				if channel.ID == channelid {
+					endtime := GetMillis()
+					t := endtime - starttime
+					fmt.Println("Time took to find channel name: " + strconv.FormatInt(t, 10) + "ms")
 					ServerMap[channelid] = channel.Name
+
 					return channel.Name
 				}
 			}
