@@ -2,6 +2,7 @@ data.json
 2data.json
 test.py
 user.txt
+*.service
 agent.yml
 posts.json
 test.go
