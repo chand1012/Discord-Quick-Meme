@@ -93,7 +93,7 @@ func GetMediaPost(subs []string, limit int, sort string) (QuickPost, string) {
 		gottenLength := len(gottenPosts)
 		if gottenLength == 0 {
 			returnPost = QuickPost{
-				Title:     "Sub seems to be empty.",
+				Title:     "Sub seems to be empty or does not exist.",
 				Score:     0,
 				Content:   "",
 				Nsfw:      false,
@@ -150,7 +150,7 @@ func GetLinkPost(subs []string, limit int, sort string) (QuickPost, string) {
 		gottenLength := len(gottenPosts)
 		if gottenLength == 0 {
 			returnPost = QuickPost{
-				Title:     "Sub seems to be empty.",
+				Title:     "Sub seems to be empty or does not exist.",
 				Score:     0,
 				Content:   "",
 				Nsfw:      false,
@@ -206,7 +206,7 @@ func GetTextPost(subs []string, limit int, sort string) (QuickPost, string) {
 		gottenLength := len(gottenPosts)
 		if gottenLength == 0 {
 			returnPost = QuickPost{
-				Title:     "Sub seems to be empty.",
+				Title:     "Sub seems to be empty or does not exist.",
 				Score:     0,
 				Content:   "",
 				Nsfw:      false,

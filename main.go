@@ -16,7 +16,7 @@ var tempChannelName = make(chan string)
 var (
 	commandPrefix string
 	botID         string
-	adminID       string
+	adminIDs      []string
 	// CacheTime stores cache timer value
 	CacheTime int64
 	// ServerMap this is all of the servers an the servers this gets wiped from memory as soon as the Bot gets killed
@@ -29,19 +29,21 @@ func main() {
 	var err error
 	var file string
 	var key string
-	var adminUsername string
+	var adminRawIDs []string
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	file = "data.json"
-	key, adminUsername, err = jsonExtract(file)
+	key, adminRawIDs, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
 	user, err := discord.User("@me")
-	admin, err := discord.User(adminUsername)
+	for _, admin := range adminRawIDs {
+		a, _ := discord.User(admin)
+		adminIDs = append(adminIDs, a.ID)
+	}
 	errCheck("error retrieving account", err)
 	botID = user.ID
-	adminID = admin.ID
 	discord.AddHandler(commandHandler)
 	discord.AddHandler(readyHandler)
 	err = discord.Open()
@@ -53,12 +55,9 @@ func main() {
 }
 
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
-	err := discord.UpdateStatus(0, "with spacetime.")
-	if err != nil {
-		fmt.Println("Error attempting to set the status.")
-	}
 	servers := discord.State.Guilds
 	fmt.Println("Discord-Quick-Meme has started on " + strconv.Itoa(len(servers)) + " servers")
+	go updateStatus(discord)
 }
 
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
@@ -67,6 +66,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	var subs []string
 	var dm bool
 	var channelName string
+	go updateStatus(discord)
 	dm, err = ComesFromDM(discord, message)
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link"}
 	user := message.Author
@@ -140,20 +140,15 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 
 	case strings.HasPrefix(content, "!quickmeme"):
-		//fmt.Println(content)
 		thing := content[10:]
 		thing, err = textFilter(thing)
-		if user.ID != adminID {
+		if !stringInSlice(user.ID, adminIDs) {
 			thing = ""
+			fmt.Println("Intruder tried to execute admin only command:")
+			fmt.Println(user.Username)
 		}
 		switch thing {
-		default:
-			servers := discord.State.Guilds
-			userCount := getNumberOfUsers(discord)
-			msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers for " + strconv.Itoa(userCount) + " users."
-			fmt.Println(msg)
-			discord.ChannelMessageSend(channel, msg)
-		case " test":
+		case "test":
 			var count int
 			var total int64
 			var redditResult float64
@@ -172,7 +167,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			msg = "Average Reddit response time over 10 trials: " + strconv.FormatFloat(redditResult, 'f', 1, 64) + "ms"
 			discord.ChannelMessageSend(channel, msg)
 			fmt.Println(msg)
-		case " getcache":
+		case "getcache":
 			var postCount int
 			var cachedReddits []string
 			var cachedRedditCount int
@@ -188,7 +183,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			fmt.Println(msgtwo)
 			discord.ChannelMessageSend(channel, msgone)
 			discord.ChannelMessageSend(channel, msgtwo)
-		case " clearcache":
+		case "clearcache":
 			discord.ChannelMessageSend(channel, "Clearing cache...")
 			fmt.Println("Admin issued cache clear...")
 			ClearCache()
@@ -196,6 +191,12 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
 			fmt.Println(msg)
 			discord.ChannelMessageSend(channel, "Done. "+msg)
+		default:
+			servers := discord.State.Guilds
+			userCount := getNumberOfUsers(discord)
+			msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers for " + strconv.Itoa(userCount) + " users."
+			fmt.Println(msg)
+			discord.ChannelMessageSend(channel, msg)
 		}
 	}
 	fmt.Println("Posted.")
@@ -220,6 +221,23 @@ func getChannelName(discord *discordgo.Session, channelid string, guildID string
 	}
 
 	return ""
+}
+
+func updateStatus(discord *discordgo.Session) {
+	uCount := getNumberOfUsers(discord)
+	err := discord.UpdateStatus(0, "with "+strconv.Itoa(uCount)+" others")
+	if err != nil {
+		errCheck("Error attempting to set the status.", err)
+	}
+}
+
+func stringInSlice(s string, a []string) bool {
+	for _, thing := range a {
+		if thing == s {
+			return true
+		}
+	}
+	return false
 }
 
 // ComesFromDM returns true if a message comes from a DM channel
