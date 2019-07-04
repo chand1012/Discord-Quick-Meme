@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -15,11 +16,11 @@ var (
 	commandPrefix string
 	botID         string
 	adminID       string
-	CacheTime     int64
-	// ServerMap
-	// this is all of the servers an the servers
-	// this gets wiped from memory as soon as the Bot gets killed
+	// CacheTime stores cache timer value
+	CacheTime int64
+	// ServerMap this is all of the servers an the servers this gets wiped from memory as soon as the Bot gets killed
 	ServerMap map[string]string
+	//PostCache stores all posts
 	PostCache map[string][]QuickPost
 )
 
@@ -86,24 +87,27 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case strings.HasPrefix(content, "!meme") && contentLength >= 5:
 		//fmt.Println("Case 2")
 		sub := content[6:]
+		sub, err = textFilter(sub)
 		subs = []string{sub}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case strings.HasPrefix(content, "!joke") && contentLength <= 5:
+	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength <= 5:
 		//fmt.Println("Case 3")
 		subs = []string{"jokes", "darkjokes", "antijokes"}
 		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5:
 		//fmt.Println("Case 4")
 		sub := content[6:]
+		sub, err = textFilter(sub)
 		subs = []string{sub}
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case strings.HasPrefix(content, "!news") && contentLength <= 5:
+	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength <= 5:
 		//fmt.Println("Case 5")
 		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength >= 5:
 		//fmt.Println("Case 6")
 		sub := content[6:]
+		sub, err = textFilter(sub)
 		subs = []string{sub}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050"):
@@ -130,7 +134,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case strings.HasPrefix(content, "!quickmeme"):
 		//fmt.Println(content)
 		thing := content[10:]
-		//fmt.Println(thing)
+		thing, err = textFilter(thing)
+		if user.ID != adminID {
+			thing = ""
+		}
 		switch thing {
 		default:
 			servers := discord.State.Guilds
@@ -143,9 +150,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			var total int64
 			var redditResult float64
 			var msg string
-			if user.ID != adminID {
-				return
-			}
 			msg = "Starting Quick-Meme speed test..."
 			discord.ChannelMessageSend(channel, msg)
 			fmt.Println(msg)
@@ -164,9 +168,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			var postCount int
 			var cachedReddits []string
 			var cachedRedditCount int
-			if user.ID != adminID {
-				return
-			}
 			discord.ChannelMessageSend(channel, "Getting cache info...")
 			cachedRedditCount = len(PostCache)
 			for k := range PostCache {
@@ -180,9 +181,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			discord.ChannelMessageSend(channel, msgone)
 			discord.ChannelMessageSend(channel, msgtwo)
 		case " clearcache":
-			if user.ID != adminID {
-				return
-			}
 			discord.ChannelMessageSend(channel, "Clearing cache...")
 			fmt.Println("Admin issued cache clear...")
 			ClearCache()
@@ -213,6 +211,12 @@ func getChannelName(discord *discordgo.Session, channelid string) string {
 		}
 	}
 	return ""
+}
+
+func textFilter(input string) (string, error) {
+	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
+	outputString := reg.ReplaceAllString(input, "")
+	return outputString, err
 }
 
 func getNumberOfUsers(discord *discordgo.Session) int {
