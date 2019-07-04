@@ -317,7 +317,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		returnPost, sub = GetMediaPost(subs, limit, sort)
+		returnPost, sub = GetLinkPost(subs, limit, sort)
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
