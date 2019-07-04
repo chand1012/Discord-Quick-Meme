@@ -21,7 +21,7 @@ If any support is needed, please post an Issue on the Issues page.
 - This bot was made as a side project of mine, an idea as some of my friends were not really Reddit users but I always talked about the memes and posts. They use Reddit now.
 
 ## Dependencies
-- DiscordGo rewrite found [discordgo](https://github.com/bwmarrin/discordgo).
+- DiscordGo found [discordgo](https://github.com/bwmarrin/discordgo).
 - Graw found [graw](https://github.com/turnage/graw).
 
 ### Disclaimer
