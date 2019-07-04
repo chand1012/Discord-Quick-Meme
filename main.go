@@ -14,6 +14,7 @@ import (
 var (
 	commandPrefix string
 	botID         string
+	adminID       string
 	CacheTime     int64
 	// ServerMap
 	// this is all of the servers an the servers
@@ -26,16 +27,19 @@ func main() {
 	var err error
 	var file string
 	var key string
+	var adminUsername string
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	file = "data.json"
-	key, _, err = jsonExtract(file)
+	key, adminUsername, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
 	user, err := discord.User("@me")
+	admin, err := discord.User(adminUsername)
 	errCheck("error retrieving account", err)
 	botID = user.ID
+	adminID = admin.ID
 	discord.AddHandler(commandHandler)
 	discord.AddHandler(readyHandler)
 	err = discord.Open()
@@ -128,22 +132,23 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		thing := content[10:]
 		//fmt.Println(thing)
 		switch thing {
-		//case " help":
-		//discord.ChannelMessageSend("") // finish this later
 		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
-			discord.ChannelMessageSend(channel, "Discord-Quick-Meme is active and ready on "+strconv.Itoa(len(servers))+" servers for "+strconv.Itoa(userCount)+" users.")
-		// case " clearcachetime":
-		// 	CacheTime = 0
-		// 	discord.ChannelMessageSend(channel, "Set cache time to zero.")
-		// 	fmt.Println("Set cache time to zero.")
+			msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers for " + strconv.Itoa(userCount) + " users."
+			fmt.Println(msg)
+			discord.ChannelMessageSend(channel, msg)
 		case " test":
 			var count int
 			var total int64
 			var redditResult float64
-			discord.ChannelMessageSend(channel, "Starting Quick-Meme speed test...")
-			fmt.Println("Starting Discord-Quick-Meme speed test....")
+			var msg string
+			if user.ID != adminID {
+				return
+			}
+			msg = "Starting Quick-Meme speed test..."
+			discord.ChannelMessageSend(channel, msg)
+			fmt.Println(msg)
 			for i := 0; i < 10; i++ {
 				starttime := GetMillis()
 				_ = PingReddit()
@@ -152,9 +157,39 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				count = i
 			}
 			redditResult = float64(total) / float64(count)
-			discord.ChannelMessageSend(channel, "Average Reddit response time over 10 trials: "+strconv.FormatFloat(redditResult, 'f', 1, 64)+"ms")
-			fmt.Println("Average Reddit response time over 10 trials: " + strconv.FormatFloat(redditResult, 'f', 1, 64) + "ms")
-
+			msg = "Average Reddit response time over 10 trials: " + strconv.FormatFloat(redditResult, 'f', 1, 64) + "ms"
+			discord.ChannelMessageSend(channel, msg)
+			fmt.Println(msg)
+		case " getcache":
+			var postCount int
+			var cachedReddits []string
+			var cachedRedditCount int
+			if user.ID != adminID {
+				return
+			}
+			discord.ChannelMessageSend(channel, "Getting cache info...")
+			cachedRedditCount = len(PostCache)
+			for k := range PostCache {
+				cachedReddits = append(cachedReddits, k)
+				postCount += len(PostCache[k])
+			}
+			msgone := "There are " + strconv.Itoa(cachedRedditCount) + " cached subreddits and " + strconv.Itoa(postCount) + " posts cached."
+			msgtwo := "Cached subs: " + strings.Join(cachedReddits, ", ")
+			fmt.Println(msgone)
+			fmt.Println(msgtwo)
+			discord.ChannelMessageSend(channel, msgone)
+			discord.ChannelMessageSend(channel, msgtwo)
+		case " clearcache":
+			if user.ID != adminID {
+				return
+			}
+			discord.ChannelMessageSend(channel, "Clearing cache...")
+			fmt.Println("Admin issued cache clear...")
+			ClearCache()
+			CacheTime = time.Now().Unix() + 3600
+			msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
+			fmt.Println(msg)
+			discord.ChannelMessageSend(channel, "Done. "+msg)
 		}
 	}
 	fmt.Println("Posted.")
@@ -188,6 +223,7 @@ func getNumberOfUsers(discord *discordgo.Session) int {
 	return count
 }
 
+// GetMillis gets number of milliseconds since epoch as a 64bit integer
 func GetMillis() int64 {
 	now := time.Now()
 	nanos := now.UnixNano()
@@ -234,6 +270,8 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		} else if !channelNsfw && !nsfw {
 			toggled = true
 			break
+		} else {
+			fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
 		}
 	}
 	if ContainsAnySubstring(url, imageEndings) && toggled {
@@ -290,6 +328,8 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		} else if !channelNsfw && !nsfw {
 			toggled = true
 			break
+		} else {
+			fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
 		}
 	}
 
@@ -332,6 +372,8 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		} else if !channelNsfw && !nsfw {
 			toggled = true
 			break
+		} else {
+			fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
 		}
 	}
 

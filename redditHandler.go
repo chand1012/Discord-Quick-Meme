@@ -100,7 +100,7 @@ func GetLinkPost(subs []string, limit int, sort string) (QuickPost, string) {
 	var success bool
 	sub = subs[rand.Intn(len(subs))]
 	cachePosts, success = GetFromCache(sub)
-	fmt.Println(success)
+	//fmt.Println(success)
 	if time.Now().Unix() >= CacheTime || success == false {
 		fmt.Println("Adding to cache.")
 		var gottenPosts []QuickPost
@@ -119,7 +119,6 @@ func GetLinkPost(subs []string, limit int, sort string) (QuickPost, string) {
 				Permalink: post.Permalink,
 			}
 			gottenPosts = append(gottenPosts, gotPost)
-
 		}
 		s := rand.Intn(len(gottenPosts))
 		returnPost = gottenPosts[s]
@@ -160,7 +159,6 @@ func GetTextPost(subs []string, limit int, sort string) (QuickPost, string) {
 				Permalink: post.Permalink,
 			}
 			gottenPosts = append(gottenPosts, gotPost)
-
 		}
 		s := rand.Intn(len(gottenPosts))
 		returnPost = gottenPosts[s]
