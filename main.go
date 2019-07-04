@@ -12,6 +12,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var tempChannelName = make(chan string)
 var (
 	commandPrefix string
 	botID         string
@@ -79,7 +80,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if dm {
 		channelName = user.Username + "'s DMs"
 	} else {
+		starttime := GetMillis()
 		channelName = "#" + getChannelName(discord, channel)
+		endtime := GetMillis()
+		t := endtime - starttime
+		fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
 	}
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
@@ -200,28 +205,31 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	errCheck("Error gettings post info:", err)
 }
 
+func channelNameWorker(search []*discordgo.Channel, channelid string) {
+	//fmt.Println("Search channel for id " + channelid)
+	for _, channel := range search {
+		if channel.ID == channelid {
+			ServerMap[channelid] = channel.Name
+			tempChannelName <- channel.Name
+			break
+		}
+	}
+	//fmt.Println("Done with thread.")
+
+}
+
 func getChannelName(discord *discordgo.Session, channelid string) string {
 	fmt.Println("Getting channel name....")
 	if _, ok := ServerMap[channelid]; ok {
 		return ServerMap[channelid]
-	} else {
-		starttime := GetMillis()
-		for _, guild := range discord.State.Guilds {
-			channels, _ := discord.GuildChannels(guild.ID)
-
-			for _, channel := range channels {
-				if channel.ID == channelid {
-					endtime := GetMillis()
-					t := endtime - starttime
-					fmt.Println("Time took to find channel name: " + strconv.FormatInt(t, 10) + "ms")
-					ServerMap[channelid] = channel.Name
-
-					return channel.Name
-				}
-			}
-		}
 	}
-	return ""
+	for _, guild := range discord.State.Guilds {
+		channels, _ := discord.GuildChannels(guild.ID)
+		fmt.Println("Started worker for " + guild.Name)
+		go channelNameWorker(channels, channelid)
+	}
+
+	return <-tempChannelName
 }
 
 // ComesFromDM returns true if a message comes from a DM channel
