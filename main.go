@@ -64,7 +64,9 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	var err error
 	var sort string
 	var subs []string
-	//helpMessage := ""
+	var dm bool
+	var channelName string
+	dm, err = ComesFromDM(discord, message)
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link"}
 	user := message.Author
 	content := message.Content
@@ -74,8 +76,12 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		return
 	}
 	channel := message.ChannelID
-	channelName := getChannelName(discord, channel)
-	fmt.Println("Command '" + content + "' from " + user.Username + " on #" + channelName + " (" + channel + ")")
+	if dm {
+		channelName = user.Username + "'s DMs"
+	} else {
+		channelName = "#" + getChannelName(discord, channel)
+	}
+	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
 	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
 	contentLength := utf8.RuneCountInString(content)
 	sort = "hot"
@@ -211,6 +217,18 @@ func getChannelName(discord *discordgo.Session, channelid string) string {
 		}
 	}
 	return ""
+}
+
+// ComesFromDM returns true if a message comes from a DM channel
+func ComesFromDM(s *discordgo.Session, m *discordgo.MessageCreate) (bool, error) {
+	channel, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		if channel, err = s.Channel(m.ChannelID); err != nil {
+			return false, err
+		}
+	}
+
+	return channel.Type == discordgo.ChannelTypeDM, nil
 }
 
 func textFilter(input string) (string, error) {
