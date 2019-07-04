@@ -60,7 +60,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	var sort string
 	var subs []string
 	//helpMessage := ""
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link"}
 	user := message.Author
 	content := message.Content
 	if user.ID == botID || user.Bot {
@@ -275,7 +275,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		returnPost, sub = GetMediaPost(subs, limit, sort)
+		returnPost, sub = GetTextPost(subs, limit, sort)
 		score = returnPost.Score
 		text = returnPost.Content
 		title = returnPost.Title
