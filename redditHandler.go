@@ -72,6 +72,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	}
 	switch {
 	case !success:
+		starttime := GetMillis()
 		fmt.Println("Adding r/" + sub + " to cache.")
 		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
 		if err != nil {
@@ -119,17 +120,21 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		gottenLength := len(gottenPosts)
 		if gottenLength == 0 {
 			returnPost = QuickPost{
-				Title:     "Sub seems to be empty or does not exist.",
+				Title:     "ERROR: Sub seems to be empty or does not exist.",
 				Score:     0,
 				Content:   "",
 				Nsfw:      false,
 				Permalink: "/r/" + sub + "/",
 			}
+			fmt.Println("Nothing to cache! Discarding....")
 		} else {
 			AddToCache(sub, gottenPosts)
 			CacheTime = time.Now().Unix() + 3600
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
+			endtime := GetMillis()
+			t := endtime - starttime
+			fmt.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
 		}
 	case success:
 		fmt.Println("Found r/" + sub + " in cache.")
