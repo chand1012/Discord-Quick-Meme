@@ -1,6 +1,5 @@
 package main
 
-//https://turnage.gitbooks.io/graw/content/graw.html
 import (
 	"fmt"
 	"math/rand"
@@ -47,27 +46,33 @@ func PingReddit() error {
 	return err
 }
 
-// GetMediaPost gets image post
-func GetMediaPost(subs []string, limit int, sort string) (QuickPost, string) {
-	var returnPost QuickPost
+// GetPost gets reddit posts
+func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, string) {
+	var gottenPosts []QuickPost
 	var cachePosts []QuickPost
+	var gotPost QuickPost
+	var returnPost QuickPost
+
+	var urlItems []string
 	var sub string
+
 	var success bool
+
 	var s int
+
 	sub = subs[rand.Intn(len(subs))]
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime {
 		fmt.Println("Clearing Cache...")
 		ClearCache()
+		success = false
 		CacheTime = time.Now().Unix() + 3600
 		fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	}
 	switch {
 	case !success:
 		fmt.Println("Adding r/" + sub + " to cache.")
-		var gottenPosts []QuickPost
-		urlItems := []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
 		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
 		if err != nil {
 			panic(err)
@@ -79,16 +84,37 @@ func GetMediaPost(subs []string, limit int, sort string) (QuickPost, string) {
 			limit = lengthPosts
 		}
 		for _, post := range harvest.Posts[:limit] {
-			if !strings.Contains(post.URL, "v.redd.it") && ContainsAnySubstring(post.URL, urlItems) {
-				gotPost := QuickPost{
+			switch mode {
+			case "link":
+				gotPost = QuickPost{
 					Title:     post.Title,
 					Score:     post.Score,
 					Content:   post.URL,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
 				}
-				gottenPosts = append(gottenPosts, gotPost)
+			case "text":
+				gotPost = QuickPost{
+					Title:     post.Title,
+					Score:     post.Score,
+					Content:   post.SelfText,
+					Nsfw:      post.NSFW,
+					Permalink: post.Permalink,
+				}
+			case "media":
+				urlItems = []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
+				if !strings.Contains(post.URL, "v.redd.it") && ContainsAnySubstring(post.URL, urlItems) {
+					gotPost = QuickPost{
+						Title:     post.Title,
+						Score:     post.Score,
+						Content:   post.URL,
+						Nsfw:      post.NSFW,
+						Permalink: post.Permalink,
+					}
+				}
 			}
+
+			gottenPosts = append(gottenPosts, gotPost)
 		}
 		gottenLength := len(gottenPosts)
 		if gottenLength == 0 {
@@ -106,120 +132,6 @@ func GetMediaPost(subs []string, limit int, sort string) (QuickPost, string) {
 			returnPost = gottenPosts[s]
 		}
 	case success:
-		fmt.Println("Found r/" + sub + " in cache.")
-		s := rand.Intn(len(cachePosts))
-		returnPost = cachePosts[s]
-	}
-
-	return returnPost, sub
-}
-
-// GetLinkPost gets link post
-func GetLinkPost(subs []string, limit int, sort string) (QuickPost, string) {
-	var returnPost QuickPost
-	var cachePosts []QuickPost
-	var sub string
-	var success bool
-	var s int
-	sub = subs[rand.Intn(len(subs))]
-	cachePosts, success = GetFromCache(sub)
-	//fmt.Println(success)
-	if time.Now().Unix() >= CacheTime || success == false {
-		fmt.Println("Adding r/" + sub + " to cache.")
-		var gottenPosts []QuickPost
-		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
-		if err != nil {
-			panic(err)
-		}
-		rand.Seed(time.Now().Unix())
-		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "")
-		lengthPosts := len(harvest.Posts)
-		if lengthPosts < limit {
-			limit = lengthPosts
-		}
-		for _, post := range harvest.Posts[:limit] {
-			gotPost := QuickPost{
-				Title:     post.Title,
-				Score:     post.Score,
-				Content:   post.URL,
-				Nsfw:      post.NSFW,
-				Permalink: post.Permalink,
-			}
-			gottenPosts = append(gottenPosts, gotPost)
-		}
-		gottenLength := len(gottenPosts)
-		if gottenLength == 0 {
-			returnPost = QuickPost{
-				Title:     "Sub seems to be empty or does not exist.",
-				Score:     0,
-				Content:   "",
-				Nsfw:      false,
-				Permalink: "/r/" + sub + "/",
-			}
-		} else {
-			AddToCache(sub, gottenPosts)
-			CacheTime = time.Now().Unix() + 3600
-			s = rand.Intn(gottenLength)
-			returnPost = gottenPosts[s]
-		}
-	} else {
-		fmt.Println("Found r/" + sub + " in cache.")
-		s := rand.Intn(len(cachePosts))
-		returnPost = cachePosts[s]
-	}
-	return returnPost, sub
-}
-
-// GetTextPost get self text post
-func GetTextPost(subs []string, limit int, sort string) (QuickPost, string) {
-	var returnPost QuickPost
-	var cachePosts []QuickPost
-	var sub string
-	var success bool
-	var s int
-	sub = subs[rand.Intn(len(subs))]
-	cachePosts, success = GetFromCache(sub)
-	fmt.Println(success)
-	if time.Now().Unix() >= CacheTime || success == false {
-		fmt.Println("Adding r/" + sub + " to cache.")
-		var gottenPosts []QuickPost
-		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
-		if err != nil {
-			panic(err)
-		}
-		rand.Seed(time.Now().Unix())
-		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "")
-		lengthPosts := len(harvest.Posts)
-		if lengthPosts < limit {
-			limit = lengthPosts
-		}
-		for _, post := range harvest.Posts[:limit] {
-			gotPost := QuickPost{
-				Title:     post.Title,
-				Score:     post.Score,
-				Content:   post.SelfText,
-				Nsfw:      post.NSFW,
-				Permalink: post.Permalink,
-			}
-			gottenPosts = append(gottenPosts, gotPost)
-		}
-		gottenLength := len(gottenPosts)
-		if gottenLength == 0 {
-			returnPost = QuickPost{
-				Title:     "Sub seems to be empty or does not exist.",
-				Score:     0,
-				Content:   "",
-				Nsfw:      false,
-				Permalink: "/r/" + sub + "/",
-			}
-		} else {
-			AddToCache(sub, gottenPosts)
-			CacheTime = time.Now().Unix() + 3600
-			s = rand.Intn(gottenLength)
-			returnPost = gottenPosts[s]
-		}
-
-	} else {
 		fmt.Println("Found r/" + sub + " in cache.")
 		s := rand.Intn(len(cachePosts))
 		returnPost = cachePosts[s]

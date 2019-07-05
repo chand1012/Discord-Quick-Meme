@@ -12,7 +12,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var tempChannelName = make(chan string)
 var (
 	commandPrefix string
 	botID         string
@@ -298,7 +297,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	limit := 100
 	toggled := false
 	for i := 0; i < 5; i++ {
-		returnPost, sub = GetMediaPost(subs, limit, sort)
+		returnPost, sub = GetPost(subs, limit, sort, "media")
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
@@ -356,7 +355,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		returnPost, sub = GetTextPost(subs, limit, sort)
+		returnPost, sub = GetPost(subs, limit, sort, "text")
 		score = returnPost.Score
 		text = returnPost.Content
 		title = returnPost.Title
@@ -400,7 +399,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	limit := 100
 	toggled := false
 	for i := 0; i < 10; i++ {
-		returnPost, sub = GetLinkPost(subs, limit, sort)
+		returnPost, sub = GetPost(subs, limit, sort, "link")
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
