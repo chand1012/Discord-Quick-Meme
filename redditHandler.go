@@ -241,3 +241,14 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	}
 	return returnPost, sub
 }
+
+func MinScore(posts []QuickPost) int32 {
+	var total int32
+	var n int
+	n = len(posts)
+	for _, post := range posts {
+		total += post.Score
+	}
+	avg := total / int32(n)
+	return avg / 3
+}
