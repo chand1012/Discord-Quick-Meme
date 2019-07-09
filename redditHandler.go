@@ -236,12 +236,20 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		}
 	case success:
 		fmt.Println("Found r/" + sub + " in cache.")
-		s := rand.Intn(len(cachePosts))
-		returnPost = cachePosts[s]
+		minScore := MinScore(cachePosts)
+		for i := 0; i < len(cachePosts); i++ {
+			s := rand.Intn(len(cachePosts))
+			returnPost = cachePosts[s]
+			if returnPost.Score >= minScore {
+				break
+			}
+		}
+
 	}
 	return returnPost, sub
 }
 
+// MinScore Formula for calculating effective minimum score.
 func MinScore(posts []QuickPost) int32 {
 	var total int32
 	var n int
@@ -250,5 +258,6 @@ func MinScore(posts []QuickPost) int32 {
 		total += post.Score
 	}
 	avg := total / int32(n)
-	return avg / 3
+	fmt.Println(avg / 2)
+	return avg / 2
 }
