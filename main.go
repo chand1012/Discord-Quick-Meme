@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -55,6 +56,7 @@ func main() {
 
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
+	getAllChannelNames(discord)
 	fmt.Println("Discord-Quick-Meme has started on " + strconv.Itoa(len(servers)) + " servers")
 	go updateStatus(discord)
 }
@@ -94,7 +96,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case strings.HasPrefix(content, "!meme") && contentLength >= 5:
 		//fmt.Println("Case 2")
 		sub := content[6:]
-		sub, err = textFilter(sub)
+		sub = textFilter(sub)
 		subs = []string{sub}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength <= 5:
@@ -104,7 +106,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && contentLength >= 5:
 		//fmt.Println("Case 4")
 		sub := content[6:]
-		sub, err = textFilter(sub)
+		sub = textFilter(sub)
 		subs = []string{sub}
 		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength <= 5:
@@ -114,7 +116,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && contentLength >= 5:
 		//fmt.Println("Case 6")
 		sub := content[6:]
-		sub, err = textFilter(sub)
+		sub = textFilter(sub)
 		subs = []string{sub}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050"):
@@ -140,7 +142,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 
 	case strings.HasPrefix(content, "!quickmeme"):
 		thing := content[10:]
-		thing, err = textFilter(thing)
+		thing = textFilter(thing)
 		if !stringInSlice(user.ID, adminIDs) {
 			thing = ""
 			fmt.Println("Intruder tried to execute admin only command:")
@@ -190,6 +192,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
 			fmt.Println(msg)
 			discord.ChannelMessageSend(channel, "Done. "+msg)
+		case "getservercache":
+			channelCount := len(ServerMap)
+			fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
+			fmt.Println(ServerMap)
+			discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
 		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
@@ -200,6 +207,57 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	}
 	fmt.Println("Posted.")
 	errCheck("Error gettings post info:", err)
+}
+
+// Server server object for the golang channels
+type Server struct {
+	IDs   []string
+	Names []string
+}
+
+func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup, workerNumber int) {
+	defer wg.Done()
+	var ids []string
+	var names []string
+	fmt.Println("Starting worker #" + strconv.Itoa(workerNumber+1))
+	channels, _ := discord.GuildChannels(guildID)
+	for _, channel := range channels {
+		if channel.Type != discordgo.ChannelTypeGuildText {
+			continue
+		}
+		ids = append(ids, channel.ID)
+		names = append(names, channel.Name)
+	}
+	server := Server{
+		IDs:   ids,
+		Names: names,
+	}
+	send <- server
+	fmt.Println("Worker #" + strconv.Itoa(workerNumber+1) + " finished.")
+}
+
+func getAllChannelNames(discord *discordgo.Session) {
+	var wg sync.WaitGroup
+	starttime := GetMillis()
+	guilds := discord.State.Guilds
+	bufferSize := len(guilds)
+	recv := make(chan Server, bufferSize)
+	wg.Add(len(guilds))
+	for i, guild := range guilds {
+		go getAllWorker(discord, guild.ID, recv, &wg, i)
+	}
+	wg.Wait()
+	close(recv)
+	for i := 0; i < bufferSize; i++ {
+		thing := <-recv
+		length := len(thing.IDs)
+		for i := 0; i < length; i++ {
+			ServerMap[thing.IDs[i]] = thing.Names[i]
+		}
+	}
+	endtime := GetMillis()
+	t := endtime - starttime
+	fmt.Println("Time to get all current channel names: " + strconv.FormatInt(t, 10) + "ms")
 }
 
 func getChannelName(discord *discordgo.Session, channelid string, guildID string) string {
@@ -251,10 +309,10 @@ func ComesFromDM(s *discordgo.Session, m *discordgo.MessageCreate) (bool, error)
 	return channel.Type == discordgo.ChannelTypeDM, nil
 }
 
-func textFilter(input string) (string, error) {
-	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
+func textFilter(input string) string {
+	reg, _ := regexp.Compile("[^a-zA-Z0-9_]+")
 	outputString := reg.ReplaceAllString(input, "")
-	return outputString, err
+	return outputString
 }
 
 func getNumberOfUsers(discord *discordgo.Session) int {
