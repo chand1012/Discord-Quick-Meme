@@ -258,6 +258,5 @@ func MinScore(posts []QuickPost) int32 {
 		total += post.Score
 	}
 	avg := total / int32(n)
-	fmt.Println(avg / 2)
 	return avg / 2
 }
