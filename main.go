@@ -57,6 +57,7 @@ func main() {
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
 	getAllChannelNames(discord)
+	PopulateCache()
 	fmt.Println("Discord-Quick-Meme has started on " + strconv.Itoa(len(servers)) + " servers")
 	go updateStatus(discord)
 }
@@ -188,10 +189,14 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			discord.ChannelMessageSend(channel, "Clearing cache...")
 			fmt.Println("Admin issued cache clear...")
 			ClearCache()
-			CacheTime = time.Now().Unix() + 3600
+			fmt.Println("Cache cleared. Repopulating...")
+			discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
+			st := GetMillis()
+			PopulateCache()
+			et := GetMillis()
 			msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
-			fmt.Println(msg)
-			discord.ChannelMessageSend(channel, "Done. "+msg)
+			msgtwo := ". Took " + strconv.FormatInt(et-st, 10) + "ms to populate cache."
+			discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
 		case "getservercache":
 			channelCount := len(ServerMap)
 			fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
@@ -219,7 +224,7 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 	defer wg.Done()
 	var ids []string
 	var names []string
-	fmt.Println("Starting worker #" + strconv.Itoa(workerNumber+1))
+	//fmt.Println("Starting worker #" + strconv.Itoa(workerNumber+1))
 	channels, _ := discord.GuildChannels(guildID)
 	for _, channel := range channels {
 		if channel.Type != discordgo.ChannelTypeGuildText {
@@ -233,17 +238,18 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 		Names: names,
 	}
 	send <- server
-	fmt.Println("Worker #" + strconv.Itoa(workerNumber+1) + " finished.")
+	//fmt.Println("Worker #" + strconv.Itoa(workerNumber+1) + " finished.")
 }
 
 func getAllChannelNames(discord *discordgo.Session) {
 	var wg sync.WaitGroup
+	fmt.Println("Getting current channel names...")
 	starttime := GetMillis()
 	guilds := discord.State.Guilds
 	bufferSize := len(guilds)
 	recv := make(chan Server, bufferSize)
-	wg.Add(len(guilds))
 	for i, guild := range guilds {
+		wg.Add(1)
 		go getAllWorker(discord, guild.ID, recv, &wg, i)
 	}
 	wg.Wait()
@@ -251,8 +257,8 @@ func getAllChannelNames(discord *discordgo.Session) {
 	for i := 0; i < bufferSize; i++ {
 		thing := <-recv
 		length := len(thing.IDs)
-		for i := 0; i < length; i++ {
-			ServerMap[thing.IDs[i]] = thing.Names[i]
+		for x := 0; x < length; x++ {
+			ServerMap[thing.IDs[x]] = thing.Names[x]
 		}
 	}
 	endtime := GetMillis()
