@@ -11,6 +11,7 @@ __pycache__
 .vscode
 build
 dist
+temp
 *.spec
 # Binaries for programs and plugins
 *.exe
