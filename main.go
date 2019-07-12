@@ -23,6 +23,10 @@ var (
 	ServerMap map[string]string
 	//PostCache stores all posts
 	PostCache map[string][]QuickPost
+	// SubCounter counts all of the subreddit uses
+	//SubCounter map[string]int
+	// CommonSubs Common Subreddits
+	//CommonSubs []string
 )
 
 func main() {
@@ -32,6 +36,7 @@ func main() {
 	var adminRawIDs []string
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
+	//SubCounter = make(map[string]int)
 	file = "data.json"
 	key, adminRawIDs, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
@@ -224,7 +229,6 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 	defer wg.Done()
 	var ids []string
 	var names []string
-	//fmt.Println("Starting worker #" + strconv.Itoa(workerNumber+1))
 	channels, _ := discord.GuildChannels(guildID)
 	for _, channel := range channels {
 		if channel.Type != discordgo.ChannelTypeGuildText {
@@ -238,7 +242,6 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 		Names: names,
 	}
 	send <- server
-	//fmt.Println("Worker #" + strconv.Itoa(workerNumber+1) + " finished.")
 }
 
 func getAllChannelNames(discord *discordgo.Session) {

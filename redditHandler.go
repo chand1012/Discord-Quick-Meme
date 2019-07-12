@@ -29,15 +29,40 @@ func GetFromCache(sub string) ([]QuickPost, bool) {
 	return returnPosts, success
 }
 
+// GuessPostType get the type of the post so a
+func GuessPostType(post *reddit.Post) string {
+	selfText := post.SelfText
+	urlContent := post.URL
+	if len(selfText) == 0 {
+		urlItems := []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
+		if !strings.Contains(urlContent, "v.redd.it") && ContainsAnySubstring(urlContent, urlItems) {
+			return "media"
+		}
+		return "link"
+
+	}
+	return "text"
+}
+
 // AddToCacheWorker spawned to get as many reddit posts as needed
-func AddToCacheWorker(sub string, wg *sync.WaitGroup, bot reddit.Scanner, send chan<- []QuickPost, mode string) {
+func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	defer wg.Done()
 	var gottenPosts []QuickPost
 	var gotPost QuickPost
+	bot, _ := reddit.NewBotFromAgentFile("agent.yml", 0)
 	harvest, err := bot.Listing("/r/"+sub+"/hot/", "")
+	if err != nil {
+		if strings.Contains(err.Error(), "400") {
+			fmt.Println("Error 400. Subreddit that caused the issue:")
+			fmt.Println(sub)
+			return
+		}
+		panic(err)
+	}
 	for _, post := range harvest.Posts {
-		switch mode {
-		case "link":
+		mode := GuessPostType(post)
+		switch {
+		case mode == "link" || mode == "media":
 			gotPost = QuickPost{
 				Title:     post.Title,
 				Score:     post.Score,
@@ -46,7 +71,7 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, bot reddit.Scanner, send c
 				Permalink: post.Permalink,
 				Sub:       sub,
 			}
-		case "text":
+		case mode == "text":
 			gotPost = QuickPost{
 				Title:     post.Title,
 				Score:     post.Score,
@@ -55,18 +80,6 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, bot reddit.Scanner, send c
 				Permalink: post.Permalink,
 				Sub:       sub,
 			}
-		case "media":
-			urlItems := []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
-			if !strings.Contains(post.URL, "v.redd.it") && ContainsAnySubstring(post.URL, urlItems) {
-				gotPost = QuickPost{
-					Title:     post.Title,
-					Score:     post.Score,
-					Content:   post.URL,
-					Nsfw:      post.NSFW,
-					Permalink: post.Permalink,
-					Sub:       sub,
-				}
-			}
 		}
 		gottenPosts = append(gottenPosts, gotPost)
 	}
@@ -74,6 +87,7 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, bot reddit.Scanner, send c
 	if err != nil {
 		panic(err)
 	}
+	//fmt.Println("Sent " + sub + " to cache.")
 }
 
 // PopulateCache spawns workers to add posts to the cache
@@ -82,25 +96,20 @@ func PopulateCache() {
 	CacheTime = time.Now().Unix() + 3600
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
-	mediaSubs := []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
-	textSubs := []string{"jokes", "darkjokes", "antijokes"}
-	linkSubs := []string{"fiftyfifty", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
+	subs := []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise", "jokes", "darkjokes", "antijokes", "fiftyfifty", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
 	var wg sync.WaitGroup
-	bufferSize := len(mediaSubs) + len(textSubs) + len(linkSubs)
+	bufferSize := len(subs)
 	recv := make(chan []QuickPost, bufferSize)
-	bot, _ := reddit.NewBotFromAgentFile("agent.yml", 0)
-	for _, sub := range mediaSubs {
+	for _, sub := range subs {
 		wg.Add(1)
-		go AddToCacheWorker(sub, &wg, bot, recv, "media")
+		go AddToCacheWorker(sub, &wg, recv)
 	}
-	for _, sub := range textSubs {
-		wg.Add(1)
-		go AddToCacheWorker(sub, &wg, bot, recv, "text")
-	}
-	for _, sub := range linkSubs {
-		wg.Add(1)
-		go AddToCacheWorker(sub, &wg, bot, recv, "link")
-	}
+	/*
+		for _, sub := range CommonSubs {
+			wg.Add(1)
+			go AddToCacheWorker(sub, &wg, recv)
+		}
+	*/
 	wg.Wait()
 	close(recv)
 	for i := 0; i < bufferSize; i++ {
@@ -146,7 +155,6 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	var returnPost QuickPost
 
 	var subList []string
-	var urlItems []string
 	var sub string
 
 	var success bool
@@ -155,6 +163,17 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	subList = []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "jokes", "darkjokes", "antijokes", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion", "fiftyfifty"}
 	sub = subs[rand.Intn(len(subs))]
+	/*
+		if !ContainsAnySubstring(sub, subList) {
+			if SubCounter[sub] < 6 {
+				SubCounter[sub]++
+			}
+			if SubCounter[sub] == 5 {
+				fmt.Println("Subreddit " + sub + " used more than 5 times, adding to cache list...")
+				CommonSubs = append(CommonSubs, sub)
+			}
+		}
+	*/
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime {
@@ -179,33 +198,25 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 			limit = lengthPosts
 		}
 		for _, post := range harvest.Posts[:limit] {
-			switch mode {
-			case "link":
+			mode := GuessPostType(post)
+			switch {
+			case mode == "link" || mode == "media":
 				gotPost = QuickPost{
 					Title:     post.Title,
 					Score:     post.Score,
 					Content:   post.URL,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
+					Sub:       sub,
 				}
-			case "text":
+			case mode == "text":
 				gotPost = QuickPost{
 					Title:     post.Title,
 					Score:     post.Score,
 					Content:   post.SelfText,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
-				}
-			case "media":
-				urlItems = []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
-				if !strings.Contains(post.URL, "v.redd.it") && ContainsAnySubstring(post.URL, urlItems) {
-					gotPost = QuickPost{
-						Title:     post.Title,
-						Score:     post.Score,
-						Content:   post.URL,
-						Nsfw:      post.NSFW,
-						Permalink: post.Permalink,
-					}
+					Sub:       sub,
 				}
 			}
 
