@@ -404,7 +404,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
-		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Add \"NSFW\" to the channel name to allow NSFW posts.")
 	}
 
 	return err
@@ -449,7 +449,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
-		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Add \"NSFW\" to the channel name to allow NSFW posts.")
 	}
 	return err
 }
@@ -493,7 +493,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
-		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them?")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Add \"NSFW\" to the channel name to allow NSFW posts.")
 	}
 	return err
 }
