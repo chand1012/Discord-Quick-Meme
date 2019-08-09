@@ -10,4 +10,10 @@ before_script:
   - go get github.com/bwmarrin/discordgo
   - go get github.com/turnage/graw
 script: 
-  - go build -v
+  - go build -v -o GoDiscordBot
+after_success:
+  - echo "${SFTP_KEY}" | base64 --decode >/tmp/sftp_rsa
+  - curl --ftp-create-dirs
+       -T GoDiscordBot
+       --key /tmp/sftp_rsa
+       sftp://${SFTP_USER}:${SFTP_PASSWORD}@${SFTP_IP}:${SFTP_PORT}/home/${SFTP_USER}/GoDiscordBot
