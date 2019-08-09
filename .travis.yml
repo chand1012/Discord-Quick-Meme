@@ -1,5 +1,5 @@
 if: branch = master
-sudo: false
+sudo: true
 language: go
 go:
   - 1.10.x
@@ -9,8 +9,10 @@ os:
 before_script:
   - go get github.com/bwmarrin/discordgo
   - go get github.com/turnage/graw
+  - apt update
+  - apt install sshpass -y
 script: 
   - go build -v -o GoDiscordBot
 after_success:
   - ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
-  - scp GoDiscordBot -P ${SFTP_PORT} ${SFTP_USER}:${SFTP_PASSWORD}@${SFTP_IP}:/home/#{SFTP_USER}/GoDiscordBot
+  - sshpass -p "${SFTP_PASSWORD}" scp GoDiscordBot -P ${SFTP_PORT} ${SFTP_USER}@${SFTP_IP}:/home/${SFTP_USER}/GoDiscordBot
