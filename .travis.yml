@@ -12,8 +12,5 @@ before_script:
 script: 
   - go build -v -o GoDiscordBot
 after_success:
-  - echo "${SFTP_KEY}" | base64 --decode >/tmp/sftp_rsa
-  - curl --ftp-create-dirs
-       -T GoDiscordBot
-       --key /tmp/sftp_rsa
-       sftp://${SFTP_USER}:${SFTP_PASSWORD}@${SFTP_IP}:${SFTP_PORT}/home/${SFTP_USER}/GoDiscordBot
+  - ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
+  - scp GoDiscordBot -P ${SFTP_PORT} ${SFTP_USER}:${SFTP_PASSWORD}@${SFTP_IP}:/home/#{SFTP_USER}/GoDiscordBot
