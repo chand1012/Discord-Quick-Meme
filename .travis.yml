@@ -1,0 +1,13 @@
+if: branch = master
+sudo: false
+language: go
+go:
+  - 1.10.x
+os:
+  - linux
+
+before_script:
+  - got get github.com/bwmarrin/discordgo
+  - got get github.com/turnage/graw
+script: 
+  - go build -v
