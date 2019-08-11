@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/chand1012/Discord-Quick-Meme.svg?branch=master)](https://travis-ci.org/chand1012/Discord-Quick-Meme)
+
 # Discord-Quick-Meme
 A discord bot that sends Reddit memes and news to a channel.
 

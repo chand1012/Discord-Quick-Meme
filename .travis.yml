@@ -9,10 +9,14 @@ os:
 before_script:
   - go get github.com/bwmarrin/discordgo
   - go get github.com/turnage/graw
-  - apt update
-  - apt install sshpass -y
 script: 
   - go build -v -o GoDiscordBot
-after_success:
-  - ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
-  - sshpass -p "${SFTP_PASSWORD}" scp GoDiscordBot -P ${SFTP_PORT} ${SFTP_USER}@${SFTP_IP}:/home/${SFTP_USER}/GoDiscordBot
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "snHGDa0PMBZQvm8E+0DgS5Sw4g3wPU86vOt134E2QYEuzAqegjj4eXP4Wg8ewaleCuqvpf4NyHpCQCz1qQL59pnqvrswpyUy48vWnQQA+utiwM46Pc42ipR6cmxcmlkxSAhKyHcmqANFrQUGkFZNkLc1E29WMip6A4WAjiYnN6Jxoi+G/g8c0w6srMJKurw2AwMJGa12dKV3EJaRoVa6DOmjhmIz0ab6iUfrkuE07akJhyiNKQMlBlonw273aQshcSCDWe5L4q2NFAsVuAu9o11PxJtYJXuJOOy9D9f2fXOJ2axPVh33MWkbKs3jwCSOM5ElLWU94+LE8F8cNwo976GCUFQ9RHHUfg2i8RgA+l+s31ugWyffMg/RaUvtqgYeXB34R3KTt1jLVTjzM7O2q2P5lmOte4W8q/EEt2FsN0NFAagv27sph3YvKmYDslYwjVoM7h8NRTTz5x06X7udq9P+/NuXsaTweL/qYK5dMBKct6Wj3GouWzK3tMLXiPqU1erUTpm+5UunrIiAgbN1BKk4weVTY3t+PQ3IODnKwEZnUYPQSutuaLceiPs4kAMUIXJXGYLhCCRxLhRNOHpwYbFVfb/zNZggRoUSN9vjwemF82twXDZYlXt+ine8LHBuRcFZhk4ztmacQpuB4GkdfRWae0zXBuqh2pQGE1UydH4="
+  file: "GoDiscordBot"
+  skip_cleanup: true
+  draft: true
+  overwrite: true

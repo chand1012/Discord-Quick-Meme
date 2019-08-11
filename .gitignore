@@ -19,7 +19,7 @@ temp
 *.dll
 *.so
 *.dylib
-
+GoDiscordBot
 # Test binary, built with `go test -c`
 *.test
 
