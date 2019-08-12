@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/chand1012/Discord-Quick-Meme.svg?branch=master)](https://travis-ci.org/chand1012/Discord-Quick-Meme)
-
 # Discord-Quick-Meme
+
+[![Build Status](https://travis-ci.org/chand1012/Discord-Quick-Meme.svg?branch=master)](https://travis-ci.org/chand1012/Discord-Quick-Meme)
 
 A discord bot that sends Reddit memes and news to a channel.
 
@@ -19,7 +19,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 
 ## Support
 
-If any support is needed, please post an Issue on the Issues page. 
+If any support is needed, please post an Issue on the Issues page
 
 ## Additional Random Info and Facts
 
@@ -35,7 +35,7 @@ If any support is needed, please post an Issue on the Issues page.
 
 If its offline, I am probably working on it.
 
-Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823). 
+Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823).
 
 ### To Do
 
