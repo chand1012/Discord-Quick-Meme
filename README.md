@@ -1,5 +1,7 @@
 # Discord-Quick-Meme
 
+[![Build Status](https://jenkins.chand1012.net/job/DiscordQuickMeme/badge/icon)](https://jenkins.chand1012.net/job/DiscordQuickMeme/)
+
 A discord bot that sends Reddit memes and news to a channel.
 
 ## To add
