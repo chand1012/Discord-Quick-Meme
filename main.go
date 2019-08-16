@@ -19,14 +19,14 @@ var (
 	adminIDs      []string
 	// CacheTime stores cache timer value
 	CacheTime int64
+	//BlacklistTime stores the blacklist time for all of the channels
+	BlacklistTime int64
 	// ServerMap this is all of the servers an the servers this gets wiped from memory as soon as the Bot gets killed
 	ServerMap map[string]string
 	//PostCache stores all posts
 	PostCache map[string][]QuickPost
-	// SubCounter counts all of the subreddit uses
-	//SubCounter map[string]int
-	// CommonSubs Common Subreddits
-	//CommonSubs []string
+	//Blacklist list of all of the post that are blacklisted from the specified channel
+	Blacklist map[string][]QuickPost // will be wiped every two to three hours
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	var adminRawIDs []string
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
-	//SubCounter = make(map[string]int)
+	Blacklist = make(map[string][]QuickPost)
 	file = "data.json"
 	key, adminRawIDs, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
@@ -63,6 +63,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
 	getAllChannelNames(discord)
 	PopulateCache()
+	ResetBlacklist()
 	fmt.Println("Discord-Quick-Meme has started on " + strconv.Itoa(len(servers)) + " servers")
 	go updateStatus(discord)
 }
@@ -74,6 +75,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	var dm bool
 	var channelName string
 	go updateStatus(discord)
+	go UpdateBlacklistTime()
 	dm, err = ComesFromDM(discord, message)
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link"}
 	user := message.Author
@@ -207,6 +209,9 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
 			fmt.Println(ServerMap)
 			discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
+		case "resetblacklist":
+			ResetBlacklist()
+			discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
@@ -365,22 +370,28 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	toggled := false
 	for i := 0; i < 5; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "media")
+		blacklisted := CheckBlacklist(channel, returnPost)
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
 		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
-		if channelNsfw {
+		if channelNsfw && !blacklisted {
 			toggled = true
+			AddToBlacklist(channel, returnPost)
 			break
-		} else if channelNsfw && !nsfw {
+		} else if channelNsfw && !nsfw && !blacklisted {
 			toggled = true
+			AddToBlacklist(channel, returnPost)
 			break
-		} else if !channelNsfw && !nsfw {
+		} else if !channelNsfw && !nsfw && !blacklisted {
 			toggled = true
+
 			break
 		} else {
-			fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			if !blacklisted {
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			}
 		}
 	}
 	if ContainsAnySubstring(url, imageEndings) && toggled {
@@ -423,25 +434,30 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	toggled := false
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "text")
+		blacklisted := CheckBlacklist(channel, returnPost)
 		score = returnPost.Score
 		text = returnPost.Content
 		title = returnPost.Title
 		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
-		if channelNsfw {
+		if channelNsfw && !blacklisted {
 			toggled = true
+			AddToBlacklist(channel, returnPost)
 			break
-		} else if channelNsfw && !nsfw {
+		} else if channelNsfw && !nsfw && !blacklisted {
 			toggled = true
+			AddToBlacklist(channel, returnPost)
 			break
-		} else if !channelNsfw && !nsfw {
+		} else if !channelNsfw && !nsfw && !blacklisted {
 			toggled = true
+
 			break
 		} else {
-			fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			if !blacklisted {
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			}
 		}
 	}
-
 	if toggled {
 		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
 		_, err = discord.ChannelMessageSend(channel, title)
@@ -467,22 +483,28 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	toggled := false
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "link")
+		blacklisted := CheckBlacklist(channel, returnPost)
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
 		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
-		if channelNsfw {
+		if channelNsfw && !blacklisted {
 			toggled = true
+			AddToBlacklist(channel, returnPost)
 			break
-		} else if channelNsfw && !nsfw {
+		} else if channelNsfw && !nsfw && !blacklisted {
 			toggled = true
+			AddToBlacklist(channel, returnPost)
 			break
-		} else if !channelNsfw && !nsfw {
+		} else if !channelNsfw && !nsfw && !blacklisted {
 			toggled = true
+
 			break
 		} else {
-			fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			if !blacklisted {
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			}
 		}
 	}
 
