@@ -39,5 +39,6 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 
 ### To Do
 
-- need to add temporary post blacklist on a per channel basis (using a dictionary will get RAM intensive, maybe a JSON or database)
+- implement Redis image cache.
+    - Images would be cached as a base64 jpeg or png then uploaded to discord and embedded.
 - get more users
