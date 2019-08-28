@@ -99,7 +99,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	switch {
 	case strings.HasPrefix(content, "!meme") && contentLength <= 5:
 		//fmt.Println("Case 1")
-		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret"}
+		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret"}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case strings.HasPrefix(content, "!meme") && contentLength >= 5:
 		//fmt.Println("Case 2")
