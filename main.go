@@ -27,6 +27,8 @@ var (
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
+	//CommonSubs stores the amount of times the subs are hit
+	CommonSubs map[string]int16
 )
 
 func main() {
@@ -37,6 +39,7 @@ func main() {
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
+	CommonSubs = make(map[string]int16)
 	file = "data.json"
 	key, adminRawIDs, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
