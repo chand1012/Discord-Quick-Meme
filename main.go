@@ -29,6 +29,12 @@ var (
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
 	//CommonSubs stores the amount of times the subs are hit
 	CommonSubs map[string]int16
+	//CommonSubsTime if one week passes, clear this cache
+	// 604800000ms in a week
+	CommonSubsTime int64
+	//CommonSubsCount checks to see if the count is under 60
+	// reddit only allows 60 requests/minute
+	CommonSubsCount int16
 )
 
 func main() {
@@ -40,6 +46,8 @@ func main() {
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
 	CommonSubs = make(map[string]int16)
+	CommonSubsCount = 0
+	CommonSubsTime = GetMillis() + 604800000
 	file = "data.json"
 	key, adminRawIDs, err = jsonExtract(file)
 	errCheck("Error opening key file", err)

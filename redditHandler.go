@@ -142,17 +142,27 @@ func PopulateCache() {
 	for _, sub := range subs {
 		wg.Add(1)
 		go AddToCacheWorker(sub, &wg, recv)
+		CommonSubsCount++
 	}
 
 	for sub := range CommonSubs {
-		if CommonSubs[sub] == 5 {
+		if CommonSubs[sub] >= 5 {
 			wg.Add(1)
 			go AddToCacheWorker(sub, &wg, recv)
+			CommonSubsCount++
+			if CommonSubsCount >= 59 {
+				break
+			}
 		}
 	}
-
 	wg.Wait()
 	close(recv)
+	CommonSubsCount = 0
+	if GetMillis() > CommonSubsTime {
+		fmt.Println("Clearing common sub cache....")
+		CommonSubsTime = GetMillis() + 604800000
+		CommonSubs = make(map[string]int16)
+	}
 	for i := 0; i < bufferSize; i++ {
 		var testpost QuickPost
 		posts := <-recv
