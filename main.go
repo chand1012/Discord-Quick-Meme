@@ -223,6 +223,15 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		case "resetblacklist":
 			ResetBlacklist()
 			discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
+		case "commonsubs":
+			var msg string
+			for sub := range CommonSubs {
+				if CommonSubs[sub] >= 5 {
+					msg += " " + sub
+				}
+			}
+			discord.ChannelMessageSend(channel, "Channels in common cache:"+msg)
+
 		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)

@@ -146,7 +146,7 @@ func PopulateCache() {
 	}
 
 	for sub := range CommonSubs {
-		if CommonSubs[sub] >= 5 {
+		if CommonSubs[sub] >= 5 && !stringInSlice(sub, subs) {
 			wg.Add(1)
 			go AddToCacheWorker(sub, &wg, recv)
 			CommonSubsCount++
@@ -214,7 +214,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	subList = []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "jokes", "darkjokes", "antijokes", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion", "fiftyfifty"}
 	sub = subs[rand.Intn(len(subs))]
-	if CommonSubs[sub] < 5 {
+	if CommonSubs[sub] < 5 && !stringInSlice(sub, subList) {
 		CommonSubs[sub]++
 	}
 	cachePosts, success = GetFromCache(sub)
