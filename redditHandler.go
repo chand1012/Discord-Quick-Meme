@@ -84,6 +84,7 @@ func GuessPostType(post *reddit.Post) string {
 
 // AddToCacheWorker spawned to get as many reddit posts as needed
 func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
+	fmt.Println("Getting sub " + sub)
 	defer wg.Done()
 	var gottenPosts []QuickPost
 	var gotPost QuickPost
@@ -138,7 +139,7 @@ func PopulateCache() {
 	var wg sync.WaitGroup
 	bufferSize := len(subs)
 	recv := make(chan []QuickPost, bufferSize)
-
+	// it is getting stuck somewhere between here
 	for _, sub := range subs {
 		wg.Add(1)
 		go AddToCacheWorker(sub, &wg, recv)
@@ -146,6 +147,7 @@ func PopulateCache() {
 	}
 
 	for sub := range CommonSubs {
+		fmt.Println("Adding common sub " + sub + "...")
 		if CommonSubs[sub] >= 5 && !stringInSlice(sub, subs) {
 			wg.Add(1)
 			go AddToCacheWorker(sub, &wg, recv)
@@ -155,6 +157,7 @@ func PopulateCache() {
 			}
 		}
 	}
+	// and here
 	wg.Wait()
 	close(recv)
 	CommonSubsCount = 0
