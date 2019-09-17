@@ -84,10 +84,15 @@ func GuessPostType(post *reddit.Post) string {
 
 // AddToCacheWorker spawned to get as many reddit posts as needed
 func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
-	fmt.Println("Getting sub " + sub)
+	if sub == "inspirobot" {
+		fmt.Println("Getting sub " + sub)
+	}
 	defer wg.Done()
 	var gottenPosts []QuickPost
 	var gotPost QuickPost
+	if sub == "inspirobot" {
+		fmt.Println("Getting from reddit: " + sub)
+	}
 	bot, _ := reddit.NewBotFromAgentFile("agent.yml", 0)
 	harvest, err := bot.Listing("/r/"+sub+"/hot/", "")
 	if err != nil {
@@ -97,6 +102,9 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 			return
 		}
 		panic(err)
+	}
+	if sub == "inspirobot" {
+		fmt.Println("Looping through posts....")
 	}
 	for _, post := range harvest.Posts {
 		mode := GuessPostType(post)
@@ -126,7 +134,9 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Println("Sent " + sub + " to cache.")
+	if sub == "inspirobot" {
+		fmt.Println("Sent " + sub + " to cache.")
+	}
 }
 
 // PopulateCache spawns workers to add posts to the cache
@@ -158,7 +168,9 @@ func PopulateCache() {
 		}
 	}
 	// and here
+	fmt.Println("Waiting on sub workers...")
 	wg.Wait()
+	fmt.Println("Closing recv channel...")
 	close(recv)
 	CommonSubsCount = 0
 	if GetMillis() > CommonSubsTime {
