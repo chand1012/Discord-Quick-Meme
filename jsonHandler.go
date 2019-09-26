@@ -31,33 +31,26 @@ func jsonExtract(filename string) (string, []string, error) {
 	return keys.BotID, keys.Admins, err
 }
 
-// BanEntry an entry for a ban
-type BanEntry struct {
-	Subreddit string   `json:"subreddit"`
-	Channels  []string `json:"channels"`
+type RedisInfo struct {
+	Address  string `json:"redis-address"`
+	Password string `json:"redis-password"`
+	DB       int    `json:"redis-db"`
 }
 
-// GetBannedSubreddits gets all of the subreddits that are banned on the list of channels
-func GetBannedSubreddits(filename string) map[string][]string, error {
-	returnMap := make(map[string][]string)
+func redisExtract(filename string) (string, string, int, error) {
 	jsonfile, err := os.Open(filename)
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	defer jsonfile.Close()
 
 	rawjson, _ := ioutil.ReadAll(jsonfile)
 
-	var entries []BanEntry
+	var redisInfo RedisInfo
 
-	json.Unmarshal(rawjson, &entries)
+	json.Unmarshal(rawjson, &redisInfo)
 
-	for _, entry := range entries {
-		returnMap[entry.Subreddit] = entry.Channels
-	}
-
-	return returnMap, err
-
+	return redisInfo.Address, redisInfo.Password, redisInfo.DB, err
 }
