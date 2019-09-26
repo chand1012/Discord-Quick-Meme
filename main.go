@@ -92,7 +92,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		channelName = "#" + getChannelName(discord, channel, guildID)
 	}
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
-	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw")
+	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw") || dm
 	commandContent := strings.Split(content, " ")
 	sort = "hot"
 	switch {
