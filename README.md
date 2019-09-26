@@ -19,7 +19,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 
 ## Support
 
-If any support is needed, please post an Issue on the Issues page
+If any support is needed, please post an Issue on the Issues page on Github or join my support server found [here](https://discord.gg/YNnp9uy).
 
 ## Additional Random Info and Facts
 
@@ -36,6 +36,13 @@ If any support is needed, please post an Issue on the Issues page
 If its offline, I am probably working on it.
 
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823) via [Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)](https://creativecommons.org/licenses/by-sa/3.0/).
+
+### Coming Soon
+
+- The ability to ban certian subreddits on your server. (Too many random [r/imsorryjon](https://reddit.com/r/imsorryjon) posts on a few channels.)
+	- Server admins will have to be given a role called "Memebot Admin" to use.
+- Caching of common subreddits called by users to allow your favorite subreddits to be constantly cached for fast retrieval.
+- Refactor and Further optimization for faster memes.
 
 ### To Do
 
