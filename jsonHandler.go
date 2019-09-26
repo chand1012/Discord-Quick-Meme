@@ -38,7 +38,7 @@ type BanEntry struct {
 }
 
 // GetBannedSubreddits gets all of the subreddits that are banned on the list of channels
-func GetBannedSubreddits(filename string) map[string][]string {
+func GetBannedSubreddits(filename string) map[string][]string, error {
 	returnMap := make(map[string][]string)
 	jsonfile, err := os.Open(filename)
 
@@ -58,12 +58,6 @@ func GetBannedSubreddits(filename string) map[string][]string {
 		returnMap[entry.Subreddit] = entry.Channels
 	}
 
-	return returnMap
-
-}
-
-// to do: make function that appends to the json file
-func AppendBannedSubreddit(subreddit string, channelID string, filename string) error {
-	bannedMap := GetBannedSubreddits(filename)
+	return returnMap, err
 
 }
