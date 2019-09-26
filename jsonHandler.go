@@ -30,3 +30,36 @@ func jsonExtract(filename string) (string, []string, error) {
 
 	return keys.BotID, keys.Admins, err
 }
+
+// BanEntry an entry for a ban
+type BanEntry struct {
+	Subreddit string   `json:"subreddit"`
+	Channels  []string `json:"channels"`
+}
+
+// GetBannedSubreddits gets all of the subreddits that are banned on the list of channels
+func GetBannedSubreddits(filename string) map[string][]string {
+	returnMap := make(map[string][]string)
+	jsonfile, err := os.Open(filename)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer jsonfile.Close()
+
+	rawjson, _ := ioutil.ReadAll(jsonfile)
+
+	var entries []BanEntry
+
+	json.Unmarshal(rawjson, &entries)
+
+	for _, entry := range entries {
+		returnMap[entry.Subreddit] = entry.Channels
+	}
+
+	return returnMap
+
+}
+
+// to do: make function that appends to the json file

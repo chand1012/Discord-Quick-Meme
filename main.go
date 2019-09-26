@@ -203,6 +203,17 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		case "resetblacklist":
 			ResetBlacklist()
 			discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
+		case "ban":
+			// to do: write this command.
+
+			if len(commandContent) <= 2 {
+				// if the length of the command is less than two words,
+				// send out an error
+			}
+
+			// otherwise, check if the user is a "memebot admin"
+			// if they are, add the given subreddit to the blacklist
+			// else give a different error
 		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
@@ -328,6 +339,31 @@ func getNumberOfUsers(discord *discordgo.Session) int {
 	return count
 }
 
+// gets the user's member struct via their
+func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
+	members := discord.Guild(guildID).Members
+	for _, member := range members {
+		if member.User.ID == user.ID {
+			return member
+		}
+	}
+	return nil
+}
+
+func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user discordgo.User) bool {
+	adminCode := "memebot admin"
+	member := getUserMemberFromGuild(&discord, guildID, user)
+	if member == nil {
+		return false
+	}
+	for _, role := range member.Roles {
+		if strings.Contains(strings.ToLower(role), adminCode) {
+			return true
+		}
+	}
+	return false
+}
+
 // GetMillis gets number of milliseconds since epoch as a 64bit integer
 func GetMillis() int64 {
 	now := time.Now()
@@ -335,7 +371,7 @@ func GetMillis() int64 {
 	return nanos / 1000000
 }
 
-// ContainsAnySubstring Checks if any of the strings in the array are in the test string
+// ContainsAnySubstring Checks if any of the substrings in the array are in the test string
 func ContainsAnySubstring(testString string, strArray []string) bool {
 	for _, str := range strArray {
 		if strings.Contains(testString, str) {
