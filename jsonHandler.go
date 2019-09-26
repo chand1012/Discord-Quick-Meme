@@ -63,3 +63,7 @@ func GetBannedSubreddits(filename string) map[string][]string {
 }
 
 // to do: make function that appends to the json file
+func AppendBannedSubreddit(subreddit string, channelID string, filename string) error {
+	bannedMap := GetBannedSubreddits(filename)
+
+}
