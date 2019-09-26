@@ -85,6 +85,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	} else if !ContainsAnySubstring(content, commands) {
 		return
 	}
+	channelObject, _ := discord.Channel(message.ChannelID)
 	channel := message.ChannelID
 	if dm {
 		channelName = user.Username + "'s DMs"
@@ -92,7 +93,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		channelName = "#" + getChannelName(discord, channel, guildID)
 	}
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
-	nsfw := strings.Contains(strings.ToLower(channelName), "nsfw") || dm
+	nsfw := channelObject.NSFW || dm
 	commandContent := strings.Split(content, " ")
 	sort = "hot"
 	switch {
@@ -406,7 +407,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
-		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Add \"NSFW\" to the channel name to allow NSFW posts.")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 	}
 
 	return err
@@ -456,7 +457,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
-		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Add \"NSFW\" to the channel name to allow NSFW posts.")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 	}
 	return err
 }
@@ -506,7 +507,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
-		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Add \"NSFW\" to the channel name to allow NSFW posts.")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 	}
 	return err
 }
