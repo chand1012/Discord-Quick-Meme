@@ -37,7 +37,6 @@ If its offline, I am probably working on it.
 
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823) via [Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)](https://creativecommons.org/licenses/by-sa/3.0/).
 
-
 ### Coming Soon
 
 - The ability to ban certian subreddits on your server. (Too many random [r/imsorryjon](https://reddit.com/r/imsorryjon) posts on a few channels.)
