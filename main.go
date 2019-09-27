@@ -348,13 +348,14 @@ func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user dis
 			return member
 		}
 	}
-	return nil
+	return discordgo.Member{}
 }
 
 func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user discordgo.User) bool {
 	adminCode := "memebot admin"
-	member := getUserMemberFromGuild(&discord, guildID, user)
-	if member == nil {
+	emptyMember := discordgo.Member{}
+	member := getUserMemberFromGuild(discord, guildID, user)
+	if member.User.ID == "" {
 		return false
 	}
 	for _, role := range member.Roles {
