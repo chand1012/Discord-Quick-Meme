@@ -10,7 +10,7 @@ import (
 
 // GetBannedSubreddits gets a list of banned subs from redis
 func GetBannedSubreddits(channel string) []string {
-	address, password, db := redisExtract("data.json")
+	address, password, db, err := redisExtract("data.json")
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
@@ -26,7 +26,7 @@ func GetBannedSubreddits(channel string) []string {
 
 //AppendBannedSubreddit appends a banned subreddit to the list for that channel
 func AppendBannedSubreddit(channel string, subreddit string) error {
-	address, password, db := redisExtract("data.json")
+	address, password, db, err := redisExtract("data.json")
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,

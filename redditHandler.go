@@ -142,12 +142,6 @@ func PopulateCache() {
 		wg.Add(1)
 		go AddToCacheWorker(sub, &wg, recv)
 	}
-	/*
-		for _, sub := range CommonSubs {
-			wg.Add(1)
-			go AddToCacheWorker(sub, &wg, recv)
-		}
-	*/
 	wg.Wait()
 	close(recv)
 	for i := 0; i < bufferSize; i++ {
@@ -282,7 +276,6 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 				break
 			}
 		}
-
 	}
 	return returnPost, sub
 }
