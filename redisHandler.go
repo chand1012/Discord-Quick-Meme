@@ -9,7 +9,7 @@ import (
 // this will handle all redis related commands
 
 // GetBannedSubreddits gets a list of banned subs from redis
-func GetBannedSubreddits(channel string) []string {
+func GetBannedSubreddits(channel string) ([]string, error) {
 	address, password, db, err := redisExtract("data.json")
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     address,
@@ -19,9 +19,9 @@ func GetBannedSubreddits(channel string) []string {
 	defer redisClient.Close()
 	rawValues, err := redisClient.Get(channel).Result()
 
-	values := strings.Split(rawValues, ",")
+	values := strings.Split(rawValues, " ")
 
-	return values
+	return values, err
 }
 
 //AppendBannedSubreddit appends a banned subreddit to the list for that channel
@@ -34,26 +34,14 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 	})
 	defer redisClient.Close()
 
-	rawValues, err := redisClient.Get(channel).Result()
+	values, err := redisClient.Get(channel).Result()
 
-	var values []string
-	var appendString string
-	var resultString string
-
-	if strings.Contains(rawValues, ",") {
-		values = strings.Split(rawValues, ",")
-		values = append(values, subreddit)
-		appendString = ","
+	if values == "" {
+		values = subreddit
 	} else {
-		values = []string{rawValues, subreddit}
-		appendString = ""
+		values = values + " " + subreddit
 	}
-
-	for _, sub := range values {
-		resultString += (appendString + sub)
-	}
-
-	err = redisClient.Set(channel, resultString, 0).Err()
+	err = redisClient.Set(channel, values, 0).Err()
 
 	return err
 
