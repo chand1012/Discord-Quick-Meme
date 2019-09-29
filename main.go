@@ -210,10 +210,19 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 				switch commandContent[2] {
 				case "server":
-					// ban subreddit on all channels of that guild
+					channels, _ := discord.GuildChannels(guildID)
+					for _, chat := range channels {
+						// this should be async to save time
+						go AppendBannedSubreddit(chat.ID, commandContent[3])
+						// this should be a message about the ban
+						// discord.ChannelMessageSend
+					}
 				default:
-					// ban subreddit for channel only
+					// there should be a message about the ban here
+					AppendBannedSubreddit(channel, commandContent[3])
 				}
+			} else {
+				discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 			}
 
 			// otherwise, check if the user is a "memebot admin"
@@ -355,7 +364,7 @@ func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user dis
 	return discordgo.Member{}
 }
 
-func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user discordgo.User) bool {
+func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
 	adminCode := "memebot admin"
 	emptyMember := discordgo.Member{}
 	member := getUserMemberFromGuild(discord, guildID, user)
