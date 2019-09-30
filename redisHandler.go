@@ -17,6 +17,9 @@ func SubIsBanned(channel string, subreddit string) (bool, error) {
 			return true, err
 		}
 	}
+	if err != nil {
+		fmt.Print(err)
+	}
 	return false, err
 }
 
@@ -30,7 +33,9 @@ func GetBannedSubreddits(channel string) ([]string, error) {
 	})
 	defer redisClient.Close()
 	rawValues, err := redisClient.Get(channel).Result()
-
+	if err != nil {
+		fmt.Print(err)
+	}
 	values := strings.Split(rawValues, " ")
 
 	return values, err
@@ -47,7 +52,9 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	fmt.Println(subreddit)
+	if err != nil {
+		fmt.Print(err)
+	}
 	if values == "" || strings.Replace(values, " ", "", -1) == "" {
 		values = subreddit
 		err = redisClient.Set(channel, values, 0).Err()
@@ -56,6 +63,9 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 		err = redisClient.Set(channel, values, 0).Err()
 	} else {
 		err = nil
+	}
+	if err != nil {
+		fmt.Print(err)
 	}
 
 	return err
@@ -67,6 +77,7 @@ func UnbanSubreddit(channel string, subreddit string) error {
 	var isContained bool
 	address, password, db, err := redisExtract("data.json")
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -79,6 +90,7 @@ func UnbanSubreddit(channel string, subreddit string) error {
 
 	values, err := redisClient.Get(channel).Result()
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -102,6 +114,9 @@ func UnbanSubreddit(channel string, subreddit string) error {
 		err = redisClient.Set(channel, values, 0).Err()
 	} else {
 		err = nil
+	}
+	if err != nil {
+		fmt.Print(err)
 	}
 
 	return err

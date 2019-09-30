@@ -215,13 +215,13 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 					for _, chat := range channels {
 						// this should be async to save time
 						go AppendBannedSubreddit(chat.ID, subreddit)
-						// this should be a message about the ban
-						discord.ChannelMessageSend(chat.ID, user.Username+" banned subreddit "+subreddit+".")
 					}
+					// this should be a message about the ban
+					discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit "+subreddit+" on all channels.")
 				default:
 					// there should be a message about the ban here
 					AppendBannedSubreddit(channel, commandContent[3])
-					discord.ChannelMessageSend(channel, user.Username+" banned subreddit "+commandContent[3]+".")
+					discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit "+commandContent[3]+".")
 				}
 			} else {
 				discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
@@ -239,11 +239,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 						go UnbanSubreddit(chat.ID, subreddit)
 					}
 					// this should be a message about the ban
-					discord.ChannelMessageSend(channel, user.Username+" unbanned subreddit "+subreddit+" on all channels.")
+					discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit "+subreddit+" on all channels.")
 				default:
 					// there should be a message about the ban here
 					UnbanSubreddit(channel, commandContent[3])
-					discord.ChannelMessageSend(channel, user.Username+" unbanned subreddit "+commandContent[3]+".")
+					discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit "+commandContent[3]+".")
 				}
 			} else {
 				discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
