@@ -1,6 +1,6 @@
 # Discord-Quick-Meme
 
-[![Build Status](https://jenkins.chand1012.net/job/DiscordQuickMeme/badge/icon)](https://jenkins.chand1012.net/job/DiscordQuickMeme/)
+[![Discord Bots](https://discordbots.org/api/widget/status/438381344943374346.svg)](https://discordbots.org/bot/438381344943374346)[![Discord Bots](https://discordbots.org/api/widget/lib/438381344943374346.svg)](https://discordbots.org/bot/438381344943374346)[![Build Status](https://jenkins.chand1012.net/job/DiscordQuickMeme/badge/icon)](https://jenkins.chand1012.net/job/DiscordQuickMeme/) 
 
 A discord bot that sends Reddit memes and news to a channel.
 
