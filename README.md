@@ -10,6 +10,8 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 
 ## To use
 
+### General
+
 - Type `!meme` for a meme from a list of Subreddits, currently [r/funny](https://www.reddit.com/r/funny/), [r/dankmemes](https://www.reddit.com/r/dankmemes/), [r/memes](https://www.reddit.com/r/memes/), and [r/dank_meme](https://www.reddit.com/r/dank_meme/).
 - Type `!joke` for a joke from either [r/jokes](https://www.reddit.com/r/jokes/) or [r/darkjokes](https://www.reddit.com/r/darkjokes/).
 - Type `!news` for a random news article from [r/news](https://www.reddit.com/r/news/), [r/worldnews](https://www.reddit.com/r/worldnews/), [r/FloridaMan](https://www.reddit.com/r/FloridaMan/), or [r/nottheonion](https://www.reddit.com/r/nottheonion/).
@@ -17,7 +19,11 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - A few secret commands if you're willing to look at the source code.
 - Type `!news`, `!link`, `!joke`, `!text`, or `!meme` followed by a subreddit name (without the r/) to pull a random top post from that subreddit. The `!text` and `!joke` commands post text directly to the chat. The `!link` and `!news` commands get a post that links a website or webpage. Finally, `!meme` get a piece of media, either a photo, a GIF, or a video. Example: `!joke meanjokes`
 
-## Support
+### Admins
+
+- If you are a server admin, add a role called `Memebot Admin` to your roles. This role allows you to use the `ban` and `unban` commands. These commands allow you ban certian subreddits on either just a channel or the entire server. To ban a subreddit, run the command `!quickmeme ban <mode> <subreddit>` to ban a subreddit, where mode is either `server` or `channel`.
+
+## Support 
 
 If any support is needed, please post an Issue on the Issues page on Github or join my support server found [here](https://discord.gg/YNnp9uy).
 
