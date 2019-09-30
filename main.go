@@ -141,7 +141,13 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 
 	case strings.HasPrefix(content, "!quickmeme"):
-		thing := commandContent[1]
+		var thing string
+		if len(commandContent > 1) {
+			thing := commandContent[1]
+		} else {
+			thing = "status"
+		}
+		
 		thing = textFilter(thing)
 		if !stringInSlice(user.ID, adminIDs) {
 			thing = ""
