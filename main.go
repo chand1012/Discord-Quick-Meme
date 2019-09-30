@@ -97,39 +97,39 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	commandContent := strings.Split(content, " ")
 	sort = "hot"
 	switch {
-	case strings.HasPrefix(content, "!meme") && len(commandContent) == 1:
+	case commandContent[0] == "!meme" && len(commandContent) == 1:
 		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret"}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case strings.HasPrefix(content, "!meme") && len(commandContent) >= 2:
+	case commandContent[0] == "!meme" && len(commandContent) >= 2:
 		sub := commandContent[1]
 		sub = textFilter(sub)
 		subs = []string{sub}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && len(commandContent) == 1:
+	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) == 1:
 		subs = []string{"jokes", "darkjokes", "antijokes"}
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case (strings.HasPrefix(content, "!joke") || strings.HasPrefix(content, "!text")) && len(commandContent) >= 2:
+	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) >= 2:
 		sub := commandContent[1]
 		sub = textFilter(sub)
 		subs = []string{sub}
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && len(commandContent) == 1:
+	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) == 1:
 		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case (strings.HasPrefix(content, "!news") || strings.HasPrefix(content, "!link")) && len(commandContent) >= 2:
+	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) >= 2:
 		sub := commandContent[1]
 		sub = textFilter(sub)
 		subs = []string{sub}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case strings.HasPrefix(content, "!fiftyfifty") || strings.HasPrefix(content, "!5050"):
+	case commandContent[0] == "!fiftyfifty" || commandContent[0] == "!5050":
 		subs = []string{"fiftyfifty"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case strings.HasPrefix(content, "!hentai"):
+	case commandContent[0] == "!hentai":
 		// This is still only here because a friend of mine suggested this
 		//fmt.Println("Case 8")
 		subs = []string{"ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case strings.HasPrefix(content, "!all"):
+	case commandContent[0] == "!all":
 		randchoice := rand.Intn(4)
 		switch randchoice {
 		case 0:
@@ -140,7 +140,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			err = getMediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
 
-	case strings.HasPrefix(content, "!quickmeme"):
+	case commandContent[0] == "!quickmeme":
 		var thing string
 		if len(commandContent) > 1 {
 			thing = commandContent[1]
