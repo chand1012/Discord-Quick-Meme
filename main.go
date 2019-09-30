@@ -205,29 +205,49 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			ResetBlacklist()
 			discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 		case "ban":
-			if len(commandContent) <= 3 {
+			if len(commandContent) != 4 {
 				discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 			} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 				switch commandContent[2] {
 				case "server":
 					channels, _ := discord.GuildChannels(guildID)
+					subreddit := commandContent[3]
 					for _, chat := range channels {
 						// this should be async to save time
-						go AppendBannedSubreddit(chat.ID, commandContent[3])
+						go AppendBannedSubreddit(chat.ID, subreddit)
 						// this should be a message about the ban
-						// discord.ChannelMessageSend
+						discord.ChannelMessageSend(chat.ID, user.Username+" banned subreddit "+subreddit+".")
 					}
 				default:
 					// there should be a message about the ban here
 					AppendBannedSubreddit(channel, commandContent[3])
+					discord.ChannelMessageSend(channel, user.Username+" banned subreddit "+commandContent[3]+".")
 				}
 			} else {
 				discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 			}
-
-			// otherwise, check if the user is a "memebot admin"
-			// if they are, add the given subreddit to the blacklist
-			// else give a different error
+		case "unban":
+			if len(commandContent) != 4 {
+				discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+			} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
+				switch commandContent[2] {
+				case "server":
+					channels, _ := discord.GuildChannels(guildID)
+					subreddit := commandContent[3]
+					for _, chat := range channels {
+						// this should be async to save time
+						go UnbanSubreddit(chat.ID, subreddit)
+					}
+					// this should be a message about the ban
+					discord.ChannelMessageSend(channel, user.Username+" unbanned subreddit "+subreddit+" on all channels.")
+				default:
+					// there should be a message about the ban here
+					UnbanSubreddit(channel, commandContent[3])
+					discord.ChannelMessageSend(channel, user.Username+" unbanned subreddit "+commandContent[3]+".")
+				}
+			} else {
+				discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+			}
 		default:
 			servers := discord.State.Guilds
 			userCount := getNumberOfUsers(discord)
@@ -355,10 +375,10 @@ func getNumberOfUsers(discord *discordgo.Session) int {
 
 // gets the user's member struct via their
 func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
-	members := discord.Guild(guildID).Members
-	for _, member := range members {
+	guildObject, _ := discord.Guild(guildID)
+	for _, member := range guildObject.Members {
 		if member.User.ID == user.ID {
-			return member
+			return *member
 		}
 	}
 	return discordgo.Member{}
@@ -366,14 +386,16 @@ func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user dis
 
 func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
 	adminCode := "memebot admin"
-	emptyMember := discordgo.Member{}
-	member := getUserMemberFromGuild(discord, guildID, user)
+	member := getUserMemberFromGuild(discord, guildID, *user)
 	if member.User.ID == "" {
 		return false
 	}
-	for _, role := range member.Roles {
-		if strings.Contains(strings.ToLower(role), adminCode) {
-			return true
+	guildRoles, _ := discord.GuildRoles(guildID)
+	for _, role := range guildRoles {
+		for _, roleID := range member.Roles {
+			if role.ID == roleID && strings.Contains(strings.ToLower(role.Name), adminCode) {
+				return true
+			}
 		}
 	}
 	return false
@@ -405,34 +427,41 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	var nsfw bool
 	var postlink string
 	var sub string
+	var bannedToggle bool
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
 	imageEndings := []string{".jpg", ".png", ".jpeg"}
 	limit := 100
 	toggled := false
+	bannedSubs, _ := GetBannedSubreddits(channel)
 	for i := 0; i < 5; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "media")
 		blacklisted := CheckBlacklist(channel, returnPost)
+		banned := stringInSlice(sub, bannedSubs)
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
 		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
-		if channelNsfw && !blacklisted {
+		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
-		} else if channelNsfw && !nsfw && !blacklisted {
+		} else if channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
-		} else if !channelNsfw && !nsfw && !blacklisted {
+		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
-
 			break
 		} else {
-			if !blacklisted {
+			if !blacklisted && !banned {
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 4 {
+					bannedToggle = true
+				}
 			}
 		}
 	}
@@ -455,6 +484,9 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		_, err = discord.ChannelMessageSend(channel, url)
 		_, err = discord.ChannelMessageSend(channel, title)
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else if bannedToggle {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
@@ -472,31 +504,38 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	var nsfw bool
 	var postlink string
 	var sub string
+	var bannedToggle bool
 	limit := 100
 	toggled := false
+	bannedSubs, _ := GetBannedSubreddits(channel)
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "text")
 		blacklisted := CheckBlacklist(channel, returnPost)
+		banned := stringInSlice(sub, bannedSubs)
 		score = returnPost.Score
 		text = returnPost.Content
 		title = returnPost.Title
 		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
-		if channelNsfw && !blacklisted {
+		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
-		} else if channelNsfw && !nsfw && !blacklisted {
+		} else if channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
-		} else if !channelNsfw && !nsfw && !blacklisted {
+		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
-
 			break
 		} else {
-			if !blacklisted {
+			if !blacklisted && !banned {
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 4 {
+					bannedToggle = true
+				}
 			}
 		}
 	}
@@ -505,6 +544,9 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, title)
 		_, err = discord.ChannelMessageSend(channel, text)
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else if bannedToggle {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
@@ -521,31 +563,38 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	var nsfw bool
 	var postlink string
 	var sub string
+	var bannedToggle bool
 	limit := 100
 	toggled := false
+	bannedSubs, _ := GetBannedSubreddits(channel)
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "link")
 		blacklisted := CheckBlacklist(channel, returnPost)
+		banned := stringInSlice(sub, bannedSubs)
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
 		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
-		if channelNsfw && !blacklisted {
+		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
-		} else if channelNsfw && !nsfw && !blacklisted {
+		} else if channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
-		} else if !channelNsfw && !nsfw && !blacklisted {
+		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
-
 			break
 		} else {
-			if !blacklisted {
+			if !blacklisted && !banned {
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 4 {
+					bannedToggle = true
+				}
 			}
 		}
 	}
@@ -555,6 +604,9 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, url)
 		_, err = discord.ChannelMessageSend(channel, title)
 		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else if bannedToggle {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")

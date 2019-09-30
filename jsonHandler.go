@@ -31,7 +31,7 @@ func jsonExtract(filename string) (string, []string, error) {
 	return keys.BotID, keys.Admins, err
 }
 
-type RedisInfo struct {
+type redisInfo struct {
 	Address  string `json:"redis-address"`
 	Password string `json:"redis-password"`
 	DB       int    `json:"redis-db"`
@@ -48,7 +48,7 @@ func redisExtract(filename string) (string, string, int, error) {
 
 	rawjson, _ := ioutil.ReadAll(jsonfile)
 
-	var redisInfo RedisInfo
+	var redisInfo redisInfo
 
 	json.Unmarshal(rawjson, &redisInfo)
 
