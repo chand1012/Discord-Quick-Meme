@@ -2,6 +2,6 @@
   "admin":["",""],
   "token":"",
   "redis-address":"127.0.0.1:6379",
-  "redis-password":"memebot12",
+  "redis-password":"",
   "redis-db":0
 }
