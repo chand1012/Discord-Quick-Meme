@@ -253,6 +253,36 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				} else {
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 				}
+			case "getbanned":
+				if len(commandContent) != 3 {
+					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme getbanned [mode]`\nMode can be `channel` or `server`.")
+				} else {
+					switch commandContent[2] {
+					case "server":
+						channels, _ := discord.GuildChannels(guildID)
+						for _, chat := range channels {
+							bannedSubs, err := GetBannedSubreddits(chat.ID)
+							if err != nil {
+								discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+								fmt.Println(err)
+								break
+							}
+							msgString := strings.Join(bannedSubs, ", ")
+							if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
+								discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
+							}
+						}
+					default:
+						bannedSubs, err := GetBannedSubreddits(channel)
+						if err != nil {
+							discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+							fmt.Println(err)
+						} else {
+							msgString := strings.Join(bannedSubs, ", ")
+							discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+						}
+					}
+				}
 			default:
 				servers := discord.State.Guilds
 				userCount := getNumberOfUsers(discord)
@@ -305,6 +335,36 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 					}
 				} else {
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+				}
+			case "getbanned":
+				if len(commandContent) != 3 {
+					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme getbanned [mode]`\nMode can be `channel` or `server`.")
+				} else {
+					switch commandContent[2] {
+					case "server":
+						channels, _ := discord.GuildChannels(guildID)
+						for _, chat := range channels {
+							bannedSubs, err := GetBannedSubreddits(chat.ID)
+							if err != nil {
+								discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+								fmt.Println(err)
+								break
+							}
+							msgString := strings.Join(bannedSubs, ", ")
+							if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
+								discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
+							}
+						}
+					default:
+						bannedSubs, err := GetBannedSubreddits(channel)
+						if err != nil {
+							discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+							fmt.Println(err)
+						} else {
+							msgString := strings.Join(bannedSubs, ", ")
+							discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+						}
+					}
 				}
 			default:
 				servers := discord.State.Guilds

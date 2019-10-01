@@ -22,6 +22,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 ### Admins
 
 - If you are a server admin, add a role called `Memebot Admin` to your roles. This role allows you to use the `ban` and `unban` commands. These commands allow you ban certian subreddits on either just a channel or the entire server. To ban a subreddit, run the command `!quickmeme ban <mode> <subreddit>` to ban a subreddit, where mode is either `server` or `channel`.
+- Typing `!quickmeme getbanned <mode>`, where `<mode>` is either `server` or `channel` will give you a list of the banned subreddits on either the whole server or just the channel the command was executed on. This command can be executed by both admins and regular users.
 
 ## Support 
 
