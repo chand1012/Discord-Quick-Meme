@@ -46,8 +46,6 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 
 ### Coming Soon
 
-- The ability to ban certian subreddits on your server. (Too many random [r/imsorryjon](https://reddit.com/r/imsorryjon) posts on a few channels.)
-	- Server admins will have to be given a role called "Memebot Admin" to use.
 - Caching of common subreddits called by users to allow your favorite subreddits to be constantly cached for fast retrieval.
 - Refactor and Further optimization for faster memes.
 
