@@ -9,18 +9,18 @@ import (
 
 // this will handle all redis related commands
 
-// SubIsBanned checks if a subreddit is banned on that channel
-func SubIsBanned(channel string, subreddit string) (bool, error) {
-	bannedSubs, err := GetBannedSubreddits(channel)
-	for _, sub := range bannedSubs {
-		if subreddit == sub {
-			return true, err
-		}
-	}
-	if err != nil {
-		fmt.Print(err)
-	}
-	return false, err
+func redisSave() error {
+	address, password, db, err := redisExtract("data.json")
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     address,
+		Password: password,
+		DB:       db,
+	})
+	defer redisClient.Close()
+
+	cmd := redis.NewStringCmd("save")
+	err = redisClient.Process(cmd)
+	return err
 }
 
 // GetBannedSubreddits gets a list of banned subs from redis
@@ -34,11 +34,25 @@ func GetBannedSubreddits(channel string) ([]string, error) {
 	defer redisClient.Close()
 	rawValues, err := redisClient.Get(channel).Result()
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 	}
 	values := strings.Split(rawValues, " ")
 
 	return values, err
+}
+
+// SubIsBanned checks if a subreddit is banned on that channel
+func SubIsBanned(channel string, subreddit string) (bool, error) {
+	bannedSubs, err := GetBannedSubreddits(channel)
+	for _, sub := range bannedSubs {
+		if subreddit == sub {
+			return true, err
+		}
+	}
+	if err != nil {
+		fmt.Println(err)
+	}
+	return false, err
 }
 
 //AppendBannedSubreddit appends a banned subreddit to the list for that channel
@@ -53,7 +67,7 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 
 	values, err := redisClient.Get(channel).Result()
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 	}
 	if values == "" || strings.Replace(values, " ", "", -1) == "" {
 		values = subreddit
@@ -65,9 +79,9 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 		err = nil
 	}
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 	}
-
+	err = redisSave()
 	return err
 
 }
@@ -112,11 +126,15 @@ func UnbanSubreddit(channel string, subreddit string) error {
 
 	if isContained {
 		err = redisClient.Set(channel, values, 0).Err()
+		if err != nil {
+			fmt.Println(err)
+		}
+		err = redisSave()
 	} else {
 		err = nil
 	}
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 	}
 
 	return err
