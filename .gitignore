@@ -1,5 +1,6 @@
 data.json
 2data.json
+data2.json
 test.py
 user.txt
 *.service
@@ -29,4 +30,5 @@ GoDiscordBot
 # Dependency directories (remove the comment below to include it)
 # vendor/
 ignore.txt
+
 test/*

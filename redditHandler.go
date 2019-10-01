@@ -142,12 +142,6 @@ func PopulateCache() {
 		wg.Add(1)
 		go AddToCacheWorker(sub, &wg, recv)
 	}
-	/*
-		for _, sub := range CommonSubs {
-			wg.Add(1)
-			go AddToCacheWorker(sub, &wg, recv)
-		}
-	*/
 	wg.Wait()
 	close(recv)
 	for i := 0; i < bufferSize; i++ {
@@ -201,17 +195,6 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	subList = []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "jokes", "darkjokes", "antijokes", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion", "fiftyfifty"}
 	sub = subs[rand.Intn(len(subs))]
-	/*
-		if !ContainsAnySubstring(sub, subList) {
-			if SubCounter[sub] < 6 {
-				SubCounter[sub]++
-			}
-			if SubCounter[sub] == 5 {
-				fmt.Println("Subreddit " + sub + " used more than 5 times, adding to cache list...")
-				CommonSubs = append(CommonSubs, sub)
-			}
-		}
-	*/
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime {
@@ -293,7 +276,6 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 				break
 			}
 		}
-
 	}
 	return returnPost, sub
 }
