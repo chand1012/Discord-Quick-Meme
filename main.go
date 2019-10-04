@@ -101,25 +101,19 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret"}
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case commandContent[0] == "!meme" && len(commandContent) >= 2:
-		sub := commandContent[1]
-		sub = textFilter(sub)
-		subs = []string{sub}
+		subs = textFilterSlice(commandContent[1:])
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) == 1:
 		subs = []string{"jokes", "darkjokes", "antijokes"}
 		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) >= 2:
-		sub := commandContent[1]
-		sub = textFilter(sub)
-		subs = []string{sub}
+		subs = textFilterSlice(commandContent[1:])
 		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) == 1:
 		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) >= 2:
-		sub := commandContent[1]
-		sub = textFilter(sub)
-		subs = []string{sub}
+		subs = textFilterSlice(commandContent[1:])
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case commandContent[0] == "!fiftyfifty" || commandContent[0] == "!5050":
 		subs = []string{"fiftyfifty"}
@@ -210,45 +204,54 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				ResetBlacklist()
 				discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 			case "ban":
-				if len(commandContent) != 4 {
+				if len(commandContent) <= 4 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 					switch commandContent[2] {
 					case "server":
 						channels, _ := discord.GuildChannels(guildID)
-						subreddit := commandContent[3]
+						subreddits := textFilterSlice(commandContent[3:])
 						for _, chat := range channels {
 							// this should be async to save time
-							go AppendBannedSubreddit(chat.ID, subreddit)
+							for _, subreddit := range subreddits {
+								go AppendBannedSubreddit(chat.ID, subreddit)
+							}
 						}
 						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit "+subreddit+" on all channels.")
+						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
 					default:
-						// there should be a message about the ban here
-						AppendBannedSubreddit(channel, commandContent[3])
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit "+commandContent[3]+".")
+						subreddits := textFilterSlice(commandContent[3:])
+						for _, subreddit := range subreddits {
+							go AppendBannedSubreddit(channel, subreddit)
+						}
+						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
 					}
 				} else {
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 				}
 			case "unban":
-				if len(commandContent) != 4 {
+				if len(commandContent) <= 4 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 					switch commandContent[2] {
 					case "server":
 						channels, _ := discord.GuildChannels(guildID)
-						subreddit := commandContent[3]
+						subreddits := textFilterSlice(commandContent[3:])
 						for _, chat := range channels {
 							// this should be async to save time
-							go UnbanSubreddit(chat.ID, subreddit)
+							for _, subreddit := range subreddits {
+								go UnbanSubreddit(chat.ID, subreddit)
+							}
 						}
 						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit "+subreddit+" on all channels.")
+						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
 					default:
 						// there should be a message about the ban here
-						UnbanSubreddit(channel, commandContent[3])
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit "+commandContent[3]+".")
+						subreddits := textFilterSlice(commandContent[3:])
+						for _, subreddit := range subreddits {
+							go UnbanSubreddit(channel, subreddit)
+						}
+						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
 					}
 				} else {
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
@@ -293,45 +296,54 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		} else {
 			switch thing {
 			case "ban":
-				if len(commandContent) != 4 {
+				if len(commandContent) <= 4 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 					switch commandContent[2] {
 					case "server":
 						channels, _ := discord.GuildChannels(guildID)
-						subreddit := commandContent[3]
+						subreddits := textFilterSlice(commandContent[3:])
 						for _, chat := range channels {
 							// this should be async to save time
-							go AppendBannedSubreddit(chat.ID, subreddit)
+							for _, subreddit := range subreddits {
+								go AppendBannedSubreddit(chat.ID, subreddit)
+							}
 						}
 						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit "+subreddit+" on all channels.")
+						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
 					default:
-						// there should be a message about the ban here
-						AppendBannedSubreddit(channel, commandContent[3])
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit "+commandContent[3]+".")
+						subreddits := textFilterSlice(commandContent[3:])
+						for _, subreddit := range subreddits {
+							go AppendBannedSubreddit(channel, subreddit)
+						}
+						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
 					}
 				} else {
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 				}
 			case "unban":
-				if len(commandContent) != 4 {
+				if len(commandContent) <= 4 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 					switch commandContent[2] {
 					case "server":
 						channels, _ := discord.GuildChannels(guildID)
-						subreddit := commandContent[3]
+						subreddits := textFilterSlice(commandContent[3:])
 						for _, chat := range channels {
 							// this should be async to save time
-							go UnbanSubreddit(chat.ID, subreddit)
+							for _, subreddit := range subreddits {
+								go UnbanSubreddit(chat.ID, subreddit)
+							}
 						}
 						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit "+subreddit+" on all channels.")
+						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
 					default:
 						// there should be a message about the ban here
-						UnbanSubreddit(channel, commandContent[3])
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit "+commandContent[3]+".")
+						subreddits := textFilterSlice(commandContent[3:])
+						for _, subreddit := range subreddits {
+							go UnbanSubreddit(channel, subreddit)
+						}
+						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
 					}
 				} else {
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
@@ -484,6 +496,16 @@ func textFilter(input string) string {
 	return outputString
 }
 
+func textFilterSlice(input []string) []string {
+	reg, _ := regexp.Compile("[^a-zA-Z0-9_]+")
+	var returnSlice []string
+	for _, thing := range input {
+		output := reg.ReplaceAllString(thing, "")
+		returnSlice = append(returnSlice, output)
+	}
+	return returnSlice
+}
+
 func getNumberOfUsers(discord *discordgo.Session) int {
 	count := 0
 	for _, guild := range discord.State.Guilds {
@@ -553,7 +575,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	limit := 100
 	toggled := false
 	bannedSubs, _ := GetBannedSubreddits(channel)
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, limit, sort, "media")
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
@@ -578,7 +600,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
 			} else if banned {
 				fmt.Println("Channel banned sub " + sub + ", retrying...")
-				if i == 4 {
+				if i == 9 {
 					bannedToggle = true
 				}
 			}
@@ -652,7 +674,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
 			} else if banned {
 				fmt.Println("Channel banned sub " + sub + ", retrying...")
-				if i == 4 {
+				if i == 9 {
 					bannedToggle = true
 				}
 			}
@@ -711,7 +733,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
 			} else if banned {
 				fmt.Println("Channel banned sub " + sub + ", retrying...")
-				if i == 4 {
+				if i == 9 {
 					bannedToggle = true
 				}
 			}
