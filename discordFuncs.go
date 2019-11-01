@@ -3,8 +3,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -97,4 +99,200 @@ func ComesFromDM(s *discordgo.Session, m *discordgo.MessageCreate) (bool, error)
 	}
 
 	return channel.Type == discordgo.ChannelTypeDM, nil
+}
+
+func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
+	var returnPost QuickPost
+	var err error
+	var score int32
+	var url string
+	var title string
+	var nsfw bool
+	var postlink string
+	var sub string
+	var bannedToggle bool
+	rand.Seed(time.Now().Unix())
+	randColor := rand.Intn(0xffffff)
+	imageEndings := []string{".jpg", ".png", ".jpeg"}
+	limit := 100
+	toggled := false
+	bannedSubs, _ := GetBannedSubreddits(channel)
+	for i := 0; i < 10; i++ {
+		returnPost, sub = GetPost(subs, limit, sort, "media")
+		blacklisted := CheckBlacklist(channel, returnPost)
+		banned := stringInSlice(sub, bannedSubs)
+		score = returnPost.Score
+		url = returnPost.Content
+		title = returnPost.Title
+		postlink = returnPost.Permalink
+		nsfw = returnPost.Nsfw
+		if channelNsfw && !blacklisted && !banned {
+			toggled = true
+			AddToBlacklist(channel, returnPost)
+			break
+		} else if channelNsfw && !nsfw && !blacklisted && !banned {
+			toggled = true
+			AddToBlacklist(channel, returnPost)
+			break
+		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
+			toggled = true
+			break
+		} else {
+			if !blacklisted && !banned {
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 9 {
+					bannedToggle = true
+				}
+			}
+		}
+	}
+	if ContainsAnySubstring(url, imageEndings) && toggled {
+		embed := &discordgo.MessageEmbed{
+			Author:      &discordgo.MessageEmbedAuthor{},
+			Color:       randColor,
+			Description: "Score: " + strconv.FormatInt(int64(score), 10),
+			Image: &discordgo.MessageEmbedImage{
+				URL: url,
+			},
+			Timestamp: time.Now().Format(time.RFC3339),
+			Title:     title,
+		}
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSendEmbed(channel, embed)
+		_, err = discord.ChannelMessageSend(channel, "From https://reddit.com"+postlink)
+	} else if toggled {
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSend(channel, url)
+		_, err = discord.ChannelMessageSend(channel, title)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else if bannedToggle {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
+	} else {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	}
+
+	return err
+}
+
+func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
+	var returnPost QuickPost
+	var err error
+	var score int32
+	var text string
+	var title string
+	var nsfw bool
+	var postlink string
+	var sub string
+	var bannedToggle bool
+	limit := 100
+	toggled := false
+	bannedSubs, _ := GetBannedSubreddits(channel)
+	for i := 0; i < 10; i++ {
+		returnPost, sub = GetPost(subs, limit, sort, "text")
+		blacklisted := CheckBlacklist(channel, returnPost)
+		banned := stringInSlice(sub, bannedSubs)
+		score = returnPost.Score
+		text = returnPost.Content
+		title = returnPost.Title
+		postlink = returnPost.Permalink
+		nsfw = returnPost.Nsfw
+		if channelNsfw && !blacklisted && !banned {
+			toggled = true
+			AddToBlacklist(channel, returnPost)
+			break
+		} else if channelNsfw && !nsfw && !blacklisted && !banned {
+			toggled = true
+			AddToBlacklist(channel, returnPost)
+			break
+		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
+			toggled = true
+			break
+		} else {
+			if !blacklisted && !banned {
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 9 {
+					bannedToggle = true
+				}
+			}
+		}
+	}
+	if toggled {
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSend(channel, title)
+		_, err = discord.ChannelMessageSend(channel, text)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else if bannedToggle {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
+	} else {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	}
+	return err
+}
+
+func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
+	var returnPost QuickPost
+	var err error
+	var score int32
+	var url string
+	var title string
+	var nsfw bool
+	var postlink string
+	var sub string
+	var bannedToggle bool
+	limit := 100
+	toggled := false
+	bannedSubs, _ := GetBannedSubreddits(channel)
+	for i := 0; i < 10; i++ {
+		returnPost, sub = GetPost(subs, limit, sort, "link")
+		blacklisted := CheckBlacklist(channel, returnPost)
+		banned := stringInSlice(sub, bannedSubs)
+		score = returnPost.Score
+		url = returnPost.Content
+		title = returnPost.Title
+		postlink = returnPost.Permalink
+		nsfw = returnPost.Nsfw
+		if channelNsfw && !blacklisted && !banned {
+			toggled = true
+			AddToBlacklist(channel, returnPost)
+			break
+		} else if channelNsfw && !nsfw && !blacklisted && !banned {
+			toggled = true
+			AddToBlacklist(channel, returnPost)
+			break
+		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
+			toggled = true
+			break
+		} else {
+			if !blacklisted && !banned {
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 9 {
+					bannedToggle = true
+				}
+			}
+		}
+	}
+
+	if toggled {
+		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
+		_, err = discord.ChannelMessageSend(channel, url)
+		_, err = discord.ChannelMessageSend(channel, title)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+	} else if bannedToggle {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
+	} else {
+		_, err = discord.ChannelMessageSend(channel, "Error!")
+		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	}
+	return err
 }
