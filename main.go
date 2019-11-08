@@ -201,7 +201,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				ResetBlacklist()
 				discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 			case "ban":
-				if len(commandContent) <= 4 {
+				if len(commandContent) < 4 || len(commandContent) > 5 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 					switch commandContent[2] {
@@ -227,7 +227,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 				}
 			case "unban":
-				if len(commandContent) <= 4 {
+				if len(commandContent) < 4 || len(commandContent) > 5 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 					switch commandContent[2] {
