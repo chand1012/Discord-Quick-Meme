@@ -36,8 +36,8 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 
 ## Dependencies
 
-- DiscordGo found [discordgo](https://github.com/bwmarrin/discordgo).
-- Graw found [graw](https://github.com/turnage/graw).
+- [Discordgo](https://github.com/bwmarrin/discordgo).
+- [Graw](https://github.com/turnage/graw).
 
 ### Disclaimer
 
