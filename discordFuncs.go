@@ -108,7 +108,6 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	var url string
 	var title string
 	var nsfw bool
-	var postlink string
 	var sub string
 	var bannedToggle bool
 	rand.Seed(time.Now().Unix())
@@ -121,10 +120,12 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		returnPost, sub = GetPost(subs, limit, sort, "media")
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
+		if !banned {
+			LastPost[channel] = returnPost
+		}
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
-		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
@@ -161,12 +162,12 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		}
 		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
 		_, err = discord.ChannelMessageSendEmbed(channel, embed)
-		_, err = discord.ChannelMessageSend(channel, "From https://reddit.com"+postlink)
+		//_, err = discord.ChannelMessageSend(channel, "From https://reddit.com"+postlink)
 	} else if toggled {
 		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
 		_, err = discord.ChannelMessageSend(channel, url)
 		_, err = discord.ChannelMessageSend(channel, title)
-		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10))
 	} else if bannedToggle {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
@@ -185,7 +186,6 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	var text string
 	var title string
 	var nsfw bool
-	var postlink string
 	var sub string
 	var bannedToggle bool
 	limit := 100
@@ -195,10 +195,12 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		returnPost, sub = GetPost(subs, limit, sort, "text")
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
+		if !banned {
+			LastPost[channel] = returnPost
+		}
 		score = returnPost.Score
 		text = returnPost.Content
 		title = returnPost.Title
-		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
@@ -226,7 +228,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
 		_, err = discord.ChannelMessageSend(channel, title)
 		_, err = discord.ChannelMessageSend(channel, text)
-		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10))
 	} else if bannedToggle {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
@@ -244,7 +246,6 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	var url string
 	var title string
 	var nsfw bool
-	var postlink string
 	var sub string
 	var bannedToggle bool
 	limit := 100
@@ -254,10 +255,12 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		returnPost, sub = GetPost(subs, limit, sort, "link")
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
+		if !banned {
+			LastPost[channel] = returnPost
+		}
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
-		postlink = returnPost.Permalink
 		nsfw = returnPost.Nsfw
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
@@ -286,13 +289,25 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "From r/"+sub)
 		_, err = discord.ChannelMessageSend(channel, url)
 		_, err = discord.ChannelMessageSend(channel, title)
-		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10)+"\nOriginal Post: https://reddit.com"+postlink)
+		_, err = discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10))
 	} else if bannedToggle {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
 	} else {
 		_, err = discord.ChannelMessageSend(channel, "Error!")
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	}
+	return err
+}
+
+func getSource(discord *discordgo.Session, channel string) error {
+	var err error
+	returnPost := LastPost[channel]
+	if returnPost.Permalink == "" {
+		_, err = discord.ChannelMessageSend(channel, "ERROR: Nothing has ever been sent on this channel!")
+	} else {
+		postlink := returnPost.Permalink
+		_, err = discord.ChannelMessageSend(channel, "Source: https://reddit.com"+postlink)
 	}
 	return err
 }

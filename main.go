@@ -23,6 +23,8 @@ var (
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
+	//LastPost gets the last post from the specified channel string
+	LastPost map[string]QuickPost
 )
 
 func main() {
@@ -33,6 +35,7 @@ func main() {
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
+	LastPost = make(map[string]QuickPost)
 	file = "data.json"
 	key, adminRawIDs, err = jsonExtract(file)
 	errCheck("Error opening key file", err)
@@ -73,7 +76,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	dm, err = ComesFromDM(discord, message)
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source"}
 	user := message.Author
 	content := message.Content
 	guildID := message.GuildID
@@ -130,7 +133,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		default:
 			err = getMediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
-
+	case commandContent[0] == "!source":
+		err = getSource(discord, channel)
 	case commandContent[0] == "!quickmeme":
 		var thing string
 		if len(commandContent) > 1 {
