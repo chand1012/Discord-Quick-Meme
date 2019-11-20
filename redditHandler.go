@@ -81,7 +81,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 					Content:   post.URL,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
-					Sub:       sub,
+					Sub:       getSubFromPermalink(post.Permalink),
 				}
 			case mode == "text":
 				gotPost = QuickPost{
@@ -90,7 +90,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 					Content:   post.SelfText,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
-					Sub:       sub,
+					Sub:       getSubFromPermalink(post.Permalink),
 				}
 			}
 
@@ -130,7 +130,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 			}
 		}
 	}
-	return returnPost, sub
+	return returnPost, getSubFromPermalink(returnPost.Permalink)
 }
 
 // MinScore Formula for calculating effective minimum score.
@@ -143,4 +143,11 @@ func MinScore(posts []QuickPost) int32 {
 	}
 	avg := total / int32(n)
 	return avg / 2
+}
+
+func getSubFromPermalink(permalink string) string {
+	var sub string
+	linkArray := strings.Split(permalink, "/")
+	sub = linkArray[2]
+	return sub
 }
