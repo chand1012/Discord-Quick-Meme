@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -298,6 +299,42 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		_, err = discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 	}
 	return err
+}
+
+func getNumberOfUsers(discord *discordgo.Session) int {
+	count := 0
+	for _, guild := range discord.State.Guilds {
+		count += len(guild.Members)
+	}
+	return count
+}
+
+// gets the user's member struct via their
+func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
+	guildObject, _ := discord.Guild(guildID)
+	for _, member := range guildObject.Members {
+		if member.User.ID == user.ID {
+			return *member
+		}
+	}
+	return discordgo.Member{}
+}
+
+func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
+	adminCode := "memebot admin"
+	member := getUserMemberFromGuild(discord, guildID, *user)
+	if member.User.ID == "" {
+		return false
+	}
+	guildRoles, _ := discord.GuildRoles(guildID)
+	for _, role := range guildRoles {
+		for _, roleID := range member.Roles {
+			if role.ID == roleID && strings.Contains(strings.ToLower(role.Name), adminCode) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func getSource(discord *discordgo.Session, channel string) error {

@@ -4,8 +4,6 @@ package main
 import (
 	"regexp"
 	"strings"
-
-	"github.com/bwmarrin/discordgo"
 )
 
 func stringInSlice(s string, a []string) bool {
@@ -41,40 +39,4 @@ func textFilterSlice(input []string) []string {
 		returnSlice = append(returnSlice, output)
 	}
 	return returnSlice
-}
-
-func getNumberOfUsers(discord *discordgo.Session) int {
-	count := 0
-	for _, guild := range discord.State.Guilds {
-		count += len(guild.Members)
-	}
-	return count
-}
-
-// gets the user's member struct via their
-func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
-	guildObject, _ := discord.Guild(guildID)
-	for _, member := range guildObject.Members {
-		if member.User.ID == user.ID {
-			return *member
-		}
-	}
-	return discordgo.Member{}
-}
-
-func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
-	adminCode := "memebot admin"
-	member := getUserMemberFromGuild(discord, guildID, *user)
-	if member.User.ID == "" {
-		return false
-	}
-	guildRoles, _ := discord.GuildRoles(guildID)
-	for _, role := range guildRoles {
-		for _, roleID := range member.Roles {
-			if role.ID == roleID && strings.Contains(strings.ToLower(role.Name), adminCode) {
-				return true
-			}
-		}
-	}
-	return false
 }
