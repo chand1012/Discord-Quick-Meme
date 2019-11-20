@@ -79,10 +79,9 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source"}
 	user := message.Author
 	content := message.Content
+	commandContent := strings.Split(content, " ")
 	guildID := message.GuildID
-	if user.ID == botID || user.Bot {
-		return
-	} else if !ContainsAnySubstring(content, commands) {
+	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
 	}
 	channelObject, _ := discord.Channel(message.ChannelID)
@@ -94,7 +93,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	}
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
 	nsfw := channelObject.NSFW || dm
-	commandContent := strings.Split(content, " ")
 	sort = "hot"
 	switch {
 	case commandContent[0] == "!meme" && len(commandContent) == 1:
