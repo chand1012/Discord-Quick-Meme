@@ -13,7 +13,7 @@ type Keys struct {
 	Admins []string `json:"admin"`
 }
 
-func jsonExtract(filename string) (string, []string, error) {
+func loginExtract(filename string) (string, []string, error) {
 	jsonfile, err := os.Open(filename)
 
 	if err != nil {
@@ -29,6 +29,39 @@ func jsonExtract(filename string) (string, []string, error) {
 	json.Unmarshal(rawjson, &keys)
 
 	return keys.BotID, keys.Admins, err
+}
+
+// this is for subreddit extraction. There will be one attribute for "memes" and the like
+type subJSON struct {
+	Memes  []string `json:"memes"`
+	Text   []string `json:"text"`
+	Hentai []string `json:"hentai"`
+	News   []string `json:"news"`
+}
+
+func subExtract(filename string) map[string][]string {
+	jsonfile, err := os.Open(filename)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer jsonfile.Close()
+
+	rawjson, _ := ioutil.ReadAll(jsonfile)
+
+	var subJSON subJSON
+
+	json.Unmarshal(rawjson, &subJSON)
+
+	subMap := make(map[string][]string)
+
+	subMap["memes"] = subJSON.Memes
+	subMap["text"] = subJSON.Text
+	subMap["hentai"] = subJSON.Hentai
+	subMap["news"] = subJSON.News
+
+	return subMap
 }
 
 type redisInfo struct {

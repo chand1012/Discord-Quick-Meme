@@ -25,6 +25,8 @@ var (
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
 	//LastPost gets the last post from the specified channel string
 	LastPost map[string]QuickPost
+	//SubMap contains all of the data for the subs
+	SubMap map[string][]string
 )
 
 func main() {
@@ -36,8 +38,10 @@ func main() {
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
 	LastPost = make(map[string]QuickPost)
+	SubMap = make(map[string][]string)
+	SubMap = subExtract("subs.json")
 	file = "data.json"
-	key, adminRawIDs, err = jsonExtract(file)
+	key, adminRawIDs, err = loginExtract(file)
 	errCheck("Error opening key file", err)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
@@ -55,7 +59,6 @@ func main() {
 	defer discord.Close()
 	commandPrefix = "!"
 	<-make(chan struct{})
-
 }
 
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
@@ -96,19 +99,19 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	sort = "hot"
 	switch {
 	case commandContent[0] == "!meme" && len(commandContent) == 1:
-		subs = []string{"dankmemes", "funny", "memes", "comedyheaven", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret"}
+		subs = SubMap["memes"]
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case commandContent[0] == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) == 1:
-		subs = []string{"jokes", "darkjokes", "antijokes"}
+		subs = SubMap["text"]
 		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getTextPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) == 1:
-		subs = []string{"UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
+		subs = SubMap["news"]
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
@@ -119,7 +122,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case commandContent[0] == "!hentai":
 		// This is still only here because a friend of mine
 		// suggested this and I am a nice person
-		subs = []string{"ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise"}
+		subs = SubMap["hentai"]
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
 	case commandContent[0] == "!all":
 		randchoice := rand.Intn(4)
