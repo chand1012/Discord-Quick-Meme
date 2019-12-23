@@ -137,71 +137,27 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case commandContent[0] == "!source":
 		err = getSource(discord, channel)
 	case commandContent[0] == "!quickmeme":
-		var thing string
+		var subcommand string
 		if len(commandContent) > 1 {
-			thing = commandContent[1]
+			subcommand = commandContent[1]
 		} else {
-			thing = "status"
+			subcommand = "status"
 		}
-		thing = textFilter(thing)
+		subcommand = textFilter(subcommand)
 		if !stringInSlice(user.ID, adminIDs) && !isUserMemeBotAdmin(discord, guildID, user) {
-			thing = ""
+			subcommand = ""
 			fmt.Println("Intruder tried to execute admin only command:")
 			fmt.Println(user.Username)
 		} else if stringInSlice(user.ID, adminIDs) {
-			switch thing {
+			switch subcommand {
 			case "test":
-				var count int
-				var total int64
-				var redditResult float64
-				var msg string
-				msg = "Starting Quick-Meme speed test..."
-				discord.ChannelMessageSend(channel, msg)
-				fmt.Println(msg)
-				for i := 0; i < 10; i++ {
-					starttime := GetMillis()
-					_ = PingReddit()
-					endtime := GetMillis()
-					total += (endtime - starttime)
-					count = i
-				}
-				redditResult = float64(total) / float64(count)
-				msg = "Average Reddit response time over 10 trials: " + strconv.FormatFloat(redditResult, 'f', 1, 64) + "ms"
-				discord.ChannelMessageSend(channel, msg)
-				fmt.Println(msg)
+				quickMemeTest(discord, channel)
 			case "getcache":
-				var postCount int
-				var cachedReddits []string
-				var cachedRedditCount int
-				discord.ChannelMessageSend(channel, "Getting cache info...")
-				cachedRedditCount = len(PostCache)
-				for k := range PostCache {
-					cachedReddits = append(cachedReddits, k)
-					postCount += len(PostCache[k])
-				}
-				msgone := "There are " + strconv.Itoa(cachedRedditCount) + " cached subreddits and " + strconv.Itoa(postCount) + " posts cached."
-				msgtwo := "Cached subs: " + strings.Join(cachedReddits, ", ")
-				fmt.Println(msgone)
-				fmt.Println(msgtwo)
-				discord.ChannelMessageSend(channel, msgone)
-				discord.ChannelMessageSend(channel, msgtwo)
+				quickMemeGetCache(discord, channel)
 			case "clearcache":
-				discord.ChannelMessageSend(channel, "Clearing cache...")
-				fmt.Println("Admin issued cache clear...")
-				ClearCache()
-				fmt.Println("Cache cleared. Repopulating...")
-				discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
-				st := GetMillis()
-				PopulateCache()
-				et := GetMillis()
-				msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
-				msgtwo := ". Took " + strconv.FormatInt(et-st, 10) + "ms to populate cache."
-				discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
+				quickMemeClearCache(discord, channel)
 			case "getservercache":
-				channelCount := len(ServerMap)
-				fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
-				fmt.Println(ServerMap)
-				discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
+				quickMemeServerCache(discord, channel)
 			case "resetblacklist":
 				ResetBlacklist()
 				discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
@@ -296,7 +252,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				discord.ChannelMessageSend(channel, msg)
 			}
 		} else {
-			switch thing {
+			switch subcommand {
 			case "ban":
 				if len(commandContent) <= 4 {
 					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
