@@ -215,10 +215,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 				}
 			case "getbanned":
+				banContext := commandContent[2]
 				if len(commandContent) != 3 {
-					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme getbanned [mode]`\nMode can be `channel` or `server`.")
+					banContext = "channel"
 				} else {
-					switch commandContent[2] {
+					switch banContext {
 					case "server":
 						channels, _ := discord.GuildChannels(guildID)
 						for _, chat := range channels {
@@ -307,10 +308,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
 				}
 			case "getbanned":
+				banContext := commandContent[2]
 				if len(commandContent) != 3 {
-					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme getbanned [mode]`\nMode can be `channel` or `server`.")
+					banContext = "channel"
 				} else {
-					switch commandContent[2] {
+					switch banContext {
 					case "server":
 						channels, _ := discord.GuildChannels(guildID)
 						for _, chat := range channels {

@@ -203,6 +203,9 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		text = returnPost.Content
 		title = returnPost.Title
 		nsfw = returnPost.Nsfw
+		if nsfw {
+			fmt.Println("Post is NSFW.")
+		}
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
