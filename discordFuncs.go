@@ -128,6 +128,9 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 		url = returnPost.Content
 		title = returnPost.Title
 		nsfw = returnPost.Nsfw
+		if nsfw {
+			fmt.Println("Post is NSFW.")
+		}
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
@@ -266,6 +269,9 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 		url = returnPost.Content
 		title = returnPost.Title
 		nsfw = returnPost.Nsfw
+		if nsfw {
+			fmt.Println("Post is NSFW.")
+		}
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
