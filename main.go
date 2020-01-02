@@ -83,6 +83,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	user := message.Author
 	content := message.Content
 	commandContent := strings.Split(content, " ")
+	command := commandContent[0]
 	guildID := message.GuildID
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
@@ -98,33 +99,33 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	nsfw := channelObject.NSFW || dm
 	sort = "hot"
 	switch {
-	case commandContent[0] == "!meme" && len(commandContent) == 1:
+	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!meme" && len(commandContent) >= 2:
+	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) == 1:
+	case (command == "!joke" || command == "!text") && len(commandContent) == 1:
 		subs = SubMap["text"]
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) >= 2:
+	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) == 1:
+	case (command == "!news" || command == "!link") && len(commandContent) == 1:
 		subs = SubMap["news"]
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) >= 2:
+	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!fiftyfifty" || commandContent[0] == "!5050":
+	case command == "!fiftyfifty" || command == "!5050":
 		subs = []string{"fiftyfifty"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!hentai":
+	case command == "!hentai":
 		// This is still only here because a friend of mine
 		// suggested this and I am a nice person
 		subs = SubMap["hentai"]
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!all":
+	case command == "!all":
 		randchoice := rand.Intn(4)
 		switch randchoice {
 		case 0:
@@ -134,9 +135,9 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		default:
 			err = getMediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
-	case commandContent[0] == "!source":
+	case command == "!source":
 		err = getSource(discord, channel)
-	case commandContent[0] == "!quickmeme":
+	case command == "!quickmeme":
 		var subcommand string
 		if len(commandContent) > 1 {
 			subcommand = commandContent[1]
