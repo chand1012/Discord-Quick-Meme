@@ -102,6 +102,12 @@ func ComesFromDM(s *discordgo.Session, m *discordgo.MessageCreate) (bool, error)
 	return channel.Type == discordgo.ChannelTypeDM, nil
 }
 
+func getBuzzWord(discord *discordgo.Session, channel string) error {
+	statement := getABuzzWord()
+	_, err := discord.ChannelMessageSend(channel, statement)
+	return err
+}
+
 func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) error {
 	var returnPost QuickPost
 	var err error
