@@ -27,5 +27,17 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
-      run: go build -v .
+    - name: Build Linux x86_64
+      run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
+    - name: Build Linux ARMv7
+      run: GOOS=linux GOARCH=arm GOARM=7 go build -v -o GoDiscordBotArm
+    - name: Archive Linux x86_64
+      uses: actions/upload-artifact@v1
+        with:
+          name: Linux
+          path: GoDiscordBot 
+    - name: Archive Linux ARMv7
+      uses: actions/upload-artifact@v1
+        with:
+          name: Linux
+          path: GoDiscordBotArm 
