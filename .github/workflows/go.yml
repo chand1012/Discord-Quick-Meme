@@ -31,13 +31,20 @@ jobs:
       run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
     - name: Build Linux ARMv7
       run: GOOS=linux GOARCH=arm GOARM=7 go build -v -o GoDiscordBotArm
+    - name: Build Windows x64
+      run: GOOS=windows GOARCH=amd64 go build -v -o GoDiscordBot.exe
     - name: Archive Linux x86_64
       uses: actions/upload-artifact@v1
       with:
-          name: GoDiscordBot
+          name: GoDiscordBotLinux
           path: GoDiscordBot 
     - name: Archive Linux ARMv7
       uses: actions/upload-artifact@v1
       with:
           name: GoDiscordBotArm 
           path: GoDiscordBotArm 
+    - name: Archive Windows x64
+      uses: actions/upload-artifact@v1
+      with:
+        name: GoDiscordBotWindows
+        path: GoDiscordBot.exe
