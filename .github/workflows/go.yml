@@ -37,6 +37,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
           name: GoDiscordBotLinux
+          path: GoDiscordBot 
     - name: Archive Linux ARMv7
       uses: actions/upload-artifact@v1
       with:
