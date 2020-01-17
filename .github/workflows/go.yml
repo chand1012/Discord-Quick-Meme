@@ -36,15 +36,14 @@ jobs:
     - name: Archive Linux x86_64
       uses: actions/upload-artifact@v1
       with:
-          name: GoDiscordBotLinux-${GITHUB_REF##*/} 
-          path: GoDiscordBot 
+          name: GoDiscordBotLinux
     - name: Archive Linux ARMv7
       uses: actions/upload-artifact@v1
       with:
-          name: GoDiscordBotArm-${GITHUB_REF##*/} 
+          name: GoDiscordBotArm
           path: GoDiscordBotArm
     - name: Archive Windows x64
       uses: actions/upload-artifact@v1
       with:
-        name: GoDiscordBotWindows-${GITHUB_REF##*/} 
+        name: GoDiscordBotWindows
         path: GoDiscordBot.exe
