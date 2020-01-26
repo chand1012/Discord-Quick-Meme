@@ -39,7 +39,6 @@ func main() {
 	Blacklist = make(map[string][]QuickPost)
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
-	SubMap = subExtract("subs.json")
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
 	errCheck("Error opening key file", err)

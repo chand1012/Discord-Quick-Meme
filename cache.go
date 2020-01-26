@@ -76,6 +76,7 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 
 // PopulateCache spawns workers to add posts to the cache
 func PopulateCache() {
+	SubMap = subExtract("subs.json")
 	fmt.Println("Populating base post cache...")
 	CacheTime = time.Now().Unix() + 3600
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
