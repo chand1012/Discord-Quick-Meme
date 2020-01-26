@@ -1,6 +1,6 @@
 # Discord-Quick-Meme
 
-[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346)[![Discord Bots](https://top.gg/api/widget/lib/438381344943374346.svg)](https://top.gg/bot/438381344943374346)[![Build Status](https://jenkins.chand1012.net/job/DiscordQuickMeme/badge/icon)](https://jenkins.chand1012.net/job/DiscordQuickMeme/)
+[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/lib/438381344943374346.svg)](https://top.gg/bot/438381344943374346) ![](https://github.com/chand1012/Discord-Quick-Meme/workflows/Go/badge.svg)
 
 A discord bot that sends Reddit memes and news to a channel.
 
@@ -51,7 +51,5 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 - Refactor and Further optimization for faster memes.
 
 ### To Do
-
-- implement Redis image cache.
-  - Images would be cached as a base64 jpeg or png then uploaded to discord and embedded.
+- add meme source functionality that would search the internet for the original source of the meme, regardless of if the meme is from Reddit or not. Would work with both user uploaded images and images from Reddit.
 - get more users
