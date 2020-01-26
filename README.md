@@ -51,5 +51,5 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 - Refactor and Further optimization for faster memes.
 
 ### To Do
-- add meme source functionality that would search the internet for the original source of the meme, regardless of if the meme is from Reddit or not. Would work with both user uploaded images and images from Reddit.
+- add meme source functionality that would search the internet for the original source of the meme, regardless of if the meme is from Reddit or not. Would work with both user uploaded images and images from Reddit. [MRISA](https://github.com/vivithemage/mrisa)
 - get more users
