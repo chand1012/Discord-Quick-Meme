@@ -153,6 +153,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			switch subcommand {
 			case "test":
 				quickMemeTest(discord, channel)
+			case "testredis":
+				quickMemeTestRedis(discord, channel)
 			case "getcache":
 				quickMemeGetCache(discord, channel)
 			case "clearcache":
