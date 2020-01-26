@@ -69,3 +69,23 @@ func quickMemeServerCache(discord *discordgo.Session, channel string) {
 	fmt.Println(ServerMap)
 	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
 }
+
+func quickMemeTestRedis(discord *discordgo.Session, channel string) {
+	discord.ChannelMessageSend(channel, "Testing Redis response time....")
+	var times []int64
+	var totalTime int64
+	var avgTime float64
+	for i := 0; i < 10; i++ {
+		st := GetMillis()
+		_, _ = GetBannedSubreddits(channel)
+		et := GetMillis()
+		t := et - st
+		times = append(times, t)
+	}
+	for i := 0; i < len(times); i++ {
+		totalTime += times[i]
+	}
+	avgTime = float64(totalTime) / float64(len(times))
+	fmt.Println("Average redis response time: " + strconv.FormatFloat(avgTime, 'f', 6, 64) + " ms")
+	discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
+}

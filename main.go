@@ -39,7 +39,6 @@ func main() {
 	Blacklist = make(map[string][]QuickPost)
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
-	SubMap = subExtract("subs.json")
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
 	errCheck("Error opening key file", err)
@@ -79,7 +78,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	dm, err = ComesFromDM(discord, message)
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword"}
 	user := message.Author
 	content := message.Content
 	commandContent := strings.Split(content, " ")
@@ -120,7 +119,9 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case command == "!fiftyfifty" || command == "!5050":
 		subs = []string{"fiftyfifty"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case command == "!hentai":
+	case commandContent[0] == "!buzzword":
+		err = getBuzzWord(discord, channel)
+	case commandContent[0] == "!hentai":
 		// This is still only here because a friend of mine
 		// suggested this and I am a nice person
 		subs = SubMap["hentai"]
@@ -153,6 +154,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			switch subcommand {
 			case "test":
 				quickMemeTest(discord, channel)
+			case "testredis":
+				quickMemeTestRedis(discord, channel)
 			case "getcache":
 				quickMemeGetCache(discord, channel)
 			case "clearcache":

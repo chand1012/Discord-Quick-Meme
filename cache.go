@@ -76,11 +76,12 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 
 // PopulateCache spawns workers to add posts to the cache
 func PopulateCache() {
+	SubMap = subExtract("subs.json")
 	fmt.Println("Populating base post cache...")
 	CacheTime = time.Now().Unix() + 3600
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
-	subs := []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise", "jokes", "darkjokes", "antijokes", "fiftyfifty", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
+	subs := getAllSubs("subs.json")
 	var wg sync.WaitGroup
 	bufferSize := len(subs)
 	recv := make(chan []QuickPost, bufferSize)
