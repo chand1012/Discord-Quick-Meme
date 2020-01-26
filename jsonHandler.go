@@ -64,6 +64,18 @@ func subExtract(filename string) map[string][]string {
 	return subMap
 }
 
+func getAllSubs(filename string) []string {
+	var subs []string
+	subMap := subExtract(filename)
+	for key := range subMap {
+		subsFromMap := subMap[key]
+		for i := 0; i < len(subsFromMap); i++ {
+			subs = append(subs, subsFromMap[i])
+		}
+	}
+	return subs
+}
+
 type redisInfo struct {
 	Address  string `json:"redis-address"`
 	Password string `json:"redis-password"`
