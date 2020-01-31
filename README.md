@@ -47,8 +47,8 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 
 ### Coming Soon
 
-- Caching of common subreddits called by users to allow your favorite subreddits to be constantly cached for fast retrieval.
 - Refactor and Further optimization for faster memes.
+- Reverse image search to find the original source of memes posted on your server.
 
 ### To Do
 - add meme source functionality that would search the internet for the original source of the meme, regardless of if the meme is from Reddit or not. Would work with both user uploaded images and images from Reddit.
