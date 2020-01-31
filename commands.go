@@ -89,3 +89,9 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	fmt.Println("Average redis response time: " + strconv.FormatFloat(avgTime, 'f', 6, 64) + " ms")
 	discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
 }
+
+func quickMemeImageSearch(discord *discordgo.Session, channel string, imageURL string) {
+	discord.ChannelMessageSend(channel, "Searching the web...")
+	lastMessages := discord.ChannelMessages(channel, 100, "", "", "")
+
+}
