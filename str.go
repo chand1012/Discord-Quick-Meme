@@ -3,6 +3,7 @@ package main
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -39,4 +40,38 @@ func textFilterSlice(input []string) []string {
 		returnSlice = append(returnSlice, output)
 	}
 	return returnSlice
+}
+
+// this if for "how long ago"
+// ex: "5 hours ago"
+// ex: "4 days ago"
+func timeStrToSeconds(stamp string) int64 {
+	var stampLength string
+	var finalTime int64
+	lengths := []string{"second", "minute", "hour", "day", "year"}
+	for _, l := range lengths {
+		if strings.Contains(stamp, l) {
+			stampLength = l
+			break
+		}
+	}
+	spaceIndex := strings.Index(stamp, " ")
+	timeUnknown, _ := strconv.ParseInt(stamp[:spaceIndex], 10, 64)
+	switch stampLength {
+	case "second":
+		finalTime = timeUnknown
+
+	case "minute":
+		finalTime = timeUnknown * 60
+
+	case "hour":
+		finalTime = timeUnknown * 3600
+
+	case "day":
+		finalTime = timeUnknown * 3600 * 24
+
+	case "year":
+		finalTime = timeUnknown * 3600 * 8760
+	}
+	return finalTime
 }

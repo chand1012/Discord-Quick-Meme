@@ -91,7 +91,19 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 }
 
 func quickMemeImageSearch(discord *discordgo.Session, channel string, imageURL string) {
+	var searchURL string
+	extensions := []string{".jpg", ".png"}
 	discord.ChannelMessageSend(channel, "Searching the web...")
-	lastMessages := discord.ChannelMessages(channel, 100, "", "", "")
-
+	lastMessages, _ := discord.ChannelMessages(channel, 100, "", "", "")
+	for _, message := range lastMessages {
+		if ContainsAnySubstring(message.Content, extensions) && !message.Author.Bot {
+			httpIndex := strings.Index(message.Content, "http")
+			startLink := message.Content[httpIndex:]
+			spaceIndex := strings.Index(startLink, " ")
+			searchURL = startLink[:spaceIndex]
+			break
+		}
+	}
+	// this will then search for the image on reddit.
+	// Need to modify MRISA to only search reddit
 }

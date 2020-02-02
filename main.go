@@ -154,6 +154,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			switch subcommand {
 			case "test":
 				quickMemeTest(discord, channel)
+			case "imagetest":
+				quickMemeImageSearch(discord, channel, "")
 			case "testredis":
 				quickMemeTestRedis(discord, channel)
 			case "getcache":
