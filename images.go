@@ -23,7 +23,7 @@ type returnPayload struct {
 	Titles        []string `json:"titles"`
 }
 
-func imageSearch(url string) (string, string) {
+func imageRedditSearch(url string) (string, string) {
 	var payload imagePayload
 	var parsedBody returnPayload
 	payload.ImageURL = url
@@ -37,9 +37,8 @@ func imageSearch(url string) (string, string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// this will be changed to a different server that will be hidden in
-	// data.json
-	resp, err := http.Post("http://127.0.0.1:5000/search", "application/json", bytes.NewBuffer(data))
+
+	resp, err := http.Post(mrisaAddress, "application/json", bytes.NewBuffer(data))
 
 	if err != nil {
 		fmt.Println(err)
@@ -76,4 +75,36 @@ func imageSearch(url string) (string, string) {
 
 	return returnURL, returnTitle
 
+}
+
+func imageSearch(url string) []string {
+	var payload imagePayload
+	var parsedBody returnPayload
+	payload.ImageURL = url
+	payload.ResizedImages = false
+
+	data, err := json.Marshal(payload)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	resp, err := http.Post(mrisaAddress, "application/json", bytes.NewBuffer(data))
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	json.Unmarshal(body, &parsedBody)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	urls := parsedBody.Links
+
+	return urls
 }

@@ -90,10 +90,10 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
 }
 
-func quickMemeImageSearch(discord *discordgo.Session, channel string, imageURL string) {
-	var searchURL string
+func quickMemeImageSearch(discord *discordgo.Session, channel string) {
+	searchURL := ""
 	extensions := []string{".jpg", ".png"}
-	discord.ChannelMessageSend(channel, "Searching the web...")
+	discord.ChannelMessageSend(channel, "Searching Reddit...")
 	lastMessages, _ := discord.ChannelMessages(channel, 100, "", "", "")
 	for _, message := range lastMessages {
 		if ContainsAnySubstring(message.Content, extensions) && !message.Author.Bot {
@@ -104,6 +104,22 @@ func quickMemeImageSearch(discord *discordgo.Session, channel string, imageURL s
 			break
 		}
 	}
-	// this will then search for the image on reddit.
-	// Need to modify MRISA to only search reddit
+
+	if searchURL == "" {
+		discord.ChannelMessageSend(channel, "404: URL not found. If you think that this is a mistake, post on our Github issues page [here](https://github.com/chand1012/Discord-Quick-Meme/issues) along with appropriate screenshots and information.")
+		return
+	}
+
+	url, title := imageRedditSearch(searchURL)
+	discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
+	if url == "" && title == "" {
+		urls := imageSearch(searchURL)
+		printstr := "Found " + strconv.Itoa(len(urls)) + "results:\n"
+		for _, link := range urls {
+			printstr += link + "\n"
+		}
+		discord.ChannelMessageSend(channel, printstr)
+	} else {
+		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+title+"\n"+url)
+	}
 }

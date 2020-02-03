@@ -26,7 +26,8 @@ var (
 	//LastPost gets the last post from the specified channel string
 	LastPost map[string]QuickPost
 	//SubMap contains all of the data for the subs
-	SubMap map[string][]string
+	SubMap       map[string][]string
+	mrisaAddress string
 )
 
 func main() {
@@ -41,6 +42,7 @@ func main() {
 	SubMap = make(map[string][]string)
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
+	mrisaAddress = mrisaExtract(file)
 	errCheck("Error opening key file", err)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
@@ -78,7 +80,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	dm, err = ComesFromDM(discord, message)
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!search"}
 	user := message.Author
 	content := message.Content
 	commandContent := strings.Split(content, " ")
@@ -138,6 +140,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 	case command == "!source":
 		err = getSource(discord, channel)
+	case command == "!search":
+		quickMemeImageSearch(discord, channel)
 	case command == "!quickmeme":
 		var subcommand string
 		if len(commandContent) > 1 {
@@ -154,8 +158,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			switch subcommand {
 			case "test":
 				quickMemeTest(discord, channel)
-			case "imagetest":
-				quickMemeImageSearch(discord, channel, "")
 			case "testredis":
 				quickMemeTestRedis(discord, channel)
 			case "getcache":
