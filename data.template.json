@@ -4,5 +4,5 @@
   "redis-address":"127.0.0.1:6379",
   "redis-password":"",
   "redis-db":0,
-  "mrisa": "127.0.0.1:5000/search"
+  "mrisa": "http://127.0.0.1:5000/search"
 }

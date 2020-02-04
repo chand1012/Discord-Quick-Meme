@@ -23,13 +23,12 @@ type returnPayload struct {
 	Titles        []string `json:"titles"`
 }
 
-func imageRedditSearch(url string) (string, string) {
+func imageRedditSearch(url string) string {
 	var payload imagePayload
 	var parsedBody returnPayload
 	payload.ImageURL = url
 	payload.ResizedImages = false
 	var returnURL string
-	var returnTitle string
 	var oldest int64
 
 	data, err := json.Marshal(payload)
@@ -42,6 +41,7 @@ func imageRedditSearch(url string) (string, string) {
 
 	if err != nil {
 		fmt.Println(err)
+		return "nil"
 	}
 
 	defer resp.Body.Close()
@@ -64,16 +64,14 @@ func imageRedditSearch(url string) (string, string) {
 			dash = strings.Index(newTitle, "-")
 			timeStamp := newTitle[:dash-2]
 			testTime := timeStrToSeconds(timeStamp)
-			fmt.Println(testTime)
 			if testTime >= oldest {
 				oldest = testTime
 				returnURL = urls[i]
-				returnTitle = newTitle
 			}
 		}
 	}
 
-	return returnURL, returnTitle
+	return returnURL
 
 }
 
@@ -93,6 +91,7 @@ func imageSearch(url string) []string {
 
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
 
 	defer resp.Body.Close()

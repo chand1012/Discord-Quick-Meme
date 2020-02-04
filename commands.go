@@ -98,28 +98,38 @@ func quickMemeImageSearch(discord *discordgo.Session, channel string) {
 	for _, message := range lastMessages {
 		if ContainsAnySubstring(message.Content, extensions) && !message.Author.Bot {
 			httpIndex := strings.Index(message.Content, "http")
-			startLink := message.Content[httpIndex:]
+			startLink := message.Content[httpIndex:len(message.Content)]
 			spaceIndex := strings.Index(startLink, " ")
-			searchURL = startLink[:spaceIndex]
-			break
+			if spaceIndex != -1 {
+				searchURL = startLink[0:spaceIndex]
+				break
+			} else {
+				searchURL = startLink
+			}
 		}
 	}
 
 	if searchURL == "" {
-		discord.ChannelMessageSend(channel, "404: URL not found. If you think that this is a mistake, post on our Github issues page [here](https://github.com/chand1012/Discord-Quick-Meme/issues) along with appropriate screenshots and information.")
+		discord.ChannelMessageSend(channel, "404: URL not found. If you think that this is a mistake, post on our Github issues page along with appropriate screenshots and information. https://github.com/chand1012/Discord-Quick-Meme/issues")
 		return
 	}
 
-	url, title := imageRedditSearch(searchURL)
-	discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
-	if url == "" && title == "" {
+	url := imageRedditSearch(searchURL)
+	if url == "" {
+		discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
 		urls := imageSearch(searchURL)
+		if urls == nil {
+			discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+			return
+		}
 		printstr := "Found " + strconv.Itoa(len(urls)) + "results:\n"
 		for _, link := range urls {
 			printstr += link + "\n"
 		}
 		discord.ChannelMessageSend(channel, printstr)
+	} else if url == "nil" {
+		discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
 	} else {
-		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+title+"\n"+url)
+		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+url)
 	}
 }
