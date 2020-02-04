@@ -92,10 +92,28 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 
 func quickMemeImageSearch(discord *discordgo.Session, channel string) {
 	searchURL := ""
-	extensions := []string{".jpg", ".png"}
+	extensions := []string{".jpg", ".png", ".jpeg"}
 	discord.ChannelMessageSend(channel, "Searching Reddit...")
 	lastMessages, _ := discord.ChannelMessages(channel, 100, "", "", "")
 	for _, message := range lastMessages {
+		attachmentsLength := len(message.Attachments)
+		currentIndex := attachmentsLength - 1
+		if attachmentsLength > 0 {
+			for currentIndex >= 0 {
+				last := message.Attachments[currentIndex]
+				if ContainsAnySubstring(last.ProxyURL, extensions) {
+					searchURL = last.ProxyURL
+					break
+				} else {
+					currentIndex--
+				}
+			}
+		}
+
+		if searchURL != "" {
+			break
+		}
+
 		if ContainsAnySubstring(message.Content, extensions) && !message.Author.Bot {
 			httpIndex := strings.Index(message.Content, "http")
 			startLink := message.Content[httpIndex:len(message.Content)]
@@ -122,7 +140,7 @@ func quickMemeImageSearch(discord *discordgo.Session, channel string) {
 			discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
 			return
 		}
-		printstr := "Found " + strconv.Itoa(len(urls)) + "results:\n"
+		printstr := "Found " + strconv.Itoa(len(urls)) + " results:\n"
 		for _, link := range urls {
 			printstr += link + "\n"
 		}
