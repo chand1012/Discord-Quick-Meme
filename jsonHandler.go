@@ -99,3 +99,25 @@ func redisExtract(filename string) (string, string, int, error) {
 
 	return redisInfo.Address, redisInfo.Password, redisInfo.DB, err
 }
+
+type mrisaInfo struct {
+	Address string `json:"mrisa"`
+}
+
+func mrisaExtract(filename string) string {
+	jsonfile, err := os.Open(filename)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer jsonfile.Close()
+
+	rawjson, _ := ioutil.ReadAll(jsonfile)
+
+	var mrisainfo mrisaInfo
+
+	json.Unmarshal(rawjson, &mrisainfo)
+
+	return mrisainfo.Address
+}
