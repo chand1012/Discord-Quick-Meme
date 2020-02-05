@@ -5,67 +5,10 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/turnage/graw/reddit"
 )
-
-// QuickPost variant of reddit.Post but designed to be pulled from ram on the fly
-type QuickPost struct {
-	Title     string
-	Score     int32
-	Content   string
-	Nsfw      bool
-	Permalink string
-	Sub       string
-}
-
-//ResetBlacklist just guess what this does
-func ResetBlacklist() {
-	fmt.Println("Resetting Blacklist...")
-	Blacklist = make(map[string][]QuickPost)
-	BlacklistTime = time.Now().Unix() + (3600 * 3)
-	fmt.Println("New Blacklist time is " + strconv.FormatInt(BlacklistTime, 10))
-}
-
-// UpdateBlacklistTime updates clears the blacklist and updates the time
-func UpdateBlacklistTime() {
-	nowTime := time.Now().Unix()
-	if nowTime >= BlacklistTime {
-		ResetBlacklist()
-	}
-}
-
-//CheckBlacklist compares the blacklist to the given post
-func CheckBlacklist(channel string, post QuickPost) bool {
-	count := 0
-	cacheLength := len(Blacklist[channel])
-	for _, cachedPost := range Blacklist[channel] {
-		count++
-		if count >= cacheLength {
-			ResetBlacklist()
-			return false
-		}
-		if post == cachedPost {
-			return true
-		}
-	}
-	return false
-}
-
-//AddToBlacklist add post to blacklist
-func AddToBlacklist(channel string, post QuickPost) {
-	Blacklist[channel] = append(Blacklist[channel], post)
-}
-
-// GetFromCache pulls post from the cache
-func GetFromCache(sub string) ([]QuickPost, bool) {
-	var success bool
-	var returnPosts []QuickPost
-	returnPosts, success = PostCache[sub]
-	return returnPosts, success
-}
 
 // GuessPostType get the type of the post so a
 func GuessPostType(post *reddit.Post) string {
@@ -80,130 +23,6 @@ func GuessPostType(post *reddit.Post) string {
 
 	}
 	return "text"
-}
-
-// AddToCacheWorker spawned to get as many reddit posts as needed
-func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
-	if sub == "inspirobot" {
-		fmt.Println("Getting sub " + sub)
-	}
-	defer wg.Done()
-	var gottenPosts []QuickPost
-	var gotPost QuickPost
-	if sub == "inspirobot" {
-		fmt.Println("Getting from reddit: " + sub)
-	}
-	bot, _ := reddit.NewBotFromAgentFile("agent.yml", 0)
-	harvest, err := bot.Listing("/r/"+sub+"/hot/", "")
-	if err != nil {
-		if strings.Contains(err.Error(), "400") {
-			fmt.Println("Error 400. Subreddit that caused the issue:")
-			fmt.Println(sub)
-			return
-		}
-		panic(err)
-	}
-	if sub == "inspirobot" {
-		fmt.Println("Looping through posts....")
-	}
-	for _, post := range harvest.Posts {
-		mode := GuessPostType(post)
-		switch {
-		case mode == "link" || mode == "media":
-			gotPost = QuickPost{
-				Title:     post.Title,
-				Score:     post.Score,
-				Content:   post.URL,
-				Nsfw:      post.NSFW,
-				Permalink: post.Permalink,
-				Sub:       sub,
-			}
-		case mode == "text":
-			gotPost = QuickPost{
-				Title:     post.Title,
-				Score:     post.Score,
-				Content:   post.SelfText,
-				Nsfw:      post.NSFW,
-				Permalink: post.Permalink,
-				Sub:       sub,
-			}
-		}
-		gottenPosts = append(gottenPosts, gotPost)
-	}
-	send <- gottenPosts
-	if err != nil {
-		panic(err)
-	}
-	if sub == "inspirobot" {
-		fmt.Println("Sent " + sub + " to cache.")
-	}
-}
-
-// PopulateCache spawns workers to add posts to the cache
-func PopulateCache() {
-	fmt.Println("Populating base post cache...")
-	CacheTime = time.Now().Unix() + 3600
-	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
-	starttime := GetMillis()
-	subs := []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "ahegao", "Artistic_Hentai", "Hentai", "MonsterGirl", "slimegirls", "wholesomehentai", "quick_hentai", "HentaiParadise", "jokes", "darkjokes", "antijokes", "fiftyfifty", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion"}
-	var wg sync.WaitGroup
-	bufferSize := len(subs)
-	recv := make(chan []QuickPost, bufferSize)
-	// it is getting stuck somewhere between here
-	for _, sub := range subs {
-		wg.Add(1)
-		go AddToCacheWorker(sub, &wg, recv)
-		CommonSubsCount++
-	}
-
-	for sub := range CommonSubs {
-		fmt.Println("Adding common sub " + sub + "...")
-		if CommonSubs[sub] >= 5 && !stringInSlice(sub, subs) {
-			wg.Add(1)
-			go AddToCacheWorker(sub, &wg, recv)
-			CommonSubsCount++
-			if CommonSubsCount >= 59 {
-				break
-			}
-		}
-	}
-	// and here
-	fmt.Println("Waiting on sub workers...")
-	wg.Wait()
-	fmt.Println("Closing recv channel...")
-	close(recv)
-	CommonSubsCount = 0
-	if GetMillis() > CommonSubsTime {
-		fmt.Println("Clearing common sub cache....")
-		CommonSubsTime = GetMillis() + 604800000
-		CommonSubs = make(map[string]int16)
-	}
-	for i := 0; i < bufferSize; i++ {
-		var testpost QuickPost
-		posts := <-recv
-		for x := 0; x < len(posts); x++ {
-			testpost = posts[x]
-			if testpost.Sub != "" {
-				break
-			}
-		}
-		PostCache[testpost.Sub] = posts
-	}
-	endtime := GetMillis()
-	t := endtime - starttime
-	fmt.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
-}
-
-// AddToCache adds post to cache
-func AddToCache(sub string, addPosts []QuickPost) {
-	PostCache[sub] = addPosts
-}
-
-// ClearCache clears the cache
-func ClearCache() {
-	for k := range PostCache {
-		delete(PostCache, k)
-	}
 }
 
 // PingReddit tests reddit connection
@@ -265,7 +84,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 					Content:   post.URL,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
-					Sub:       sub,
+					Sub:       getSubFromPermalink(post.Permalink),
 				}
 			case mode == "text":
 				gotPost = QuickPost{
@@ -274,7 +93,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 					Content:   post.SelfText,
 					Nsfw:      post.NSFW,
 					Permalink: post.Permalink,
-					Sub:       sub,
+					Sub:       getSubFromPermalink(post.Permalink),
 				}
 			}
 
@@ -313,9 +132,8 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 				break
 			}
 		}
-
 	}
-	return returnPost, sub
+	return returnPost, getSubFromPermalink(returnPost.Permalink)
 }
 
 // MinScore Formula for calculating effective minimum score.
@@ -328,4 +146,11 @@ func MinScore(posts []QuickPost) int32 {
 	}
 	avg := total / int32(n)
 	return avg / 2
+}
+
+func getSubFromPermalink(permalink string) string {
+	var sub string
+	linkArray := strings.Split(permalink, "/")
+	sub = linkArray[2]
+	return sub
 }
