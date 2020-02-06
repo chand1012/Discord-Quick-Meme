@@ -126,7 +126,8 @@ func ClearCache() {
 // if the sub is in the map, increment it
 // otherwise set it to one
 func updateCommonSubCounter(sub string) {
-	if CommonSubsCounter <= 100 && !stringInSlice(sub, getAllSubsFromMap()) {
+	max := uint8(60 - len(getAllSubsFromMap()))
+	if CommonSubsCounter <= max && !stringInSlice(sub, getAllSubsFromMap()) {
 		if GetMillis() > CommonSubsTime[sub] {
 			CommonSubs[sub] = 0
 			CommonSubsTime[sub] = GetMillis() + 604800000 // ms in a week
