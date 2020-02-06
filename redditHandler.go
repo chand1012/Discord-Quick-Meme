@@ -109,7 +109,9 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		} else if ContainsAnySubstring(sub, subList) {
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
-			go PopulateCache()
+			if !CachePopulating {
+				go PopulateCache()
+			}
 		} else {
 			AddToCache(sub, gottenPosts)
 			CacheTime = time.Now().Unix() + 3600

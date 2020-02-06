@@ -27,6 +27,8 @@ var (
 	LastPost map[string]QuickPost
 	//SubMap contains all of the data for the subs
 	SubMap map[string][]string
+	//CachePopulating if true, do not run the populate cache until finished
+	CachePopulating bool
 )
 
 func main() {
@@ -63,6 +65,7 @@ func main() {
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
 	getAllChannelNames(discord)
+	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()
 	fmt.Println("Discord-Quick-Meme has started on " + strconv.Itoa(len(servers)) + " servers")

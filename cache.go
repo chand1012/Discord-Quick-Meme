@@ -105,6 +105,7 @@ func PopulateCache() {
 	endtime := GetMillis()
 	t := endtime - starttime
 	fmt.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
+	CachePopulating = false
 }
 
 // AddToCache adds post to cache

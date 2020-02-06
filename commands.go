@@ -56,6 +56,7 @@ func quickMemeClearCache(discord *discordgo.Session, channel string) {
 	fmt.Println("Cache cleared. Repopulating...")
 	discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
 	st := GetMillis()
+	CachePopulating = true
 	PopulateCache()
 	et := GetMillis()
 	msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
