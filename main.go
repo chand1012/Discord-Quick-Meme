@@ -24,7 +24,7 @@ var (
 	//Blacklist list of all of the post that are blacklisted from the specified channel
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
 	//CommonSubs stores the amount of times the subs are hit
-	CommonSubs map[string]int16
+	CommonSubs map[string]byte // only needs to count up to 10
 	//CommonSubsTime if one week passes, clear this cache
 	// 604800000ms in a week
 	CommonSubsTime int64
@@ -46,7 +46,7 @@ func main() {
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
-	CommonSubs = make(map[string]int16)
+	CommonSubs = make(map[string]byte)
 	CommonSubsCount = 0
 	CommonSubsTime = GetMillis() + 604800000
 	LastPost = make(map[string]QuickPost)

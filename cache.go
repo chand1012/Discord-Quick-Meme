@@ -118,3 +118,10 @@ func ClearCache() {
 		delete(PostCache, k)
 	}
 }
+
+// This will update the counter
+// if the sub is in the map, increment it
+// otherwise set it to one
+func updateCommonSubCounter(sub string) {
+
+}
