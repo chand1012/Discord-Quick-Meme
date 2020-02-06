@@ -59,12 +59,3 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 - Refactor and organize better (especially the main loop)
 - get more users
 
-
-## For this branch
-- Need to count common subs that are not in the list of already cached subs
-- Should be downloaded and cached like the rest of the subs
-- If a sub is downloaded more than 5 times in a week, it will be cached.
-- If a sub is not called for a week, it will be removed from the cache
-- List of subs will be stored in the Redis server as a list of JSON objects. Will use one key called "commonSubs".
-- When a user calls a sub that is not one of the hard-coded cache ones, it will be checked for if it should be cached or not.
-

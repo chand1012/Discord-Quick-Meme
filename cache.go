@@ -130,7 +130,7 @@ func updateCommonSubCounter(sub string) {
 			CommonSubs[sub] = 0
 			CommonSubsTime[sub] = GetMillis() + 604800000 // ms in a week
 		}
-		if CommonSubs[sub] < 10 {
+		if CommonSubs[sub] < 5 {
 			CommonSubs[sub]++
 		}
 	}

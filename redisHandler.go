@@ -144,7 +144,7 @@ func UnbanSubreddit(channel string, subreddit string) error {
 func saveCommonSubsRedis() error {
 	var redisSubs []string
 	for sub, count := range CommonSubs {
-		if count >= 10 {
+		if count >= 5 {
 			redisSubs = append(redisSubs, sub)
 		}
 	}
