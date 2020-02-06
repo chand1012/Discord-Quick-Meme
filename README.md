@@ -55,6 +55,6 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 - Reverse image search to find the original source of memes posted on your server.
 
 ### To Do
-- Cache common subreddits to either RAM or Redis
 - Refactor and organize better (especially the main loop)
 - get more users
+

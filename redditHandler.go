@@ -46,8 +46,9 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	var s int
 
-	subList = []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "jokes", "darkjokes", "antijokes", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion", "fiftyfifty"}
+	subList = getAllSubsFromMap()
 	sub = subs[rand.Intn(len(subs))]
+	go updateCommonSubCounter(sub)
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime {
@@ -152,4 +153,14 @@ func getSubFromPermalink(permalink string) string {
 	linkArray := strings.Split(permalink, "/")
 	sub = linkArray[2]
 	return sub
+}
+
+func getAllSubsFromMap() []string {
+	var allSubs []string
+	for _, value := range SubMap {
+		for _, sub := range value {
+			allSubs = append(allSubs, sub)
+		}
+	}
+	return allSubs
 }

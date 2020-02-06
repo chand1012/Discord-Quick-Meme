@@ -23,6 +23,12 @@ var (
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
+	//CommonSubs stores the amount of times the subs are hit
+	CommonSubs map[string]uint8 // only needs to count up to 10
+	//CommonSubsTime if one week passes, clear the above cache
+	// 604800000ms in a week
+	CommonSubsTime    map[string]int64
+	CommonSubsCounter uint8
 	//LastPost gets the last post from the specified channel string
 	LastPost map[string]QuickPost
 	//SubMap contains all of the data for the subs
@@ -40,6 +46,9 @@ func main() {
 	ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
+	CommonSubs = make(map[string]uint8)
+	CommonSubsTime = make(map[string]int64)
+	CommonSubsCounter = 0
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
 	file = "data.json"
@@ -163,6 +172,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				quickMemeTest(discord, channel)
 			case "testredis":
 				quickMemeTestRedis(discord, channel)
+			case "testcommoncache":
+				quickMemeTestCommonCache(discord, channel)
 			case "getcache":
 				quickMemeGetCache(discord, channel)
 			case "clearcache":
