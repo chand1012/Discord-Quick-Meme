@@ -18,7 +18,8 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - Type `!5050` or `!fiftyfifty` to pull a post from [r/fiftyfifty](https://reddit.com/r/fiftyfifty).
 - A few secret commands if you're willing to look at the source code.
 - Type `!news`, `!link`, `!joke`, `!text`, or `!meme` followed by a subreddit name or a list of names separated with spaces (without the r/) to pull a random top post from that subreddit or from a random subreddit from that list. The `!text` and `!joke` commands post text directly to the chat. The `!link` and `!news` commands get a post that links a website or webpage. Finally, `!meme` get a piece of media, either a photo, a GIF, or a video. Examples: `!joke meanjokes` or `!meme cringetopia cringe`
-- Type `!source` to get the link to the last sent post in a channel. This was changed because people were complaining memes were coming up twice. This is because Discord shows previews of web content, to remedy this I make the link to the post a requested option, rather than removing it completely. 
+- Type `!source` to get the link to the last sent post in a channel. This was changed because people were complaining memes were coming up twice. This is because Discord shows previews of web content, to remedy this I make the link to the post a requested option, rather than removing it completely.
+- Typing `!search` will search the web for the most recently posted PNG or JPEG file in the chat. This is done via Google Reverse Image Search. The search will prioritize results from Reddit, but if a Reddit result cannot be found, Google will return similar images and phrases, which are then put into the chat. **Disclaimer**: Google Reverse Image Search is best at finding simple objects, so don't be surprised if it has issues attempting to find your memes.
 
 ### Admins
 
@@ -38,8 +39,11 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 
 - [Discordgo](https://github.com/bwmarrin/discordgo).
 - [Graw](https://github.com/turnage/graw).
+- [go-redis](https://github.com/go-redis/redis).
+- [MRISA](https://github.com/vivithemage/mrisa) running on the same local machine as the bot, or with the address correctly updated in `data.json`.
+- [Redis](https://redis.io/) running on the same local machine as the bot, or with the address correctly updated in `data.json`.
 
-### Disclaimer
+### **Disclaimer**
 
 If its offline, I am probably working on it.
 
@@ -47,9 +51,10 @@ Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [Devian
 
 ### Coming Soon
 
-- Caching of common subreddits called by users to allow your favorite subreddits to be constantly cached for fast retrieval.
 - Refactor and Further optimization for faster memes.
+- Reverse image search to find the original source of memes posted on your server.
 
 ### To Do
-- add meme source functionality that would search the internet for the original source of the meme, regardless of if the meme is from Reddit or not. Would work with both user uploaded images and images from Reddit.
+- Cache common subreddits to either RAM or Redis
+- Refactor and organize better (especially the main loop)
 - get more users

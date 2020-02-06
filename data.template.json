@@ -3,5 +3,6 @@
   "token":"",
   "redis-address":"127.0.0.1:6379",
   "redis-password":"",
-  "redis-db":0
+  "redis-db":0,
+  "mrisa": "http://127.0.0.1:5000/search"
 }

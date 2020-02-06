@@ -29,6 +29,7 @@ var (
 	SubMap map[string][]string
 	//CachePopulating if true, do not run the populate cache until finished
 	CachePopulating bool
+	mrisaAddress    string
 )
 
 func main() {
@@ -43,6 +44,7 @@ func main() {
 	SubMap = make(map[string][]string)
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
+	mrisaAddress = mrisaExtract(file)
 	errCheck("Error opening key file", err)
 	discord, err := discordgo.New("Bot " + key)
 	errCheck("Error creating discord session", err)
@@ -81,10 +83,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	dm, err = ComesFromDM(discord, message)
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!search"}
 	user := message.Author
 	content := message.Content
 	commandContent := strings.Split(content, " ")
+	command := commandContent[0]
 	guildID := message.GuildID
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
@@ -100,25 +103,25 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	nsfw := channelObject.NSFW || dm
 	sort = "hot"
 	switch {
-	case commandContent[0] == "!meme" && len(commandContent) == 1:
+	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!meme" && len(commandContent) >= 2:
+	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) == 1:
+	case (command == "!joke" || command == "!text") && len(commandContent) == 1:
 		subs = SubMap["text"]
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!joke" || commandContent[0] == "!text") && len(commandContent) >= 2:
+	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getTextPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) == 1:
+	case (command == "!news" || command == "!link") && len(commandContent) == 1:
 		subs = SubMap["news"]
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case (commandContent[0] == "!news" || commandContent[0] == "!link") && len(commandContent) >= 2:
+	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!fiftyfifty" || commandContent[0] == "!5050":
+	case command == "!fiftyfifty" || command == "!5050":
 		subs = []string{"fiftyfifty"}
 		err = getLinkPost(discord, channel, nsfw, subs, sort)
 	case commandContent[0] == "!buzzword":
@@ -128,7 +131,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		// suggested this and I am a nice person
 		subs = SubMap["hentai"]
 		err = getMediaPost(discord, channel, nsfw, subs, sort)
-	case commandContent[0] == "!all":
+	case command == "!all":
 		randchoice := rand.Intn(4)
 		switch randchoice {
 		case 0:
@@ -138,9 +141,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		default:
 			err = getMediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
-	case commandContent[0] == "!source":
+	case command == "!source":
 		err = getSource(discord, channel)
-	case commandContent[0] == "!quickmeme":
+	case command == "!search":
+		quickMemeImageSearch(discord, channel)
+	case command == "!quickmeme":
 		var subcommand string
 		if len(commandContent) > 1 {
 			subcommand = commandContent[1]
