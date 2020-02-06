@@ -46,11 +46,9 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	var s int
 
-	subList = []string{"dankmemes", "funny", "memes", "comedyheaven", "blackpeopletwitter", "whitepeopletwitter", "MemeEconomy", "therewasanattempt", "wholesomememes", "instant_regret", "jokes", "darkjokes", "antijokes", "UpliftingNews", "news", "worldnews", "FloridaMan", "nottheonion", "fiftyfifty"}
+	subList = getAllSubsFromMap()
 	sub = subs[rand.Intn(len(subs))]
-	if CommonSubs[sub] < 5 && !stringInSlice(sub, subList) {
-		CommonSubs[sub]++
-	}
+	go updateCommonSubCounter(sub)
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime {

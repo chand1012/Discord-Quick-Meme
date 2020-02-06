@@ -140,3 +140,63 @@ func UnbanSubreddit(channel string, subreddit string) error {
 	return err
 
 }
+
+func saveCommonSubsRedis() error {
+	var redisSubs []string
+	for sub, count := range CommonSubs {
+		if count >= 10 {
+			redisSubs = append(redisSubs, sub)
+		}
+	}
+	CommonSubsCounter = uint8(len(redisSubs))
+	if redisSubs == nil {
+		return nil
+	}
+	list := strings.Join(redisSubs, " ")
+	address, password, db, err := redisExtract("data.json")
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     address,
+		Password: password,
+		DB:       db,
+	})
+	defer redisClient.Close()
+	err = redisClient.Set("commonSubs", list, 0).Err()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	go redisSave()
+	return nil
+}
+
+func getCommonSubsRedis() ([]string, error) {
+	var redisSubs []string
+	list, err := getCommonSubsRedisRaw()
+	if list == "" {
+		return nil, err
+	}
+	redisSubs = strings.Split(list, " ")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return redisSubs, err
+}
+
+func getCommonSubsRedisRaw() (string, error) {
+	address, password, db, err := redisExtract("data.json")
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     address,
+		Password: password,
+		DB:       db,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer redisClient.Close()
+	list, err := redisClient.Get("commonSubs").Result()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return list, err
+}

@@ -71,7 +71,6 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Println("Sent " + sub + " to cache.")
 }
 
 // PopulateCache spawns workers to add posts to the cache
@@ -82,6 +81,11 @@ func PopulateCache() {
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
 	subs := getAllSubs("subs.json")
+	redisCommonSubs, _ := getCommonSubsRedis()
+	CommonSubsCounter = uint8(len(redisCommonSubs))
+	if redisCommonSubs != nil {
+		subs = append(subs, redisCommonSubs...)
+	}
 	var wg sync.WaitGroup
 	bufferSize := len(subs)
 	recv := make(chan []QuickPost, bufferSize)
@@ -114,14 +118,21 @@ func AddToCache(sub string, addPosts []QuickPost) {
 
 // ClearCache clears the cache
 func ClearCache() {
-	for k := range PostCache {
-		delete(PostCache, k)
-	}
+	PostCache = make(map[string][]QuickPost)
 }
 
 // This will update the counter
 // if the sub is in the map, increment it
 // otherwise set it to one
 func updateCommonSubCounter(sub string) {
-
+	if CommonSubsCounter <= 100 && !stringInSlice(sub, getAllSubsFromMap()) {
+		if GetMillis() > CommonSubsTime[sub] {
+			CommonSubs[sub] = 0
+			CommonSubsTime[sub] = GetMillis() + 604800000 // ms in a week
+		}
+		if CommonSubs[sub] < 10 {
+			CommonSubs[sub]++
+		}
+	}
+	saveCommonSubsRedis()
 }
