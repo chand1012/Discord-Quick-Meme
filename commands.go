@@ -93,7 +93,7 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 
 func quickMemeTestCommonCache(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Getting stats on Common Subreddits....")
-	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(int(CommonSubsCounter))+" additional subs being cached. Max 100.")
+	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(int(CommonSubsCounter))+" additional subs being cached.")
 	values, _ := getCommonSubsRedisRaw()
 	discord.ChannelMessageSend(channel, "Subs stored in Redis cache: "+values)
 	discord.ChannelMessageSend(channel, "Getting times for the cached subreddits....")
