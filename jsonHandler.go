@@ -33,10 +33,11 @@ func loginExtract(filename string) (string, []string, error) {
 
 // this is for subreddit extraction. There will be one attribute for "memes" and the like
 type subJSON struct {
-	Memes  []string `json:"memes"`
-	Text   []string `json:"text"`
-	Hentai []string `json:"hentai"`
-	News   []string `json:"news"`
+	Memes      []string `json:"memes"`
+	Text       []string `json:"text"`
+	Hentai     []string `json:"hentai"`
+	News       []string `json:"news"`
+	FiftyFifty []string `json:"fiftyfifty"`
 }
 
 func subExtract(filename string) map[string][]string {
@@ -60,6 +61,7 @@ func subExtract(filename string) map[string][]string {
 	subMap["text"] = subJSON.Text
 	subMap["hentai"] = subJSON.Hentai
 	subMap["news"] = subJSON.News
+	subMap["fiftyfifty"] = subJSON.FiftyFifty
 
 	return subMap
 }
