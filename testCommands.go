@@ -109,3 +109,12 @@ func quickMemeTestCommonCache(discord *discordgo.Session, channel string) {
 	}
 	discord.ChannelMessageSend(channel, sendStr)
 }
+
+// default case for the quickmeme command
+func quickMemeDefault(discord *discordgo.Session, channel string) {
+	servers := discord.State.Guilds
+	userCount := getNumberOfUsers(discord)
+	msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers for " + strconv.Itoa(userCount) + " users."
+	fmt.Println(msg)
+	discord.ChannelMessageSend(channel, msg)
+}

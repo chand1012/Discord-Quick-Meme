@@ -27,7 +27,8 @@ var (
 	CommonSubs map[string]uint8 // only needs to count up to 10
 	//CommonSubsTime if one week passes, clear the above cache
 	// 604800000ms in a week
-	CommonSubsTime    map[string]int64
+	CommonSubsTime map[string]int64
+	// CommonSubsCounter counts the number of common subs
 	CommonSubsCounter uint8
 	//LastPost gets the last post from the specified channel string
 	LastPost map[string]QuickPost
@@ -187,188 +188,24 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				ResetBlacklist()
 				discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 			case "ban":
-				if len(commandContent) < 4 || len(commandContent) > 5 {
-					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
-				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
-					switch commandContent[2] {
-					case "server":
-						channels, _ := discord.GuildChannels(guildID)
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, chat := range channels {
-							// this should be async to save time
-							for _, subreddit := range subreddits {
-								go AppendBannedSubreddit(chat.ID, subreddit)
-							}
-						}
-						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
-					default:
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, subreddit := range subreddits {
-							go AppendBannedSubreddit(channel, subreddit)
-						}
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
-					}
-				} else {
-					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
-				}
+				banSubRoutine(discord, channel, commandContent, guildID, user)
 			case "unban":
-				if len(commandContent) < 4 || len(commandContent) > 5 {
-					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
-				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
-					switch commandContent[2] {
-					case "server":
-						channels, _ := discord.GuildChannels(guildID)
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, chat := range channels {
-							// this should be async to save time
-							for _, subreddit := range subreddits {
-								go UnbanSubreddit(chat.ID, subreddit)
-							}
-						}
-						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
-					default:
-						// there should be a message about the ban here
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, subreddit := range subreddits {
-							go UnbanSubreddit(channel, subreddit)
-						}
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
-					}
-				} else {
-					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
-				}
+				unbanSubRoutine(discord, channel, commandContent, guildID, user)
 			case "getbanned":
-				banContext := commandContent[2]
-				if len(commandContent) != 3 {
-					banContext = "channel"
-				} else {
-					switch banContext {
-					case "server":
-						channels, _ := discord.GuildChannels(guildID)
-						for _, chat := range channels {
-							bannedSubs, err := GetBannedSubreddits(chat.ID)
-							if err != nil {
-								discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
-								fmt.Println(err)
-								break
-							}
-							msgString := strings.Join(bannedSubs, ", ")
-							if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
-								discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
-							}
-						}
-					default:
-						bannedSubs, err := GetBannedSubreddits(channel)
-						if err != nil {
-							discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
-							fmt.Println(err)
-						} else {
-							msgString := strings.Join(bannedSubs, ", ")
-							discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
-						}
-					}
-				}
+				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
 			default:
-				servers := discord.State.Guilds
-				userCount := getNumberOfUsers(discord)
-				msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers for " + strconv.Itoa(userCount) + " users."
-				fmt.Println(msg)
-				discord.ChannelMessageSend(channel, msg)
+				quickMemeDefault(discord, channel)
 			}
 		} else {
 			switch subcommand {
 			case "ban":
-				if len(commandContent) <= 4 {
-					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
-				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
-					switch commandContent[2] {
-					case "server":
-						channels, _ := discord.GuildChannels(guildID)
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, chat := range channels {
-							// this should be async to save time
-							for _, subreddit := range subreddits {
-								go AppendBannedSubreddit(chat.ID, subreddit)
-							}
-						}
-						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
-					default:
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, subreddit := range subreddits {
-							go AppendBannedSubreddit(channel, subreddit)
-						}
-						discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
-					}
-				} else {
-					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
-				}
+				banSubRoutine(discord, channel, commandContent, guildID, user)
 			case "unban":
-				if len(commandContent) <= 4 {
-					discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
-				} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
-					switch commandContent[2] {
-					case "server":
-						channels, _ := discord.GuildChannels(guildID)
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, chat := range channels {
-							// this should be async to save time
-							for _, subreddit := range subreddits {
-								go UnbanSubreddit(chat.ID, subreddit)
-							}
-						}
-						// this should be a message about the ban
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
-					default:
-						// there should be a message about the ban here
-						subreddits := textFilterSlice(commandContent[3:])
-						for _, subreddit := range subreddits {
-							go UnbanSubreddit(channel, subreddit)
-						}
-						discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
-					}
-				} else {
-					discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
-				}
+				unbanSubRoutine(discord, channel, commandContent, guildID, user)
 			case "getbanned":
-				banContext := commandContent[2]
-				if len(commandContent) != 3 {
-					banContext = "channel"
-				} else {
-					switch banContext {
-					case "server":
-						channels, _ := discord.GuildChannels(guildID)
-						for _, chat := range channels {
-							bannedSubs, err := GetBannedSubreddits(chat.ID)
-							if err != nil {
-								discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
-								fmt.Println(err)
-								break
-							}
-							msgString := strings.Join(bannedSubs, ", ")
-							if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
-								discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
-							}
-						}
-					default:
-						bannedSubs, err := GetBannedSubreddits(channel)
-						if err != nil {
-							discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
-							fmt.Println(err)
-						} else {
-							msgString := strings.Join(bannedSubs, ", ")
-							discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
-						}
-					}
-				}
+				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
 			default:
-				servers := discord.State.Guilds
-				userCount := getNumberOfUsers(discord)
-				msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers for " + strconv.Itoa(userCount) + " users."
-				fmt.Println(msg)
-				discord.ChannelMessageSend(channel, msg)
+				quickMemeDefault(discord, channel)
 			}
 		}
 	}

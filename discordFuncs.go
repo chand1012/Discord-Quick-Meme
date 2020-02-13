@@ -317,3 +317,96 @@ func getSource(discord *discordgo.Session, channel string) error {
 	}
 	return err
 }
+
+// ban a subreddit routine
+func banSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
+	if len(commandContent) < 4 || len(commandContent) > 5 {
+		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
+		switch commandContent[2] {
+		case "server":
+			channels, _ := discord.GuildChannels(guildID)
+			subreddits := textFilterSlice(commandContent[3:])
+			for _, chat := range channels {
+				// this should be async to save time
+				for _, subreddit := range subreddits {
+					go AppendBannedSubreddit(chat.ID, subreddit)
+				}
+			}
+			// this should be a message about the ban
+			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
+		default:
+			subreddits := textFilterSlice(commandContent[3:])
+			for _, subreddit := range subreddits {
+				go AppendBannedSubreddit(channel, subreddit)
+			}
+			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
+		}
+	} else {
+		discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+	}
+}
+
+// unban a subreddit routine
+func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
+	if len(commandContent) < 4 || len(commandContent) > 5 {
+		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
+		switch commandContent[2] {
+		case "server":
+			channels, _ := discord.GuildChannels(guildID)
+			subreddits := textFilterSlice(commandContent[3:])
+			for _, chat := range channels {
+				// this should be async to save time
+				for _, subreddit := range subreddits {
+					go UnbanSubreddit(chat.ID, subreddit)
+				}
+			}
+			// this should be a message about the ban
+			discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
+		default:
+			// there should be a message about the ban here
+			subreddits := textFilterSlice(commandContent[3:])
+			for _, subreddit := range subreddits {
+				go UnbanSubreddit(channel, subreddit)
+			}
+			discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
+		}
+	} else {
+		discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+	}
+}
+
+// gets banned subreddits and send to channel
+func getbannedSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
+	banContext := commandContent[2]
+	if len(commandContent) != 3 {
+		banContext = "channel"
+	} else {
+		switch banContext {
+		case "server":
+			channels, _ := discord.GuildChannels(guildID)
+			for _, chat := range channels {
+				bannedSubs, err := GetBannedSubreddits(chat.ID)
+				if err != nil {
+					discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+					fmt.Println(err)
+					break
+				}
+				msgString := strings.Join(bannedSubs, ", ")
+				if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
+					discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
+				}
+			}
+		default:
+			bannedSubs, err := GetBannedSubreddits(channel)
+			if err != nil {
+				discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+				fmt.Println(err)
+			} else {
+				msgString := strings.Join(bannedSubs, ", ")
+				discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+			}
+		}
+	}
+}
