@@ -13,6 +13,7 @@ func GetMillis() int64 {
 	return nanos / 1000000
 }
 
+// Error checker that I barely used
 func errCheck(msg string, err error) {
 	if err != nil {
 		fmt.Printf("%s: %+v", msg, err)

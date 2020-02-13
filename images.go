@@ -14,6 +14,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// payload structs for sending and receiving search info
 type imagePayload struct {
 	ImageURL      string `json:"image_url"`
 	ResizedImages bool   `json:"resized_images"`
@@ -26,6 +27,7 @@ type returnPayload struct {
 	Titles        []string `json:"titles"`
 }
 
+// MRISA search that only searches reddit
 func imageRedditSearch(url string) string {
 	var payload imagePayload
 	var parsedBody returnPayload
@@ -78,6 +80,7 @@ func imageRedditSearch(url string) string {
 
 }
 
+// the MRISA search function
 func imageSearch(url string) []string {
 	var payload imagePayload
 	var parsedBody returnPayload
@@ -111,6 +114,7 @@ func imageSearch(url string) []string {
 	return urls
 }
 
+// The command that executes the above function and send the info to the channel
 func imageSearchCommand(discord *discordgo.Session, channel string) {
 	searchURL := ""
 	extensions := []string{".jpg", ".png", ".jpeg"}

@@ -38,6 +38,7 @@ var (
 	mrisaAddress    string
 )
 
+// main loop
 func main() {
 	var err error
 	var file string
@@ -73,6 +74,7 @@ func main() {
 	<-make(chan struct{})
 }
 
+// handles bot initialization
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
 	getAllChannelNames(discord)
@@ -83,6 +85,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	go updateStatus(discord)
 }
 
+// handes incoming commands
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	var err error
 	var sort string

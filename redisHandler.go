@@ -7,8 +7,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-// this will handle all redis related commands
-
+// redisSave saves redis cache to disk
 func redisSave() error {
 	address, password, db, err := redisExtract("data.json")
 	redisClient := redis.NewClient(&redis.Options{
@@ -141,6 +140,7 @@ func UnbanSubreddit(channel string, subreddit string) error {
 
 }
 
+// saveCommonSubsRedis saves a subreddit to the common sub cache in redis
 func saveCommonSubsRedis() error {
 	var redisSubs []string
 	for sub, count := range CommonSubs {
@@ -169,6 +169,7 @@ func saveCommonSubsRedis() error {
 	return nil
 }
 
+// getCommonSubsRedis gets all the commonly used subs as a list of strings
 func getCommonSubsRedis() ([]string, error) {
 	var redisSubs []string
 	list, err := getCommonSubsRedisRaw()
@@ -183,6 +184,7 @@ func getCommonSubsRedis() ([]string, error) {
 	return redisSubs, err
 }
 
+// getCommonSubsRedisRaw gets commonly used subs as a space seperated string
 func getCommonSubsRedisRaw() (string, error) {
 	address, password, db, err := redisExtract("data.json")
 	redisClient := redis.NewClient(&redis.Options{

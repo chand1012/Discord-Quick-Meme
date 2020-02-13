@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// just gets a random buzzword.
+// is a work meme
 func getABuzzWord() string {
 	// source for inspiration and for
 	// buzzwords:

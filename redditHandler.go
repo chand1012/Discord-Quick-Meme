@@ -148,6 +148,7 @@ func MinScore(posts []QuickPost) int32 {
 	return avg / 2
 }
 
+// getSubFromPermalink gets a sub from the link to the post
 func getSubFromPermalink(permalink string) string {
 	var sub string
 	linkArray := strings.Split(permalink, "/")
@@ -155,6 +156,7 @@ func getSubFromPermalink(permalink string) string {
 	return sub
 }
 
+// getSubsFromMap gets the subreddits from RAM instead of from disk
 func getAllSubsFromMap() []string {
 	var allSubs []string
 	for _, value := range SubMap {

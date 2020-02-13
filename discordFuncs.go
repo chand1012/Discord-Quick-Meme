@@ -18,6 +18,7 @@ type Server struct {
 	Names []string
 }
 
+// worker for getting all channel names
 func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup, workerNumber int) {
 	defer wg.Done()
 	var ids []string
@@ -37,6 +38,7 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 	send <- server
 }
 
+// gets all channel names via multithreading
 func getAllChannelNames(discord *discordgo.Session) {
 	var wg sync.WaitGroup
 	fmt.Println("Getting current channel names...")
@@ -62,6 +64,7 @@ func getAllChannelNames(discord *discordgo.Session) {
 	fmt.Println("Time to get all current channel names: " + strconv.FormatInt(t, 10) + "ms")
 }
 
+// gets a channel name from the cache, otherwise searches all channels on server that send the message
 func getChannelName(discord *discordgo.Session, channelid string, guildID string) string {
 	fmt.Println("Getting channel name....")
 	if _, ok := ServerMap[channelid]; ok {
@@ -82,6 +85,7 @@ func getChannelName(discord *discordgo.Session, channelid string, guildID string
 	return ""
 }
 
+// updates the bot status
 func updateStatus(discord *discordgo.Session) {
 	uCount := getNumberOfUsers(discord)
 	err := discord.UpdateStatus(0, "with "+strconv.Itoa(uCount)+" others")
@@ -102,12 +106,14 @@ func ComesFromDM(s *discordgo.Session, m *discordgo.MessageCreate) (bool, error)
 	return channel.Type == discordgo.ChannelTypeDM, nil
 }
 
+// gets a buzzword. See buzz.go
 func getBuzzWord(discord *discordgo.Session, channel string) error {
 	statement := getABuzzWord()
 	_, err := discord.ChannelMessageSend(channel, statement)
 	return err
 }
 
+// send routine for embedded messages
 func embedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
@@ -125,6 +131,7 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 	discord.ChannelMessageSendEmbed(channel, embed)
 }
 
+// sending a text message routine
 func successSendRoutine(discord *discordgo.Session, channel string, sub string, textone string, texttwo string, score int32) {
 	discord.ChannelMessageSend(channel, "From r/"+sub)
 	discord.ChannelMessageSend(channel, textone)
@@ -132,16 +139,19 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 	discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10))
 }
 
+// banned subreddit routine
 func bannedSendRoutine(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Error!")
 	discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
 }
 
+// nsfw subreddit not allowed routine
 func nsfwSendRoutine(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Error!")
 	discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 }
 
+// loop routine that gets posts from the cache.
 func getPostLoop(subs []string, postType string, channel string, channelNsfw bool, sort string) (string, int32, string, string, bool, bool) {
 	var returnPost QuickPost
 	var sub string
@@ -192,6 +202,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 
 }
 
+// gets a media post and sends it
 func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
 	var url string
@@ -216,6 +227,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 
 }
 
+// gets a text post and sends it
 func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
 	var text string
@@ -235,6 +247,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	}
 }
 
+// gets a link post and sends it
 func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
 	var url string
@@ -254,6 +267,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	}
 }
 
+// gets the number of users across all servers with the bot
 func getNumberOfUsers(discord *discordgo.Session) int {
 	count := 0
 	for _, guild := range discord.State.Guilds {
@@ -273,6 +287,7 @@ func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user dis
 	return discordgo.Member{}
 }
 
+// checks if user is a memebot admin.
 func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
 	adminCode := "memebot admin"
 	member := getUserMemberFromGuild(discord, guildID, *user)
@@ -290,6 +305,7 @@ func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discor
 	return false
 }
 
+// gets the source of the last sent meme
 func getSource(discord *discordgo.Session, channel string) error {
 	var err error
 	returnPost := LastPost[channel]

@@ -8,8 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// this is for all of the commands that have a lot of extra crap in them
-
+// does a quick speed test of reddit
 func quickMemeTest(discord *discordgo.Session, channel string) {
 	var count int
 	var total int64
@@ -31,6 +30,7 @@ func quickMemeTest(discord *discordgo.Session, channel string) {
 	fmt.Println(msg)
 }
 
+// lists all subreddits in cache along with the number of posts
 func quickMemeGetCache(discord *discordgo.Session, channel string) {
 	var postCount int
 	var cachedReddits []string
@@ -49,6 +49,7 @@ func quickMemeGetCache(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, msgtwo)
 }
 
+// clears the cache and repopulates
 func quickMemeClearCache(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Clearing cache...")
 	fmt.Println("Admin issued cache clear...")
@@ -64,13 +65,14 @@ func quickMemeClearCache(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
 }
 
+// gets the number of channel names cached
 func quickMemeServerCache(discord *discordgo.Session, channel string) {
 	channelCount := len(ServerMap)
 	fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
-	fmt.Println(ServerMap)
 	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
 }
 
+// tests redis response time
 func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Testing Redis response time....")
 	var times []int64
@@ -91,6 +93,7 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
 }
 
+// gets the number of common subreddits to cache
 func quickMemeTestCommonCache(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Getting stats on Common Subreddits....")
 	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(int(CommonSubsCounter))+" additional subs being cached.")
