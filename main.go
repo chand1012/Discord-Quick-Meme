@@ -153,7 +153,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case command == "!source":
 		err = getSource(discord, channel)
 	case command == "!search":
-		quickMemeImageSearch(discord, channel)
+		imageSearchCommand(discord, channel)
 	case command == "!quickmeme":
 		var subcommand string
 		if len(commandContent) > 1 {

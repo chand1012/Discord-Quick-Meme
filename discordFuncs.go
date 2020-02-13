@@ -108,6 +108,23 @@ func getBuzzWord(discord *discordgo.Session, channel string) error {
 	return err
 }
 
+func embedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
+	rand.Seed(time.Now().Unix())
+	randColor := rand.Intn(0xffffff)
+	embed := &discordgo.MessageEmbed{
+		Author:      &discordgo.MessageEmbedAuthor{},
+		Color:       randColor,
+		Description: "Score: " + strconv.FormatInt(int64(score), 10),
+		Image: &discordgo.MessageEmbedImage{
+			URL: url,
+		},
+		Timestamp: time.Now().Format(time.RFC3339),
+		Title:     title,
+	}
+	discord.ChannelMessageSend(channel, "From r/"+sub)
+	discord.ChannelMessageSendEmbed(channel, embed)
+}
+
 func successSendRoutine(discord *discordgo.Session, channel string, sub string, textone string, texttwo string, score int32) {
 	discord.ChannelMessageSend(channel, "From r/"+sub)
 	discord.ChannelMessageSend(channel, textone)
@@ -183,25 +200,12 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	var bannedToggle bool
 	var toggled bool
 
-	rand.Seed(time.Now().Unix())
-	randColor := rand.Intn(0xffffff)
 	imageEndings := []string{".jpg", ".png", ".jpeg"}
 
 	sub, score, url, title, toggled, bannedToggle = getPostLoop(subs, "media", channel, channelNsfw, sort)
 
 	if ContainsAnySubstring(url, imageEndings) && toggled {
-		embed := &discordgo.MessageEmbed{
-			Author:      &discordgo.MessageEmbedAuthor{},
-			Color:       randColor,
-			Description: "Score: " + strconv.FormatInt(int64(score), 10),
-			Image: &discordgo.MessageEmbedImage{
-				URL: url,
-			},
-			Timestamp: time.Now().Format(time.RFC3339),
-			Title:     title,
-		}
-		discord.ChannelMessageSend(channel, "From r/"+sub)
-		discord.ChannelMessageSendEmbed(channel, embed)
+		embedSendRoutine(discord, channel, sub, title, url, score)
 	} else if toggled {
 		successSendRoutine(discord, channel, sub, url, title, score)
 	} else if bannedToggle {
