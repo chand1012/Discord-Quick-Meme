@@ -80,7 +80,7 @@ func PopulateCache() {
 	CacheTime = time.Now().Unix() + 3600
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
-	subs := getAllSubs("subs.json")
+	subs := getAllSubsFromMap()
 	redisCommonSubs, _ := getCommonSubsRedis()
 	CommonSubsCounter = uint8(len(redisCommonSubs))
 	if redisCommonSubs != nil {
