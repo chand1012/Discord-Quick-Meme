@@ -29,37 +29,11 @@ type returnPayload struct {
 
 // MRISA search that only searches reddit
 func imageRedditSearch(url string) string {
-	var payload imagePayload
-	var parsedBody returnPayload
-	payload.ImageURL = url
-	payload.ResizedImages = false
 	var returnURL string
 	var oldest int64
 
-	data, err := json.Marshal(payload)
+	urls, titles := imageSearch(url)
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	resp, err := http.Post(mrisaAddress, "application/json", bytes.NewBuffer(data))
-
-	if err != nil {
-		fmt.Println(err)
-		return "nil"
-	}
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	json.Unmarshal(body, &parsedBody)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	urls := parsedBody.Links
-	titles := parsedBody.Descriptions
 	oldest = 0
 	for i := 0; i < len(urls); i++ {
 		if strings.Contains(urls[i], "www.reddit.com/r/") {
@@ -81,7 +55,7 @@ func imageRedditSearch(url string) string {
 }
 
 // the MRISA search function
-func imageSearch(url string) []string {
+func imageSearch(url string) ([]string, []string) {
 	var payload imagePayload
 	var parsedBody returnPayload
 	payload.ImageURL = url
@@ -97,7 +71,7 @@ func imageSearch(url string) []string {
 
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, nil
 	}
 
 	defer resp.Body.Close()
@@ -110,8 +84,8 @@ func imageSearch(url string) []string {
 		fmt.Println(err)
 	}
 	urls := parsedBody.Links
-
-	return urls
+	titles := parsedBody.Descriptions
+	return urls, titles
 }
 
 // The command that executes the above function and send the info to the channel
@@ -160,7 +134,7 @@ func imageSearchCommand(discord *discordgo.Session, channel string) {
 	url := imageRedditSearch(searchURL)
 	if url == "" {
 		discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
-		urls := imageSearch(searchURL)
+		urls, _ := imageSearch(searchURL)
 		if urls == nil {
 			discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
 			return
