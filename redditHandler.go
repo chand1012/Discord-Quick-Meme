@@ -58,8 +58,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		CacheTime = time.Now().Unix() + 3600
 		fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	}
-	switch {
-	case !success:
+	if !success {
 		starttime := GetMillis()
 		fmt.Println("Adding r/" + sub + " to cache.")
 		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
@@ -122,7 +121,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 			t := endtime - starttime
 			fmt.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
 		}
-	case success:
+	} else {
 		fmt.Println("Found r/" + sub + " in cache.")
 		minScore := MinScore(cachePosts)
 		for i := 0; i < len(cachePosts); i++ {

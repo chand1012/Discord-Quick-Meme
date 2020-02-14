@@ -166,16 +166,20 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		returnPost, sub = GetPost(subs, 100, sort, postType)
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
+
 		if !banned {
 			LastPost[channel] = returnPost
 		}
+
 		score = returnPost.Score
 		url = returnPost.Content
 		title = returnPost.Title
 		nsfw = returnPost.Nsfw
+
 		if nsfw {
 			fmt.Println("Post is NSFW.")
 		}
+
 		if channelNsfw && !blacklisted && !banned {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
@@ -323,8 +327,7 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 	if len(commandContent) < 4 || len(commandContent) > 5 {
 		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
-		switch commandContent[2] {
-		case "server":
+		if commandContent[2] == "server" {
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
 			for _, chat := range channels {
@@ -335,7 +338,7 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 			}
 			// this should be a message about the ban
 			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
-		default:
+		} else {
 			subreddits := textFilterSlice(commandContent[3:])
 			for _, subreddit := range subreddits {
 				go AppendBannedSubreddit(channel, subreddit)
@@ -352,8 +355,7 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 	if len(commandContent) < 4 || len(commandContent) > 5 {
 		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
-		switch commandContent[2] {
-		case "server":
+		if commandContent[2] == "server" {
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
 			for _, chat := range channels {
@@ -364,7 +366,7 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 			}
 			// this should be a message about the ban
 			discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
-		default:
+		} else {
 			// there should be a message about the ban here
 			subreddits := textFilterSlice(commandContent[3:])
 			for _, subreddit := range subreddits {
@@ -382,31 +384,31 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 	banContext := commandContent[2]
 	if len(commandContent) != 3 {
 		banContext = "channel"
-	} else {
-		switch banContext {
-		case "server":
-			channels, _ := discord.GuildChannels(guildID)
-			for _, chat := range channels {
-				bannedSubs, err := GetBannedSubreddits(chat.ID)
-				if err != nil {
-					discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
-					fmt.Println(err)
-					break
-				}
-				msgString := strings.Join(bannedSubs, ", ")
-				if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
-					discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
-				}
-			}
-		default:
-			bannedSubs, err := GetBannedSubreddits(channel)
+	}
+
+	if banContext == "server" {
+		channels, _ := discord.GuildChannels(guildID)
+		for _, chat := range channels {
+			bannedSubs, err := GetBannedSubreddits(chat.ID)
 			if err != nil {
 				discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
 				fmt.Println(err)
-			} else {
-				msgString := strings.Join(bannedSubs, ", ")
-				discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+				break
+			}
+			msgString := strings.Join(bannedSubs, ", ")
+			if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
+				discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
 			}
 		}
+	} else {
+		bannedSubs, err := GetBannedSubreddits(channel)
+		if err != nil {
+			discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+			fmt.Println(err)
+		} else {
+			msgString := strings.Join(bannedSubs, ", ")
+			discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+		}
 	}
+
 }
