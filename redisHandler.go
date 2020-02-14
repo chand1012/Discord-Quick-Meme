@@ -7,29 +7,33 @@ import (
 	"github.com/go-redis/redis"
 )
 
-// redisSave saves redis cache to disk
-func redisSave() error {
+//initializes the redis client
+func initRedis() *redis.Client {
 	address, password, db, err := redisExtract("data.json")
+	if err != nil {
+		panic(err)
+	}
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
 		DB:       db,
 	})
+	return redisClient
+}
+
+// redisSave saves redis cache to disk
+func redisSave() error {
+	redisClient := initRedis()
 	defer redisClient.Close()
 
 	cmd := redis.NewStringCmd("save")
-	err = redisClient.Process(cmd)
+	err := redisClient.Process(cmd)
 	return err
 }
 
 // GetBannedSubreddits gets a list of banned subs from redis
 func GetBannedSubreddits(channel string) ([]string, error) {
-	address, password, db, err := redisExtract("data.json")
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       db,
-	})
+	redisClient := initRedis()
 	defer redisClient.Close()
 	rawValues, err := redisClient.Get(channel).Result()
 	if err != nil {
@@ -56,12 +60,8 @@ func SubIsBanned(channel string, subreddit string) (bool, error) {
 
 //AppendBannedSubreddit appends a banned subreddit to the list for that channel
 func AppendBannedSubreddit(channel string, subreddit string) error {
-	address, password, db, err := redisExtract("data.json")
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       db,
-	})
+
+	redisClient := initRedis()
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
@@ -88,17 +88,9 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 // UnbanSubreddit removes a subreddit from the redis banned servers
 func UnbanSubreddit(channel string, subreddit string) error {
 	var isContained bool
-	address, password, db, err := redisExtract("data.json")
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       db,
-	})
+	redisClient := initRedis()
+
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
@@ -186,15 +178,7 @@ func getCommonSubsRedis() ([]string, error) {
 
 // getCommonSubsRedisRaw gets commonly used subs as a space seperated string
 func getCommonSubsRedisRaw() (string, error) {
-	address, password, db, err := redisExtract("data.json")
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       db,
-	})
-	if err != nil {
-		fmt.Println(err)
-	}
+	redisClient := initRedis()
 	defer redisClient.Close()
 	list, err := redisClient.Get("commonSubs").Result()
 	if err != nil {
