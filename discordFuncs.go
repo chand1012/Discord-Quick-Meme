@@ -19,7 +19,7 @@ type Server struct {
 }
 
 // worker for getting all channel names
-func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup, workerNumber int) {
+func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var ids []string
 	var names []string
@@ -46,9 +46,9 @@ func getAllChannelNames(discord *discordgo.Session) {
 	guilds := discord.State.Guilds
 	bufferSize := len(guilds)
 	recv := make(chan Server, bufferSize)
-	for i, guild := range guilds {
+	for _, guild := range guilds {
 		wg.Add(1)
-		go getAllWorker(discord, guild.ID, recv, &wg, i)
+		go getAllWorker(discord, guild.ID, recv, &wg)
 	}
 	wg.Wait()
 	close(recv)
