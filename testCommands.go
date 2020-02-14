@@ -51,18 +51,22 @@ func quickMemeGetCache(discord *discordgo.Session, channel string) {
 
 // clears the cache and repopulates
 func quickMemeClearCache(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Clearing cache...")
-	fmt.Println("Admin issued cache clear...")
-	ClearCache()
-	fmt.Println("Cache cleared. Repopulating...")
-	discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
-	st := GetMillis()
-	CachePopulating = true
-	PopulateCache()
-	et := GetMillis()
-	msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
-	msgtwo := ". Took " + strconv.FormatInt(et-st, 10) + "ms to populate cache."
-	discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
+	if !CachePopulating {
+		CachePopulating = true
+		discord.ChannelMessageSend(channel, "Clearing cache...")
+		fmt.Println("Admin issued cache clear...")
+		ClearCache()
+		fmt.Println("Cache cleared. Repopulating...")
+		discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
+		st := GetMillis()
+		PopulateCache()
+		et := GetMillis()
+		msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
+		msgtwo := ". Took " + strconv.FormatInt(et-st, 10) + "ms to populate cache."
+		discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
+	} else {
+		discord.ChannelMessageSend(channel, "Cache is currently repopulating! Please try again in a few minutes.")
+	}
 }
 
 // gets the number of channel names cached
