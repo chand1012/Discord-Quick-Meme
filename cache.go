@@ -45,8 +45,7 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	}
 	for _, post := range harvest.Posts {
 		mode := GuessPostType(post)
-		switch {
-		case mode == "link" || mode == "media":
+		if mode == "link" || mode == "media" {
 			gotPost = QuickPost{
 				Title:     post.Title,
 				Score:     post.Score,
@@ -55,7 +54,7 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 				Permalink: post.Permalink,
 				Sub:       sub,
 			}
-		case mode == "text":
+		} else {
 			gotPost = QuickPost{
 				Title:     post.Title,
 				Score:     post.Score,
