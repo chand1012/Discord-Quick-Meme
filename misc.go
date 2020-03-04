@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -15,10 +16,18 @@ func GetMillis() int64 {
 
 // Error checker that I barely used
 func errCheck(msg string, err error, shouldPanic bool) {
+	errStr := err.Error()
 	if err != nil {
 		fmt.Printf("%s: %+v", msg, err)
 		if shouldPanic {
 			panic(err)
+		}
+	} else if strings.Contains(errStr, "redis") {
+		if !strings.Contains(errStr, "nil") {
+			fmt.Printf("%s: %+v\n", msg, err)
+			if shouldPanic {
+				panic(err)
+			}
 		}
 	}
 }
