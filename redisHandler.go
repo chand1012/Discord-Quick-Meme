@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/go-redis/redis"
@@ -37,37 +36,32 @@ func GetBannedSubreddits(channel string) ([]string, error) {
 	defer redisClient.Close()
 	rawValues, err := redisClient.Get(channel).Result()
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	values := strings.Split(rawValues, " ")
-
 	return values, err
 }
 
 // SubIsBanned checks if a subreddit is banned on that channel
-func SubIsBanned(channel string, subreddit string) (bool, error) {
-	bannedSubs, err := GetBannedSubreddits(channel)
-	for _, sub := range bannedSubs {
-		if subreddit == sub {
-			return true, err
-		}
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
-	return false, err
-}
+// May be used later but not used at the moment, so commented out
+// func SubIsBanned(channel string, subreddit string) (bool, error) {
+// 	bannedSubs, err := GetBannedSubreddits(channel)
+// 	for _, sub := range bannedSubs {
+// 		if subreddit == sub {
+// 			return true, err
+// 		}
+// 	}
+// 	return false, err
+// }
 
 //AppendBannedSubreddit appends a banned subreddit to the list for that channel
-func AppendBannedSubreddit(channel string, subreddit string) error {
+func AppendBannedSubreddit(channel string, subreddit string) {
 
 	redisClient := initRedis()
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	if err != nil {
-		fmt.Println(err)
-	}
+	errCheck("Error getting redis values", err, false)
 	if values == "" || strings.Replace(values, " ", "", -1) == "" {
 		values = subreddit
 		err = redisClient.Set(channel, values, 0).Err()
@@ -77,16 +71,14 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 	} else {
 		err = nil
 	}
-	if err != nil {
-		fmt.Println(err)
-	}
+	errCheck("Error setting value '"+subreddit+"'", err, false)
 	err = redisSave()
-	return err
+	errCheck("Error saving redis", err, false)
 
 }
 
 // UnbanSubreddit removes a subreddit from the redis banned servers
-func UnbanSubreddit(channel string, subreddit string) error {
+func UnbanSubreddit(channel string, subreddit string) {
 	var isContained bool
 
 	redisClient := initRedis()
@@ -94,10 +86,7 @@ func UnbanSubreddit(channel string, subreddit string) error {
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
+	errCheck("Error getting redis values", err, false)
 
 	if strings.Contains(values, " ") {
 		if strings.Contains(values, subreddit) {
@@ -117,18 +106,10 @@ func UnbanSubreddit(channel string, subreddit string) error {
 
 	if isContained {
 		err = redisClient.Set(channel, values, 0).Err()
-		if err != nil {
-			fmt.Println(err)
-		}
+		errCheck("Error setting value '"+values+"'", err, false)
 		err = redisSave()
-	} else {
-		err = nil
+		errCheck("Error saving redis", err, false)
 	}
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return err
 
 }
 
@@ -145,34 +126,26 @@ func saveCommonSubsRedis() error {
 		return nil
 	}
 	list := strings.Join(redisSubs, " ")
-	address, password, db, err := redisExtract("data.json")
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       db,
-	})
+
+	redisClient := initRedis()
 	defer redisClient.Close()
-	err = redisClient.Set("commonSubs", list, 0).Err()
+
+	err := redisClient.Set("commonSubs", list, 0).Err()
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	go redisSave()
-	return nil
+	err = redisSave()
+	return err
 }
 
 // getCommonSubsRedis gets all the commonly used subs as a list of strings
 func getCommonSubsRedis() ([]string, error) {
 	var redisSubs []string
 	list, err := getCommonSubsRedisRaw()
-	if list == "" {
+	if list == "" || err != nil {
 		return nil, err
 	}
 	redisSubs = strings.Split(list, " ")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
 	return redisSubs, err
 }
 
@@ -181,8 +154,5 @@ func getCommonSubsRedisRaw() (string, error) {
 	redisClient := initRedis()
 	defer redisClient.Close()
 	list, err := redisClient.Get("commonSubs").Result()
-	if err != nil {
-		fmt.Println(err)
-	}
 	return list, err
 }

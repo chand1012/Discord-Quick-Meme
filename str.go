@@ -17,7 +17,11 @@ func stringInSlice(s string, a []string) bool {
 }
 
 func textFilter(input string) string {
-	reg, _ := regexp.Compile("[^a-zA-Z0-9_]+")
+	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
+	errCheck("Error compiling regexp", err, false)
+	if err != nil {
+		return "" // return empty string because more errors would occur otherwise
+	}
 	outputString := reg.ReplaceAllString(input, "")
 	return outputString
 }
@@ -33,7 +37,11 @@ func ContainsAnySubstring(testString string, strArray []string) bool {
 }
 
 func textFilterSlice(input []string) []string {
-	reg, _ := regexp.Compile("[^a-zA-Z0-9_]+")
+	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
+	errCheck("Error compiling regexp", err, false)
+	if err != nil {
+		return nil
+	}
 	var returnSlice []string
 	for _, thing := range input {
 		output := reg.ReplaceAllString(thing, "")

@@ -80,7 +80,8 @@ func PopulateCache() {
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
 	subs := getAllSubsFromMap()
-	redisCommonSubs, _ := getCommonSubsRedis()
+	redisCommonSubs, err := getCommonSubsRedis()
+	errCheck("Error getting common subreddits from redis", err, false)
 	CommonSubsCounter = uint8(len(redisCommonSubs))
 	if redisCommonSubs != nil {
 		subs = append(subs, redisCommonSubs...)
@@ -135,5 +136,6 @@ func updateCommonSubCounter(sub string) {
 			CommonSubs[sub]++
 		}
 	}
-	saveCommonSubsRedis()
+	err := saveCommonSubsRedis()
+	errCheck("Error saving common subreddits to redis", err, false)
 }

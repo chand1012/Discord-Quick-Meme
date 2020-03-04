@@ -23,7 +23,8 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 	defer wg.Done()
 	var ids []string
 	var names []string
-	channels, _ := discord.GuildChannels(guildID)
+	channels, err := discord.GuildChannels(guildID)
+	errCheck("Error getting channel name", err, false)
 	for _, channel := range channels {
 		if channel.Type != discordgo.ChannelTypeGuildText {
 			continue
@@ -71,7 +72,8 @@ func getChannelName(discord *discordgo.Session, channelid string, guildID string
 		return ServerMap[channelid]
 	}
 	starttime := GetMillis()
-	channels, _ := discord.GuildChannels(guildID)
+	channels, err := discord.GuildChannels(guildID)
+	errCheck("Error getting channel name", err, false)
 	for _, channel := range channels {
 		if channel.ID == channelid {
 			ServerMap[channelid] = channel.Name
@@ -89,9 +91,7 @@ func getChannelName(discord *discordgo.Session, channelid string, guildID string
 func updateStatus(discord *discordgo.Session) {
 	uCount := getNumberOfUsers(discord)
 	err := discord.UpdateStatus(0, "with "+strconv.Itoa(uCount)+" others")
-	if err != nil {
-		errCheck("Error attempting to set the status.", err)
-	}
+	errCheck("Error attempting to set the status.", err, false)
 }
 
 // ComesFromDM returns true if a message comes from a DM channel
@@ -161,7 +161,8 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 	var nsfw bool
 	bannedToggle := false
 	toggled := false
-	bannedSubs, _ := GetBannedSubreddits(channel)
+	bannedSubs, err := GetBannedSubreddits(channel)
+	errCheck("Error getting banned subs", err, false)
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, 100, sort, postType)
 		blacklisted := CheckBlacklist(channel, returnPost)
@@ -330,6 +331,10 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 		if commandContent[2] == "server" {
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
+			if subreddits == nil {
+				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				return
+			}
 			for _, chat := range channels {
 				// this should be async to save time
 				for _, subreddit := range subreddits {
@@ -340,6 +345,10 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
 		} else {
 			subreddits := textFilterSlice(commandContent[3:])
+			if subreddits == nil {
+				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				return
+			}
 			for _, subreddit := range subreddits {
 				go AppendBannedSubreddit(channel, subreddit)
 			}
@@ -358,6 +367,10 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 		if commandContent[2] == "server" {
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
+			if subreddits == nil {
+				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				return
+			}
 			for _, chat := range channels {
 				// this should be async to save time
 				for _, subreddit := range subreddits {
@@ -369,6 +382,10 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 		} else {
 			// there should be a message about the ban here
 			subreddits := textFilterSlice(commandContent[3:])
+			if subreddits == nil {
+				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				return
+			}
 			for _, subreddit := range subreddits {
 				go UnbanSubreddit(channel, subreddit)
 			}

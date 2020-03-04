@@ -5,7 +5,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -64,13 +63,14 @@ func imageSearch(url string) ([]string, []string) {
 	data, err := json.Marshal(payload)
 
 	if err != nil {
-		fmt.Println(err)
+		errCheck("Error processing JSON data for payload", err, false)
+		return nil, nil
 	}
 
 	resp, err := http.Post(mrisaAddress, "application/json", bytes.NewBuffer(data))
 
 	if err != nil {
-		fmt.Println(err)
+		errCheck("Error connecting to MRISA server", err, false)
 		return nil, nil
 	}
 
@@ -78,11 +78,14 @@ func imageSearch(url string) ([]string, []string) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 
-	json.Unmarshal(body, &parsedBody)
+	errCheck("Error reading JSON data from response", err, false)
 
 	if err != nil {
-		fmt.Println(err)
+		return nil, nil
 	}
+
+	json.Unmarshal(body, &parsedBody)
+
 	urls := parsedBody.Links
 	titles := parsedBody.Descriptions
 	return urls, titles

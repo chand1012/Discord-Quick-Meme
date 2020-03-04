@@ -56,20 +56,20 @@ func main() {
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
 	mrisaAddress = mrisaExtract(file)
-	errCheck("Error opening key file", err)
+	errCheck("Error opening key file", err, true)
 	discord, err := discordgo.New("Bot " + key)
-	errCheck("Error creating discord session", err)
+	errCheck("Error creating discord session", err, true)
 	user, err := discord.User("@me")
 	for _, admin := range adminRawIDs {
 		a, _ := discord.User(admin)
 		adminIDs = append(adminIDs, a.ID)
 	}
-	errCheck("error retrieving account", err)
+	errCheck("error retrieving account", err, true)
 	botID = user.ID
 	discord.AddHandler(commandHandler)
 	discord.AddHandler(readyHandler)
 	err = discord.Open()
-	errCheck("Error opening discord connection", err)
+	errCheck("Error opening discord connection", err, true)
 	defer discord.Close()
 	commandPrefix = "!"
 	<-make(chan struct{})
@@ -96,6 +96,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	dm, err = ComesFromDM(discord, message)
+	errCheck("Error checking if message was from DMs", err, false)
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!search"}
 	user := message.Author
 	content := message.Content
@@ -105,7 +106,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
 	}
-	channelObject, _ := discord.Channel(message.ChannelID)
+	channelObject, err := discord.Channel(message.ChannelID)
+	errCheck("Error getting channel object", err, false)
 	channel := message.ChannelID
 	if dm {
 		channelName = user.Username + "'s DMs"
@@ -121,18 +123,30 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		getMediaPost(discord, channel, nsfw, subs, sort)
 	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
+		if subs == nil {
+			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+			return
+		}
 		getMediaPost(discord, channel, nsfw, subs, sort)
 	case (command == "!joke" || command == "!text") && len(commandContent) == 1:
 		subs = SubMap["text"]
 		getTextPost(discord, channel, nsfw, subs, sort)
 	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
+		if subs == nil {
+			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+			return
+		}
 		getTextPost(discord, channel, nsfw, subs, sort)
 	case (command == "!news" || command == "!link") && len(commandContent) == 1:
 		subs = SubMap["news"]
 		getLinkPost(discord, channel, nsfw, subs, sort)
 	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
+		if subs == nil {
+			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+			return
+		}
 		getLinkPost(discord, channel, nsfw, subs, sort)
 	case command == "!fiftyfifty" || command == "!5050":
 		subs = []string{"fiftyfifty"}
@@ -163,11 +177,13 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		if len(commandContent) > 1 {
 			subcommand = commandContent[1]
 		} else {
-			subcommand = "status"
+			subcommand = ""
 		}
 		subcommand = textFilter(subcommand)
+		if subcommand == "" {
+			subcommand = "status"
+		}
 		if !stringInSlice(user.ID, adminIDs) && !isUserMemeBotAdmin(discord, guildID, user) {
-			subcommand = ""
 			fmt.Println("Intruder tried to execute admin only command:")
 			fmt.Println(user.Username)
 		} else if stringInSlice(user.ID, adminIDs) {
@@ -210,5 +226,5 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 	}
 	fmt.Println("Posted.")
-	errCheck("Error gettings post info:", err)
+	errCheck("Error gettings post info:", err, false)
 }

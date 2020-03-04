@@ -42,14 +42,12 @@ type subJSON struct {
 
 func subExtract(filename string) map[string][]string {
 	jsonfile, err := os.Open(filename)
-
-	if err != nil {
-		panic(err)
-	}
+	errCheck("Error opening JSON file", err, true)
 
 	defer jsonfile.Close()
 
-	rawjson, _ := ioutil.ReadAll(jsonfile)
+	rawjson, err := ioutil.ReadAll(jsonfile)
+	errCheck("Error reading JSON file", err, true)
 
 	var subJSON subJSON
 
@@ -87,13 +85,13 @@ type redisInfo struct {
 func redisExtract(filename string) (string, string, int, error) {
 	jsonfile, err := os.Open(filename)
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	errCheck("Error reading JSON file", err, true)
 
 	defer jsonfile.Close()
 
-	rawjson, _ := ioutil.ReadAll(jsonfile)
+	rawjson, err := ioutil.ReadAll(jsonfile)
+
+	errCheck("Error reading JSON file", err, true)
 
 	var redisInfo redisInfo
 
@@ -109,13 +107,13 @@ type mrisaInfo struct {
 func mrisaExtract(filename string) string {
 	jsonfile, err := os.Open(filename)
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	errCheck("Error reading JSON file", err, true)
 
 	defer jsonfile.Close()
 
-	rawjson, _ := ioutil.ReadAll(jsonfile)
+	rawjson, err := ioutil.ReadAll(jsonfile)
+
+	errCheck("Error reading JSON file", err, true)
 
 	var mrisainfo mrisaInfo
 

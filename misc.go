@@ -14,9 +14,11 @@ func GetMillis() int64 {
 }
 
 // Error checker that I barely used
-func errCheck(msg string, err error) {
+func errCheck(msg string, err error, shouldPanic bool) {
 	if err != nil {
 		fmt.Printf("%s: %+v", msg, err)
-		panic(err)
+		if shouldPanic {
+			panic(err)
+		}
 	}
 }
