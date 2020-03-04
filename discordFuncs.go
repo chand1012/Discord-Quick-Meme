@@ -11,6 +11,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// These need to be updated so that they store the entire discordgo.ChannelType and not just their names
+// Will still use a map with the channel ID string as the key.
+
 // // Server server object for the golang channels
 // type Server struct {
 // 	IDs   []string
@@ -91,18 +94,6 @@ func updateStatus(discord *discordgo.Session) {
 	uCount := getNumberOfUsers(discord)
 	err := discord.UpdateStatus(0, "with "+strconv.Itoa(uCount)+" others")
 	errCheck("Error attempting to set the status.", err, false)
-}
-
-// ComesFromDM returns true if a message comes from a DM channel
-func ComesFromDM(s *discordgo.Session, m *discordgo.MessageCreate) (bool, error) {
-	channel, err := s.State.Channel(m.ChannelID)
-	if err != nil {
-		if channel, err = s.Channel(m.ChannelID); err != nil {
-			return false, err
-		}
-	}
-
-	return channel.Type == discordgo.ChannelTypeDM, nil
 }
 
 // gets a buzzword. See buzz.go

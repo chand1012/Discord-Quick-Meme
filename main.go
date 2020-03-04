@@ -95,8 +95,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	var channelName string
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
-	dm, err = ComesFromDM(discord, message)
-	errCheck("Error checking if message was from DMs", err, false)
+	channelObject, err := discord.Channel(message.ChannelID)
+	channel := message.ChannelID
+	errCheck("Error getting channel object", err, false)
+	dm = (channelObject.Type == discordgo.ChannelTypeDM)
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!search"}
 	user := message.Author
 	content := message.Content
@@ -106,13 +108,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
 	}
-	channelObject, err := discord.Channel(message.ChannelID)
-	errCheck("Error getting channel object", err, false)
-	channel := message.ChannelID
 	if dm {
 		channelName = user.Username + "'s DMs"
 	} else {
-		channelName = "#" + channel //getChannelName(discord, channel, guildID)
+		channelName = "#" + channelObject.Name
 	}
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
 	nsfw := channelObject.NSFW || dm
