@@ -71,7 +71,8 @@ func quickMemeClearCache(discord *discordgo.Session, channel string) {
 
 // gets the number of channel names cached
 func quickMemeServerCache(discord *discordgo.Session, channel string) {
-	channelCount := len(ServerMap)
+	//channelCount := len(ServerMap)
+	channelCount := 0
 	fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
 	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
 }

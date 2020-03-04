@@ -6,86 +6,85 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-// Server server object for the golang channels
-type Server struct {
-	IDs   []string
-	Names []string
-}
+// // Server server object for the golang channels
+// type Server struct {
+// 	IDs   []string
+// 	Names []string
+// }
 
-// worker for getting all channel names
-func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup) {
-	defer wg.Done()
-	var ids []string
-	var names []string
-	channels, err := discord.GuildChannels(guildID)
-	errCheck("Error getting channel name", err, false)
-	for _, channel := range channels {
-		if channel.Type != discordgo.ChannelTypeGuildText {
-			continue
-		}
-		ids = append(ids, channel.ID)
-		names = append(names, channel.Name)
-	}
-	server := Server{
-		IDs:   ids,
-		Names: names,
-	}
-	send <- server
-}
+// // worker for getting all channel names
+// func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup) {
+// 	defer wg.Done()
+// 	var ids []string
+// 	var names []string
+// 	channels, err := discord.GuildChannels(guildID)
+// 	errCheck("Error getting channel name", err, false)
+// 	for _, channel := range channels {
+// 		if channel.Type != discordgo.ChannelTypeGuildText {
+// 			continue
+// 		}
+// 		ids = append(ids, channel.ID)
+// 		names = append(names, channel.Name)
+// 	}
+// 	server := Server{
+// 		IDs:   ids,
+// 		Names: names,
+// 	}
+// 	send <- server
+// }
 
-// gets all channel names via multithreading
-func getAllChannelNames(discord *discordgo.Session) {
-	var wg sync.WaitGroup
-	fmt.Println("Getting current channel names...")
-	starttime := GetMillis()
-	guilds := discord.State.Guilds
-	bufferSize := len(guilds)
-	recv := make(chan Server, bufferSize)
-	for _, guild := range guilds {
-		wg.Add(1)
-		go getAllWorker(discord, guild.ID, recv, &wg)
-	}
-	wg.Wait()
-	close(recv)
-	for i := 0; i < bufferSize; i++ {
-		thing := <-recv
-		length := len(thing.IDs)
-		for x := 0; x < length; x++ {
-			ServerMap[thing.IDs[x]] = thing.Names[x]
-		}
-	}
-	endtime := GetMillis()
-	t := endtime - starttime
-	fmt.Println("Time to get all current channel names: " + strconv.FormatInt(t, 10) + "ms")
-}
+// // gets all channel names via multithreading
+// func getAllChannelNames(discord *discordgo.Session) {
+// 	var wg sync.WaitGroup
+// 	fmt.Println("Getting current channel names...")
+// 	starttime := GetMillis()
+// 	guilds := discord.State.Guilds
+// 	bufferSize := len(guilds)
+// 	recv := make(chan Server, bufferSize)
+// 	for _, guild := range guilds {
+// 		wg.Add(1)
+// 		go getAllWorker(discord, guild.ID, recv, &wg)
+// 	}
+// 	wg.Wait()
+// 	close(recv)
+// 	for i := 0; i < bufferSize; i++ {
+// 		thing := <-recv
+// 		length := len(thing.IDs)
+// 		for x := 0; x < length; x++ {
+// 			ServerMap[thing.IDs[x]] = thing.Names[x]
+// 		}
+// 	}
+// 	endtime := GetMillis()
+// 	t := endtime - starttime
+// 	fmt.Println("Time to get all current channel names: " + strconv.FormatInt(t, 10) + "ms")
+// }
 
-// gets a channel name from the cache, otherwise searches all channels on server that send the message
-func getChannelName(discord *discordgo.Session, channelid string, guildID string) string {
-	fmt.Println("Getting channel name....")
-	if _, ok := ServerMap[channelid]; ok {
-		return ServerMap[channelid]
-	}
-	starttime := GetMillis()
-	channels, err := discord.GuildChannels(guildID)
-	errCheck("Error getting channel name", err, false)
-	for _, channel := range channels {
-		if channel.ID == channelid {
-			ServerMap[channelid] = channel.Name
-			endtime := GetMillis()
-			t := endtime - starttime
-			fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
-			return channel.Name
-		}
-	}
+// // gets a channel name from the cache, otherwise searches all channels on server that send the message
+// func getChannelName(discord *discordgo.Session, channelid string, guildID string) string {
+// 	fmt.Println("Getting channel name....")
+// 	if _, ok := ServerMap[channelid]; ok {
+// 		return ServerMap[channelid]
+// 	}
+// 	starttime := GetMillis()
+// 	channels, err := discord.GuildChannels(guildID)
+// 	errCheck("Error getting channel name", err, false)
+// 	for _, channel := range channels {
+// 		if channel.ID == channelid {
+// 			ServerMap[channelid] = channel.Name
+// 			endtime := GetMillis()
+// 			t := endtime - starttime
+// 			fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
+// 			return channel.Name
+// 		}
+// 	}
 
-	return ""
-}
+// 	return ""
+// }
 
 // updates the bot status
 func updateStatus(discord *discordgo.Session) {

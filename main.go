@@ -18,7 +18,7 @@ var (
 	//BlacklistTime stores the blacklist time for all of the channels
 	BlacklistTime int64
 	// ServerMap this is all of the servers an the servers this gets wiped from memory as soon as the Bot gets killed
-	ServerMap map[string]string
+	//ServerMap map[string]string
 	//PostCache stores all posts
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
@@ -45,7 +45,7 @@ func main() {
 	var file string
 	var key string
 	var adminRawIDs []string
-	ServerMap = make(map[string]string)
+	//ServerMap = make(map[string]string)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
 	CommonSubs = make(map[string]uint8)
@@ -78,7 +78,7 @@ func main() {
 // handles bot initialization
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
-	getAllChannelNames(discord)
+	//getAllChannelNames(discord)
 	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()
@@ -112,7 +112,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if dm {
 		channelName = user.Username + "'s DMs"
 	} else {
-		channelName = "#" + getChannelName(discord, channel, guildID)
+		channelName = "#" + channel //getChannelName(discord, channel, guildID)
 	}
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
 	nsfw := channelObject.NSFW || dm
