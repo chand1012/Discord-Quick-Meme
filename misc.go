@@ -16,15 +16,18 @@ func GetMillis() int64 {
 
 // Error checker that I barely used
 func errCheck(msg string, err error, shouldPanic bool) {
-	errStr := err.Error()
+	var errStr string
 	if err != nil {
-		fmt.Printf("%s: %+v", msg, err)
-		if shouldPanic {
-			panic(err)
-		}
-	} else if strings.Contains(errStr, "redis") {
-		if !strings.Contains(errStr, "nil") {
-			fmt.Printf("%s: %+v\n", msg, err)
+		errStr = err.Error()
+		if strings.Contains(errStr, "redis") {
+			if !strings.Contains(errStr, "nil") {
+				fmt.Printf("%s: %+v\n", msg, err)
+				if shouldPanic {
+					panic(err)
+				}
+			}
+		} else {
+			fmt.Printf("%s: %+v", msg, err)
 			if shouldPanic {
 				panic(err)
 			}
