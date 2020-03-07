@@ -18,7 +18,9 @@ var (
 	//BlacklistTime stores the blacklist time for all of the channels
 	BlacklistTime int64
 	// ServerMap this is all of the servers an the servers this gets wiped from memory as soon as the Bot gets killed
-	//ServerMap map[string]string
+	ServerMap map[string]string
+	// NSFWMap stores all nsfw values for each channel
+	NSFWMap map[string]bool
 	//PostCache stores all posts
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
@@ -45,7 +47,8 @@ func main() {
 	var file string
 	var key string
 	var adminRawIDs []string
-	//ServerMap = make(map[string]string)
+	ServerMap = make(map[string]string)
+	NSFWMap = make(map[string]bool)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
 	CommonSubs = make(map[string]uint8)
@@ -78,7 +81,7 @@ func main() {
 // handles bot initialization
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
-	//getAllChannelNames(discord)
+	getAllChannelNames(discord)
 	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()
@@ -89,16 +92,11 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 // handes incoming commands
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	var err error
-	var sort string
 	var subs []string
-	var dm bool
 	var channelName string
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
-	channelObject, err := discord.Channel(message.ChannelID)
 	channel := message.ChannelID
-	errCheck("Error getting channel object", err, false)
-	dm = (channelObject.Type == discordgo.ChannelTypeDM)
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!search"}
 	user := message.Author
 	content := message.Content
@@ -108,55 +106,50 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
 	}
-	if dm {
-		channelName = user.Username + "'s DMs"
-	} else {
-		channelName = "#" + channelObject.Name
-	}
+	channelName = "#" + getChannelName(discord, channel, guildID)
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
-	nsfw := channelObject.NSFW || dm
-	sort = "hot"
+	nsfw := getChannelNSFW(discord, channel, guildID)
 	switch {
 	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
-		getMediaPost(discord, channel, nsfw, subs, sort)
+		getMediaPost(discord, channel, nsfw, subs, "hot")
 	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
 			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
 			return
 		}
-		getMediaPost(discord, channel, nsfw, subs, sort)
+		getMediaPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!joke" || command == "!text") && len(commandContent) == 1:
 		subs = SubMap["text"]
-		getTextPost(discord, channel, nsfw, subs, sort)
+		getTextPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
 			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
 			return
 		}
-		getTextPost(discord, channel, nsfw, subs, sort)
+		getTextPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!news" || command == "!link") && len(commandContent) == 1:
 		subs = SubMap["news"]
-		getLinkPost(discord, channel, nsfw, subs, sort)
+		getLinkPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
 			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
 			return
 		}
-		getLinkPost(discord, channel, nsfw, subs, sort)
+		getLinkPost(discord, channel, nsfw, subs, "hot")
 	case command == "!fiftyfifty" || command == "!5050":
 		subs = []string{"fiftyfifty"}
-		getLinkPost(discord, channel, nsfw, subs, sort)
+		getLinkPost(discord, channel, nsfw, subs, "hot")
 	case commandContent[0] == "!buzzword":
 		getBuzzWord(discord, channel)
 	case commandContent[0] == "!hentai":
 		// This is still only here because a friend of mine
 		// suggested this and I am a nice person
 		subs = SubMap["hentai"]
-		getMediaPost(discord, channel, nsfw, subs, sort)
+		getMediaPost(discord, channel, nsfw, subs, "hot")
 	case command == "!all":
 		randchoice := rand.Intn(4)
 		switch randchoice {
