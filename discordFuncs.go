@@ -12,9 +12,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// These need to be updated so that they store the entire discordgo.ChannelType and not just their names
-// Will still use a map with the channel ID string as the key.
-
 // Server server object for the golang channels
 type Server struct {
 	IDs   []string
@@ -201,11 +198,8 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 			fmt.Println("Post is NSFW.")
 		}
 
-		if channelNsfw && !blacklisted && !banned {
-			toggled = true
-			AddToBlacklist(channel, returnPost)
-			break
-		} else if channelNsfw && !nsfw && !blacklisted && !banned {
+		// complicated but it makes sense ish
+		if (channelNsfw && !blacklisted && !banned) || (channelNsfw && !nsfw && !blacklisted && !banned) {
 			toggled = true
 			AddToBlacklist(channel, returnPost)
 			break
@@ -352,7 +346,7 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				discord.ChannelMessageSend(channel, ErrorMsg)
 				return
 			}
 			for _, chat := range channels {
@@ -366,7 +360,7 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 		} else {
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				discord.ChannelMessageSend(channel, ErrorMsg)
 				return
 			}
 			for _, subreddit := range subreddits {
@@ -375,7 +369,7 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
 		}
 	} else {
-		discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+		discord.ChannelMessageSend(channel, ErrorMsg)
 	}
 }
 
@@ -388,7 +382,7 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				discord.ChannelMessageSend(channel, ErrorMsg)
 				return
 			}
 			for _, chat := range channels {
@@ -403,7 +397,7 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 			// there should be a message about the ban here
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+				discord.ChannelMessageSend(channel, ErrorMsg)
 				return
 			}
 			for _, subreddit := range subreddits {
@@ -428,7 +422,7 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 		for _, chat := range channels {
 			bannedSubs, err := GetBannedSubreddits(chat.ID)
 			if err != nil {
-				discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+				discord.ChannelMessageSend(channel, ErrorMsg)
 				fmt.Println(err)
 				break
 			}
@@ -440,7 +434,7 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 	} else {
 		bannedSubs, err := GetBannedSubreddits(channel)
 		if err != nil {
-			discord.ChannelMessageSend(channel, "There was an error processing your request. Please report this at https://github.com/chand1012/Discord-Quick-Meme/issues")
+			discord.ChannelMessageSend(channel, ErrorMsg)
 			fmt.Println(err)
 		} else {
 			msgString := strings.Join(bannedSubs, ", ")

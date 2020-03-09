@@ -56,6 +56,8 @@ func main() {
 	CommonSubsCounter = 0
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
+	ErrorMsg := "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
+	JSONError := "Error reading JSON file"
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
 	mrisaAddress = mrisaExtract(file)
@@ -116,7 +118,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
-			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+			discord.ChannelMessageSend(channel, ErrorMsg)
 			return
 		}
 		getMediaPost(discord, channel, nsfw, subs, "hot")
@@ -126,7 +128,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
-			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+			discord.ChannelMessageSend(channel, ErrorMsg)
 			return
 		}
 		getTextPost(discord, channel, nsfw, subs, "hot")
@@ -136,7 +138,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
-			discord.ChannelMessageSend(channel, "There was an error processing your request. If this persists, please submit a report.")
+			discord.ChannelMessageSend(channel, ErrorMsg)
 			return
 		}
 		getLinkPost(discord, channel, nsfw, subs, "hot")
