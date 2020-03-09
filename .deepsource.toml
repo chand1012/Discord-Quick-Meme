@@ -1,0 +1,16 @@
+version = 1
+
+test_patterns = ["*.go"]
+
+exclude_patterns = [
+    "*.md",
+    "*.json",
+    "*.yml"
+]
+
+[[analyzers]]
+name = "go"
+enabled = true
+
+  [analyzers.meta]
+  import_path = "github.com/chand1012/Discord-Quick-Meme"
