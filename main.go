@@ -39,6 +39,10 @@ var (
 	//CachePopulating if true, do not run the populate cache until finished
 	CachePopulating bool
 	mrisaAddress    string
+	//ErrorMsg Main error message that gets send when something goes seriously wrong
+	ErrorMsg string
+	//JSONError JSON error message
+	JSONError string
 )
 
 // main loop
@@ -56,8 +60,8 @@ func main() {
 	CommonSubsCounter = 0
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
-	ErrorMsg := "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
-	JSONError := "Error reading JSON file"
+	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
+	JSONError = "Error reading JSON file"
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
 	mrisaAddress = mrisaExtract(file)
@@ -66,7 +70,10 @@ func main() {
 	errCheck("Error creating discord session", err, true)
 	user, err := discord.User("@me")
 	for _, admin := range adminRawIDs {
-		a, _ := discord.User(admin)
+		a, err := discord.User(admin)
+		if err != nil {
+			panic(err)
+		}
 		adminIDs = append(adminIDs, a.ID)
 	}
 	errCheck("error retrieving account", err, true)
@@ -220,5 +227,5 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 	}
 	fmt.Println("Posted.")
-	errCheck("Error gettings post info:", err, false)
+	errCheck("Error getting post info:", err, false)
 }
