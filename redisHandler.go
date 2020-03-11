@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-redis/redis"
@@ -10,7 +11,7 @@ import (
 func initRedis() *redis.Client {
 	address, password, db, err := redisExtract("data.json")
 	if err != nil {
-		panic(err)
+		panic(err) // cannot launch without this
 	}
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     address,
@@ -55,13 +56,16 @@ func GetBannedSubreddits(channel string) ([]string, error) {
 // }
 
 //AppendBannedSubreddit appends a banned subreddit to the list for that channel
-func AppendBannedSubreddit(channel string, subreddit string) {
+func AppendBannedSubreddit(channel string, subreddit string) error {
 
 	redisClient := initRedis()
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	errCheck("Error getting redis values", err, false)
+	if err != nil {
+		fmt.Println("Error getting redis values: ", err)
+		return err
+	}
 	if values == "" || strings.Replace(values, " ", "", -1) == "" {
 		values = subreddit
 		err = redisClient.Set(channel, values, 0).Err()
@@ -71,14 +75,22 @@ func AppendBannedSubreddit(channel string, subreddit string) {
 	} else {
 		err = nil
 	}
-	errCheck("Error setting value '"+subreddit+"'", err, false)
+	if err != nil {
+		fmt.Println("Error setting redis values: ", err)
+		return err
+	}
 	err = redisSave()
-	errCheck("Error saving redis", err, false)
+	if err != nil {
+		fmt.Println("Error saving redis: ", err)
+		return nil
+	}
+
+	return nil
 
 }
 
 // UnbanSubreddit removes a subreddit from the redis banned servers
-func UnbanSubreddit(channel string, subreddit string) {
+func UnbanSubreddit(channel string, subreddit string) error {
 	var isContained bool
 
 	redisClient := initRedis()
@@ -86,7 +98,10 @@ func UnbanSubreddit(channel string, subreddit string) {
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	errCheck("Error getting redis values", err, false)
+	if err != nil {
+		fmt.Println("Error getting redis values: ", err)
+		return err
+	}
 
 	if strings.Contains(values, " ") {
 		if strings.Contains(values, subreddit) {
@@ -106,10 +121,18 @@ func UnbanSubreddit(channel string, subreddit string) {
 
 	if isContained {
 		err = redisClient.Set(channel, values, 0).Err()
-		errCheck("Error setting value '"+values+"'", err, false)
+		if err != nil {
+			fmt.Println("Error setting redis values: ", err)
+			return err
+		}
 		err = redisSave()
-		errCheck("Error saving redis", err, false)
+		if err != nil {
+			fmt.Println("Error saving redis: ", err)
+			return nil
+		}
 	}
+
+	return nil
 
 }
 

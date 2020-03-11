@@ -65,10 +65,19 @@ func main() {
 	file = "data.json"
 	key, adminRawIDs, err = loginExtract(file)
 	mrisaAddress = mrisaExtract(file)
-	errCheck("Error opening key file", err, true)
+	if err != nil {
+		panic(err) // can't run without a login
+	}
 	discord, err := discordgo.New("Bot " + key)
-	errCheck("Error creating discord session", err, true)
+
+	if err != nil {
+		panic(err)
+	}
+
 	user, err := discord.User("@me")
+	if err != nil {
+		panic(err)
+	}
 	for _, admin := range adminRawIDs {
 		a, err := discord.User(admin)
 		if err != nil {
@@ -76,12 +85,13 @@ func main() {
 		}
 		adminIDs = append(adminIDs, a.ID)
 	}
-	errCheck("error retrieving account", err, true)
 	botID = user.ID
 	discord.AddHandler(commandHandler)
 	discord.AddHandler(readyHandler)
 	err = discord.Open()
-	errCheck("Error opening discord connection", err, true)
+	if err != nil {
+		panic(err)
+	}
 	defer discord.Close()
 	commandPrefix = "!"
 	<-make(chan struct{})
@@ -227,5 +237,5 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 	}
 	fmt.Println("Posted.")
-	errCheck("Error getting post info:", err, false)
+
 }

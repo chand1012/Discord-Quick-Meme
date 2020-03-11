@@ -33,7 +33,11 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	defer wg.Done()
 	var gottenPosts []QuickPost
 	var gotPost QuickPost
-	bot, _ := reddit.NewBotFromAgentFile("agent.yml", 0)
+	bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
+	if err != nil {
+		fmt.Println("Error creating Bot: ", err)
+		return
+	}
 	harvest, err := bot.Listing("/r/"+sub+"/hot/", "")
 	if err != nil {
 		if strings.Contains(err.Error(), "400") {
@@ -41,7 +45,6 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 			fmt.Println(sub)
 			return
 		}
-		panic(err)
 	}
 	for _, post := range harvest.Posts {
 		mode := GuessPostType(post)
@@ -67,9 +70,6 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 		gottenPosts = append(gottenPosts, gotPost)
 	}
 	send <- gottenPosts
-	if err != nil {
-		panic(err)
-	}
 }
 
 // PopulateCache spawns workers to add posts to the cache
@@ -81,7 +81,11 @@ func PopulateCache() {
 	starttime := GetMillis()
 	subs := getAllSubsFromMap()
 	redisCommonSubs, err := getCommonSubsRedis()
-	errCheck("Error getting common subreddits from redis", err, false)
+	if err != nil {
+		fmt.Println("Error getting common subreddits from redis: ", err)
+		CachePopulating = false
+		return
+	}
 	CommonSubsCounter = uint8(len(redisCommonSubs))
 	if redisCommonSubs != nil {
 		subs = append(subs, redisCommonSubs...)
@@ -137,5 +141,7 @@ func updateCommonSubCounter(sub string) {
 		}
 	}
 	err := saveCommonSubsRedis()
-	errCheck("Error saving common subreddits to redis", err, false)
+	if err != nil {
+		fmt.Println("Error saving common subreddits to redis: ", err)
+	}
 }
