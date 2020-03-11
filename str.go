@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,8 +19,8 @@ func stringInSlice(s string, a []string) bool {
 
 func textFilter(input string) string {
 	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
-	errCheck("Error compiling regexp", err, false)
 	if err != nil {
+		fmt.Println("Error compiling regexp:", err)
 		return "" // return empty string because more errors would occur otherwise
 	}
 	outputString := reg.ReplaceAllString(input, "")
@@ -38,8 +39,8 @@ func ContainsAnySubstring(testString string, strArray []string) bool {
 
 func textFilterSlice(input []string) []string {
 	reg, err := regexp.Compile("[^a-zA-Z0-9_]+")
-	errCheck("Error compiling regexp", err, false)
 	if err != nil {
+		fmt.Println("Error compiling regexp:", err)
 		return nil
 	}
 	var returnSlice []string

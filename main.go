@@ -110,7 +110,6 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 
 // handes incoming commands
 func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate) {
-	var err error
 	var subs []string
 	var channelName string
 	go updateStatus(discord)
@@ -180,7 +179,12 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			getMediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
 	case command == "!source":
-		err = getSource(discord, channel)
+		err := getSource(discord, channel)
+		if err != nil {
+			fmt.Println("Error getting source of meme:", err)
+			discord.ChannelMessageSend(channel, "Error getting source of meme: "+err.Error())
+			return
+		}
 	case command == "!search":
 		imageSearchCommand(discord, channel)
 	case command == "!quickmeme":

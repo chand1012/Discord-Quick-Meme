@@ -29,7 +29,9 @@ func GuessPostType(post *reddit.Post) string {
 func PingReddit() error {
 	bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
 	_, err = bot.Listing("/r/all", "")
-	errCheck("Error performing Reddit ping test", err, false)
+	if err != nil {
+		fmt.Println("Error pinging Reddit:", err)
+	}
 	return err
 }
 
@@ -63,10 +65,16 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		starttime := GetMillis()
 		fmt.Println("Adding r/" + sub + " to cache.")
 		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
-		errCheck("Error creating Reddit bot", err, true)
+		if err != nil {
+			fmt.Println("Error creating new Reddit bot:", err)
+			return QuickPost{}, ""
+		}
 		rand.Seed(time.Now().Unix())
 		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "")
-		errCheck("Error harvesting posts", err, false)
+		if err != nil {
+			fmt.Println("Error getting posts from sub '", sub, "':", err)
+			return QuickPost{}, sub
+		}
 		lengthPosts := len(harvest.Posts)
 		if lengthPosts < limit {
 			limit = lengthPosts
