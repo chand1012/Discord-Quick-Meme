@@ -26,7 +26,10 @@ func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server
 	var names []string
 	var nsfws []bool
 	channels, err := discord.GuildChannels(guildID)
-	errCheck("Error getting channel name", err, false)
+	if err != nil {
+		fmt.Println("Error getting channel name: ", err)
+		return
+	}
 	for _, channel := range channels {
 		if channel.Type != discordgo.ChannelTypeGuildText {
 			continue
@@ -79,7 +82,10 @@ func getChannelName(discord *discordgo.Session, channelid string, guildID string
 	}
 	starttime := GetMillis()
 	channels, err := discord.GuildChannels(guildID)
-	errCheck("Error getting channel name", err, false)
+	if err != nil {
+		fmt.Println("Error getting channel name: ", err)
+		return channelid
+	}
 	for _, channel := range channels {
 		if channel.ID == channelid {
 			ServerMap[channelid] = channel.Name
@@ -101,7 +107,10 @@ func getChannelNSFW(discord *discordgo.Session, channelid string, guildID string
 	}
 	starttime := GetMillis()
 	channels, err := discord.GuildChannels(guildID)
-	errCheck("Error getting channel NSFW Status", err, false)
+	if err != nil {
+		fmt.Println("Error getting channel NSFW status: ", err)
+		return false
+	}
 	for _, channel := range channels {
 		if channel.ID == channelid {
 			NSFWMap[channelid] = channel.NSFW
@@ -120,7 +129,9 @@ func getChannelNSFW(discord *discordgo.Session, channelid string, guildID string
 func updateStatus(discord *discordgo.Session) {
 	uCount := getNumberOfUsers(discord)
 	err := discord.UpdateStatus(0, "with "+strconv.Itoa(uCount)+" others")
-	errCheck("Error attempting to set the status.", err, false)
+	if err != nil {
+		fmt.Println("Error updating the status: ", err)
+	}
 }
 
 // gets a buzzword. See buzz.go
@@ -179,7 +190,9 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 	bannedToggle := false
 	toggled := false
 	bannedSubs, err := GetBannedSubreddits(channel)
-	errCheck("Error getting banned subs", err, false)
+	if err != nil {
+		fmt.Println("Error getting banned subreddits: ", err)
+	}
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, 100, sort, postType)
 		blacklisted := CheckBlacklist(channel, returnPost)

@@ -22,7 +22,12 @@ func loginExtract(filename string) (string, []string, error) {
 
 	defer jsonfile.Close()
 
-	rawjson, _ := ioutil.ReadAll(jsonfile)
+	rawjson, err := ioutil.ReadAll(jsonfile)
+
+	if err != nil {
+		fmt.Println("Error reading login JSON:", err)
+		return "", nil, err
+	}
 
 	var keys Keys
 
@@ -42,12 +47,17 @@ type subJSON struct {
 
 func subExtract(filename string) map[string][]string {
 	jsonfile, err := os.Open(filename)
-	errCheck("Error opening JSON file", err, true)
+	if err != nil {
+		panic(err) // these are situations that the bot cannot run if it errors out
+	}
 
 	defer jsonfile.Close()
 
 	rawjson, err := ioutil.ReadAll(jsonfile)
-	errCheck(JSONError, err, true)
+
+	if err != nil {
+		panic(err)
+	}
 
 	var subJSON subJSON
 
@@ -85,13 +95,17 @@ type redisInfo struct {
 func redisExtract(filename string) (string, string, int, error) {
 	jsonfile, err := os.Open(filename)
 
-	errCheck(JSONError, err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	defer jsonfile.Close()
 
 	rawjson, err := ioutil.ReadAll(jsonfile)
 
-	errCheck(JSONError, err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	var redisInfo redisInfo
 
@@ -107,13 +121,17 @@ type mrisaInfo struct {
 func mrisaExtract(filename string) string {
 	jsonfile, err := os.Open(filename)
 
-	errCheck(JSONError, err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	defer jsonfile.Close()
 
 	rawjson, err := ioutil.ReadAll(jsonfile)
 
-	errCheck(JSONError, err, true)
+	if err != nil {
+		panic(err)
+	}
 
 	var mrisainfo mrisaInfo
 
