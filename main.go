@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -104,7 +105,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()
-	fmt.Println("Discord-Quick-Meme has started on " + strconv.Itoa(len(servers)) + " servers")
+	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(int64(len(servers))) + " servers")
 	go updateStatus(discord)
 }
 

@@ -149,7 +149,7 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 	embed := &discordgo.MessageEmbed{
 		Author:      &discordgo.MessageEmbedAuthor{},
 		Color:       randColor,
-		Description: "Score: " + strconv.FormatInt(int64(score), 10),
+		Description: "Score: " + humanize.Comma(int64(score)),
 		Image: &discordgo.MessageEmbedImage{
 			URL: url,
 		},
@@ -165,7 +165,7 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 	discord.ChannelMessageSend(channel, "From r/"+sub)
 	discord.ChannelMessageSend(channel, textone)
 	discord.ChannelMessageSend(channel, texttwo)
-	discord.ChannelMessageSend(channel, "Score: "+strconv.FormatInt(int64(score), 10))
+	discord.ChannelMessageSend(channel, "Score: "+humanize.Comma(int64(score)))
 }
 
 // banned subreddit routine
