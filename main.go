@@ -44,6 +44,12 @@ var (
 	ErrorMsg string
 	//JSONError JSON error message
 	JSONError string
+	// RequestCount counts how many requests a channel makes
+	// If over 10 in a minute then halt all posting
+	RequestCount map[string]uint8
+	// RequestTimer stores channel timers
+	// Resets every minute
+	RequestTimer map[string]int64
 )
 
 // main loop
@@ -61,6 +67,8 @@ func main() {
 	CommonSubsCounter = 0
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
+	RequestCount = make(map[string]uint8)
+	RequestTimer = make(map[string]int64)
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	file = "data.json"
@@ -124,6 +132,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	guildID := message.GuildID
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
+	}
+	canUserPost := updateChannelTimer(channel)
+	if !canUserPost {
+		discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds.")
 	}
 	channelName = "#" + getChannelName(discord, channel, guildID)
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
