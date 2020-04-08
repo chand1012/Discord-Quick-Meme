@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/dustin/go-humanize"
 )
 
 // Server server object for the golang channels
@@ -128,7 +129,7 @@ func getChannelNSFW(discord *discordgo.Session, channelid string, guildID string
 // updates the bot status
 func updateStatus(discord *discordgo.Session) {
 	uCount := getNumberOfUsers(discord)
-	err := discord.UpdateStatus(0, "with "+strconv.Itoa(uCount)+" others")
+	err := discord.UpdateStatus(0, "with "+humanize.Comma(int64(uCount))+" others")
 	if err != nil {
 		fmt.Println("Error updating the status: ", err)
 	}
