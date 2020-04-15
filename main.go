@@ -135,7 +135,13 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	}
 	canUserPost := updateChannelTimer(channel)
 	if !canUserPost {
-		discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds.")
+		if RequestCount[channel] == 6 {
+			fmt.Println("Channel " + channel + "is sending a lot of requests, limiting their input for 60 seconds.")
+		}
+		if RequestCount[channel] > 10 {
+			discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds.")
+		}
+		return
 	}
 	channelName = "#" + getChannelName(discord, channel, guildID)
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
