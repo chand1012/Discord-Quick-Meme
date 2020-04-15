@@ -36,6 +36,9 @@ func GetBannedSubreddits(channel string) ([]string, error) {
 	redisClient := initRedis()
 	defer redisClient.Close()
 	rawValues, err := redisClient.Get(channel).Result()
+	if err == redis.Nil {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +65,9 @@ func AppendBannedSubreddit(channel string, subreddit string) error {
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	if err != nil {
+	if err == redis.Nil {
+		values = ""
+	} else if err != nil {
 		fmt.Println("Error getting redis values: ", err)
 		return err
 	}
@@ -98,7 +103,9 @@ func UnbanSubreddit(channel string, subreddit string) error {
 	defer redisClient.Close()
 
 	values, err := redisClient.Get(channel).Result()
-	if err != nil {
+	if err == redis.Nil {
+		values = ""
+	} else if err != nil {
 		fmt.Println("Error getting redis values: ", err)
 		return err
 	}
