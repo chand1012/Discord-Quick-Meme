@@ -171,7 +171,7 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 // banned subreddit routine
 func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
 	discord.ChannelMessageSend(channel, "Error!")
-	discord.ChannelMessageSend(channel, "Request contains a banned subreddit:"+sub)
+	discord.ChannelMessageSend(channel, "Request contains a banned subreddit: "+sub)
 }
 
 // nsfw subreddit not allowed routine
@@ -189,7 +189,6 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 	var title string
 	var nsfw bool
 
-	nsfwFound := false
 	bannedToggle := false
 	toggled := false
 	bannedSubs, err := GetBannedSubreddits(channel)
@@ -229,11 +228,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 			break
 		} else {
 			if !blacklisted && !banned {
-				if !nsfwFound {
-					fmt.Print("Channel is not NSFW but post is NSFW, retrying.")
-				} else {
-					fmt.Print(".")
-				}
+				fmt.Println("Channel is not NSFW but post is NSFW, retrying....")
 			}
 		}
 	}
