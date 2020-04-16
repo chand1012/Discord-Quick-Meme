@@ -184,5 +184,9 @@ func getCommonSubsRedisRaw() (string, error) {
 	redisClient := initRedis()
 	defer redisClient.Close()
 	list, err := redisClient.Get("commonSubs").Result()
+	if err == redis.Nil {
+		list = ""
+		err = nil
+	}
 	return list, err
 }
