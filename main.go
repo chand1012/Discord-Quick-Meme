@@ -113,7 +113,9 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()
-	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(int64(len(servers))) + " servers")
+	serverCount := int64(len(servers))
+	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers")
+	go updateServerCount(serverCount)
 	go updateStatus(discord)
 }
 
