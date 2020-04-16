@@ -169,9 +169,9 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 }
 
 // banned subreddit routine
-func bannedSendRoutine(discord *discordgo.Session, channel string) {
+func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
 	discord.ChannelMessageSend(channel, "Error!")
-	discord.ChannelMessageSend(channel, "Too many tries to find a post on an unbanned subreddit!")
+	discord.ChannelMessageSend(channel, "Request contains a banned subreddit:"+sub)
 }
 
 // nsfw subreddit not allowed routine
@@ -188,6 +188,8 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 	var url string
 	var title string
 	var nsfw bool
+
+	nsfwFound := false
 	bannedToggle := false
 	toggled := false
 	bannedSubs, err := GetBannedSubreddits(channel)
@@ -198,6 +200,11 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		returnPost, sub = GetPost(subs, 100, sort, postType)
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
+
+		if banned {
+			fmt.Println("Channel banned sub " + sub + ", exiting...")
+			return sub, 0, "", "", false, true
+		}
 
 		if !banned {
 			LastPost[channel] = returnPost
@@ -222,11 +229,10 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 			break
 		} else {
 			if !blacklisted && !banned {
-				fmt.Println("Channel is not NSFW but post is NSFW, retrying...")
-			} else if banned {
-				fmt.Println("Channel banned sub " + sub + ", retrying...")
-				if i == 9 {
-					bannedToggle = true
+				if !nsfwFound {
+					fmt.Print("Channel is not NSFW but post is NSFW, retrying.")
+				} else {
+					fmt.Print(".")
 				}
 			}
 		}
@@ -253,7 +259,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 	} else if toggled {
 		successSendRoutine(discord, channel, sub, url, title, score)
 	} else if bannedToggle {
-		bannedSendRoutine(discord, channel)
+		bannedSendRoutine(discord, channel, sub)
 	} else {
 		nsfwSendRoutine(discord, channel)
 	}
@@ -274,7 +280,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	if toggled {
 		successSendRoutine(discord, channel, sub, title, text, score)
 	} else if bannedToggle {
-		bannedSendRoutine(discord, channel)
+		bannedSendRoutine(discord, channel, sub)
 	} else {
 		nsfwSendRoutine(discord, channel)
 	}
@@ -294,7 +300,7 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 	if toggled {
 		successSendRoutine(discord, channel, sub, url, title, score)
 	} else if bannedToggle {
-		bannedSendRoutine(discord, channel)
+		bannedSendRoutine(discord, channel, sub)
 	} else {
 		nsfwSendRoutine(discord, channel)
 	}
