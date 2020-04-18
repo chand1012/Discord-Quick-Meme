@@ -14,6 +14,7 @@ var (
 	commandPrefix string
 	botID         string
 	adminIDs      []string
+	topgg         string
 	// CacheTime stores cache timer value
 	CacheTime int64
 	//BlacklistTime stores the blacklist time for all of the channels
@@ -72,7 +73,7 @@ func main() {
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	file = "data.json"
-	key, adminRawIDs, err = loginExtract(file)
+	key, adminRawIDs, topgg, err = loginExtract(file)
 	mrisaAddress = mrisaExtract(file)
 	if err != nil {
 		panic(err) // can't run without a login
@@ -115,7 +116,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	ResetBlacklist()
 	serverCount := int64(len(servers))
 	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers")
-	go updateServerCount(serverCount)
+	go updateServerCount(serverCount, topgg)
 	go updateStatus(discord)
 }
 

@@ -11,9 +11,10 @@ import (
 type Keys struct {
 	BotID  string   `json:"token"`
 	Admins []string `json:"admin"`
+	TopGG  string   `json:"topgg"`
 }
 
-func loginExtract(filename string) (string, []string, error) {
+func loginExtract(filename string) (string, []string, string, error) {
 	jsonfile, err := os.Open(filename)
 
 	if err != nil {
@@ -26,14 +27,14 @@ func loginExtract(filename string) (string, []string, error) {
 
 	if err != nil {
 		fmt.Println("Error reading login JSON:", err)
-		return "", nil, err
+		return "", nil, "", err
 	}
 
 	var keys Keys
 
 	json.Unmarshal(rawjson, &keys)
 
-	return keys.BotID, keys.Admins, err
+	return keys.BotID, keys.Admins, keys.TopGG, err
 }
 
 // this is for subreddit extraction. There will be one attribute for "memes" and the like

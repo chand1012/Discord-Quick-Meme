@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -11,21 +13,37 @@ type topPayload struct {
 }
 
 //updates the server count on top.gg
-func updateServerCount(uCount int64) error {
+func updateServerCount(uCount int64, topKey string) {
 	var payload topPayload
 	payload.Servers = uCount
 
 	data, err := json.Marshal(payload)
 
 	if err != nil {
-		return err
+		fmt.Println("There was an error while encoding JSON:", err)
 	}
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", "https://top.gg/api/bots/438381344943374346/stats", bytes.NewBuffer(data))
-	req.Header.Add("Authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQzODM4MTM0NDk0MzM3NDM0NiIsImJvdCI6dHJ1ZSwiaWF0IjoxNTg3MDY3OTQ5fQ.DsICD0pqFZWmR0_rSNuyxMN8b0vkFS2DH_sOfMSGkBE")
-	_, err = client.Do(req)
+	req, err := http.NewRequest("POST", "https://top.gg/api/bots/"+botID+"/stats", bytes.NewBuffer(data))
+	req.Header.Set("Authorization", topKey)
+	req.Header.Set("Content-Type", "application/json")
 
-	return err
+	resp, err := client.Do(req)
+
+	if resp.StatusCode != 200 {
+		fmt.Println(req)
+		fmt.Println(resp)
+		scanner := bufio.NewScanner(resp.Body)
+		for i := 0; scanner.Scan() && i < 10; i++ {
+			fmt.Println(scanner.Text())
+		}
+	}
+
+	if err != nil {
+		fmt.Println("There was an error while setting the server count:", err)
+	}
+
+	defer resp.Body.Close()
+
 }
