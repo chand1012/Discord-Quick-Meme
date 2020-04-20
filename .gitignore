@@ -6,7 +6,6 @@ user.txt
 *.service
 agent.yml
 posts.json
-test.go
 __pycache__
 *.log
 .vscode
