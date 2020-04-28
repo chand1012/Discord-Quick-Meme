@@ -127,7 +127,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	channel := message.ChannelID
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!search"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!revsearch"}
 	user := message.Author
 	content := message.Content
 	commandContent := strings.Split(content, " ")
@@ -207,7 +207,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			discord.ChannelMessageSend(channel, "Error getting source of meme: "+err.Error())
 			return
 		}
-	case command == "!search":
+	case command == "!revsearch":
 		imageSearchCommand(discord, channel)
 	case command == "!quickmeme":
 		var subcommand string
