@@ -21,6 +21,30 @@ func initRedis() *redis.Client {
 	return redisClient
 }
 
+// this is because we are going to use a seperate database within redis for all queue data
+func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client {
+	address, password, db, err := redisExtract("data.json")
+	if err != nil {
+		panic(err)
+	}
+	if oAddress != "" {
+		address = oAddress
+	}
+	if oPassword != "" {
+		password = oPassword
+	}
+	if oDB != -1 {
+		db = oDB
+	}
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     address,
+		Password: password,
+		DB:       db,
+	})
+
+	return redisClient
+}
+
 // redisSave saves redis cache to disk
 func redisSave() error {
 	redisClient := initRedis()
