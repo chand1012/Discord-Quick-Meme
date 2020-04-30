@@ -79,7 +79,14 @@ func setRedisQueue(channel string, timeframe string, postType string, subs []str
 }
 
 func setRedisQueueRaw(redisQueue RedisQueue, channel string) error {
-	redisClient := initRedisOverride("", "", 1)
+	var redisDB int
+
+	redisDB = 1
+	if RunMode == "dev" {
+		redisDB = 2
+	}
+
+	redisClient := initRedisOverride("", "", redisDB)
 	defer redisClient.Close()
 
 	jsonString, err := json.Marshal(redisQueue)
@@ -93,8 +100,14 @@ func setRedisQueueRaw(redisQueue RedisQueue, channel string) error {
 
 func getRedisQueue(channel string) (RedisQueue, error) {
 	var redisQueue RedisQueue
+	var redisDB int
 
-	redisClient := initRedisOverride("", "", 1)
+	redisDB = 1
+	if RunMode == "dev" {
+		redisDB = 2
+	}
+
+	redisClient := initRedisOverride("", "", redisDB)
 	defer redisClient.Close()
 
 	value, err := redisClient.Get(channel).Result()

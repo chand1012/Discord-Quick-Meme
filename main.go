@@ -51,6 +51,8 @@ var (
 	// RequestTimer stores channel timers
 	// Resets every minute
 	RequestTimer map[string]int64
+	// RunMode the mode that the bot is running in
+	RunMode string
 )
 
 // main loop
@@ -70,6 +72,7 @@ func main() {
 	SubMap = make(map[string][]string)
 	RequestCount = make(map[string]uint8)
 	RequestTimer = make(map[string]int64)
+	RunMode = getMode("data.json")
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	file = "data.json"
@@ -116,10 +119,11 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	ResetBlacklist()
 	serverCount := int64(len(servers))
 	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers")
-	if getMode("data.json") == "prod" { // only run if production
+	if RunMode == "prod" { // only run if production
 		go updateServerCount(serverCount, topgg)
 	}
 	go updateStatus(discord)
+	go queueWorker(discord)
 }
 
 // handes incoming commands
