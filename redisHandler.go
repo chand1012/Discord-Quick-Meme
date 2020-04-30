@@ -58,7 +58,14 @@ type RedisQueue struct {
 
 func setRedisQueue(channel string, timeframe string, postType string, subs []string, nsfw bool, customInterval int64) error {
 	var redisQueue RedisQueue
-	redisClient := initRedisOverride("", "", 1)
+	var redisDB int
+
+	redisDB = 1
+	if RunMode == "dev" {
+		redisDB = 2
+	}
+
+	redisClient := initRedisOverride("", "", redisDB)
 	defer redisClient.Close()
 
 	redisQueue.Interval = timeframe
@@ -122,23 +129,24 @@ func getRedisQueue(channel string) (RedisQueue, error) {
 }
 
 func getAllQueueChannels() ([]string, error) {
-	var cursor uint64
-	var returnKeys []string
-	redisClient := initRedisOverride("", "", 1)
-	defer redisClient.Close()
-	for {
-		keys, cursor, err := redisClient.Scan(cursor, "key*", 10).Result()
-		if err != nil {
-			return nil, err
-		}
-		for _, key := range keys {
-			returnKeys = append(returnKeys, key)
-		}
-		if cursor == 0 {
-			break
-		}
+	var redisDB int
+
+	redisDB = 1
+	if RunMode == "dev" {
+		redisDB = 2
 	}
-	return returnKeys, nil
+
+	redisClient := initRedisOverride("", "", redisDB)
+	defer redisClient.Close()
+	keys, _ := redisClient.Do("keys", "*").Result()
+
+	return interfaceToStringSlice(keys), nil
+}
+
+func redisDelete(key string, database int) error {
+	redisClient := initRedisOverride("", "", database)
+	defer redisClient.Close()
+	return redisClient.Del(key).Err()
 }
 
 // redisSave saves redis cache to disk

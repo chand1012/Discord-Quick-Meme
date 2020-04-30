@@ -5,25 +5,34 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/go-redis/redis"
 )
 
 func queueWorker(discord *discordgo.Session) {
 	var timer int64
 	var checkInterval int64
 	checkInterval = 60
-	timer = time.Now().Unix() + checkInterval
+	timer = 0
 	fmt.Println("Starting Queue Processing thread.")
 	for {
 		if timer <= time.Now().Unix() {
+			fmt.Println("Checking queue...")
 			keys, err := getAllQueueChannels()
 			if err != nil {
 				fmt.Println("Error running worker queue: ", err.Error())
 				continue
 			}
-
+			fmt.Println(keys)
 			for _, key := range keys {
+				if key == "" {
+					continue
+				}
 				var newTime int64
+				fmt.Println(key)
 				queueItem, err := getRedisQueue(key)
+				if err == redis.Nil {
+					continue
+				}
 				if err != nil {
 					fmt.Println("Error getting from redis queue: ", err.Error())
 					errSendRoutine(discord, key, err)

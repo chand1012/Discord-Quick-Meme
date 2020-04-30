@@ -11,6 +11,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
+	"github.com/go-redis/redis"
 )
 
 // Server server object for the golang channels
@@ -483,7 +484,11 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 				discord.ChannelMessageSend(channel, "Incorrect command syntax.")
 				return
 			}
-			redisQueue.CustomInterval = customInterval
+			redisQueue.CustomInterval = customInterval * 60
+			if redisQueue.CustomInterval < 900 {
+				discord.ChannelMessageSend(channel, "There is a minimum time interval of 15 minutes, so the time will be set to that. Sorry for any inconvience, but these server's aren't free.")
+				redisQueue.CustomInterval = 900
+			}
 		}
 		if redisQueue.Interval != "custom" && redisQueue.Time == 0 {
 			discord.ChannelMessageSend(channel, "Incorrect command syntax.")
@@ -498,4 +503,26 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 		}
 		discord.ChannelMessageSend(channel, "Memes will now be sent at a regularly scheduled time.")
 	}
+}
+
+func delQueueRoutine(discord *discordgo.Session, channel string) {
+	var redisDB int
+
+	redisDB = 1
+	if RunMode == "dev" {
+		redisDB = 2
+	}
+
+	err := redisDelete(channel, redisDB)
+
+	if err == redis.Nil {
+		discord.ChannelMessageSend(channel, "Error, this channel isn't subscribed.")
+		return
+	}
+	if err != nil {
+		fmt.Println("There was an error removing an item from the queue: ", err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
+	discord.ChannelMessage(channel, "You have successfully unsubscribed this channel from memes.")
 }
