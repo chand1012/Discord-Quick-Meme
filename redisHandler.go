@@ -50,16 +50,18 @@ func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client
 type RedisQueue struct {
 	Interval  string `json:"interval"`
 	Time      int64  `json:"time"`
+	Type      string `json:"type"`
 	SubReddit string `json:"subreddit"`
 }
 
-func setRedisQueue(channel string, timeframe string, sub string) error {
+func setRedisQueue(channel string, timeframe string, postType string, sub string) error {
 	var redisQueue RedisQueue
 	redisClient := initRedisOverride("", "", 1)
 	defer redisClient.Close()
 
 	redisQueue.Interval = timeframe
 	redisQueue.SubReddit = sub
+	redisQueue.Type = postType
 
 	jsonString, err := json.Marshal(redisQueue)
 

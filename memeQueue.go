@@ -2,15 +2,18 @@ package main
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func queueWorker(discord *discordgo.Session, wg *sync.WaitGroup) {
+func queueWorker(discord *discordgo.Session) {
 	fmt.Println("Starting Queue Processing thread.")
 	for {
 		keys, err := getAllQueueChannels()
 
+		for _, key := range keys {
+			queueItem, err := getRedisQueue(key)
+
+		}
 	}
 }
