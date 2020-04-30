@@ -140,3 +140,29 @@ func mrisaExtract(filename string) string {
 
 	return mrisainfo.Address
 }
+
+type runMode struct {
+	Mode string `json:"mode"`
+}
+
+func getMode(filename string) string {
+	jsonfile, err := os.Open(filename)
+
+	if err != nil {
+		panic(err) // this file NEEDS to be there
+	}
+
+	defer jsonfile.Close()
+
+	rawjson, err := ioutil.ReadAll(jsonfile)
+
+	if err != nil {
+		return "prod"
+	}
+
+	var mode runMode
+
+	json.Unmarshal(rawjson, &mode)
+
+	return mode.Mode
+}
