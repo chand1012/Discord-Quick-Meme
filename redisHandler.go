@@ -48,23 +48,41 @@ func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client
 
 // RedisQueue data structure for the redis queue
 type RedisQueue struct {
-	Interval  string `json:"interval"`
-	Time      int64  `json:"time"`
-	Type      string `json:"type"`
-	SubReddit string `json:"subreddit"`
+	Interval       string   `json:"interval"`
+	Time           int64    `json:"time"`
+	Type           string   `json:"type"`
+	SubReddits     []string `json:"subreddit"`
+	NSFW           bool     `json:"nsfw"`
+	CustomInterval int64    `json:"customInterval"`
 }
 
-func setRedisQueue(channel string, timeframe string, postType string, sub string) error {
+func setRedisQueue(channel string, timeframe string, postType string, subs []string, nsfw bool, customInterval int64) error {
 	var redisQueue RedisQueue
 	redisClient := initRedisOverride("", "", 1)
 	defer redisClient.Close()
 
 	redisQueue.Interval = timeframe
-	redisQueue.SubReddit = sub
+	redisQueue.SubReddits = subs
 	redisQueue.Type = postType
+	redisQueue.NSFW = nsfw
+	redisQueue.Time = 0
+	redisQueue.CustomInterval = customInterval
 
 	jsonString, err := json.Marshal(redisQueue)
 
+	if err != nil {
+		return err
+	}
+
+	err = redisClient.Set(channel, string(jsonString), 0).Err()
+	return err
+}
+
+func setRedisQueueRaw(redisQueue RedisQueue, channel string) error {
+	redisClient := initRedisOverride("", "", 1)
+	defer redisClient.Close()
+
+	jsonString, err := json.Marshal(redisQueue)
 	if err != nil {
 		return err
 	}

@@ -180,6 +180,11 @@ func nsfwSendRoutine(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 }
 
+func errSendRoutine(discord *discordgo.Session, channel string, err error) {
+	discord.ChannelMessageSend(channel, "Critical Error.")
+	discord.ChannelMessageSend(channel, "There was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
+}
+
 // loop routine that gets posts from the cache.
 func getPostLoop(subs []string, postType string, channel string, channelNsfw bool, sort string) (string, int32, string, string, bool, bool) {
 	var returnPost QuickPost
@@ -457,4 +462,40 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 		}
 	}
 
+}
+
+func setQueueRoutine(discord *discordgo.Session, channel string, commandContent []string, channelNsfw bool) {
+	var redisQueue RedisQueue
+	var err error
+	if len(commandContent) >= 4 {
+		redisQueue.NSFW = channelNsfw
+		redisQueue.Interval = commandContent[2]
+		redisQueue.Time = 0
+		redisQueue.Type = "media" // this *should* be changable
+		if redisQueue.Interval != "custom" || len(commandContent) != 5 {
+			redisQueue.CustomInterval = 0
+		} else if redisQueue.Interval == "custom" && len(commandContent) != 5 {
+			discord.ChannelMessageSend(channel, "Incorrect command syntax.")
+			return
+		} else {
+			customInterval, err := strconv.ParseInt(commandContent[4], 10, 64)
+			if err != nil {
+				discord.ChannelMessageSend(channel, "Incorrect command syntax.")
+				return
+			}
+			redisQueue.CustomInterval = customInterval
+		}
+		if redisQueue.Interval != "custom" && redisQueue.Time == 0 {
+			discord.ChannelMessageSend(channel, "Incorrect command syntax.")
+			return
+		}
+		redisQueue.SubReddits = strings.Split(commandContent[3], ",")
+		err = setRedisQueueRaw(redisQueue, channel)
+		if err != nil {
+			fmt.Println("There was an error setting the Redis Queue: " + err.Error())
+			errSendRoutine(discord, channel, err)
+			return
+		}
+		discord.ChannelMessageSend(channel, "Memes will now be sent at a regularly scheduled time.")
+	}
 }
