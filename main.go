@@ -254,6 +254,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
 			case "queue":
 				setQueueRoutine(discord, channel, commandContent, nsfw)
+			case "unsubscribe":
+				delQueueRoutine(discord, channel)
 			default:
 				quickMemeDefault(discord, channel)
 			}
@@ -267,6 +269,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
 			case "queue":
 				setQueueRoutine(discord, channel, commandContent, nsfw)
+			case "unsubscribe":
+				delQueueRoutine(discord, channel)
 			default:
 				quickMemeDefault(discord, channel)
 			}

@@ -16,19 +16,19 @@ func queueWorker(discord *discordgo.Session) {
 	fmt.Println("Starting Queue Processing thread.")
 	for {
 		if timer <= time.Now().Unix() {
-			fmt.Println("Checking queue...")
+			//fmt.Println("Checking queue...")
 			keys, err := getAllQueueChannels()
 			if err != nil {
 				fmt.Println("Error running worker queue: ", err.Error())
 				continue
 			}
-			fmt.Println(keys)
+			//fmt.Println(keys)
 			for _, key := range keys {
 				if key == "" {
 					continue
 				}
 				var newTime int64
-				fmt.Println(key)
+				//fmt.Println(key)
 				queueItem, err := getRedisQueue(key)
 				if err == redis.Nil {
 					continue
