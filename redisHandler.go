@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -43,6 +44,68 @@ func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client
 	})
 
 	return redisClient
+}
+
+// RedisQueue data structure for the redis queue
+type RedisQueue struct {
+	Interval  string `json:"interval"`
+	Time      int64  `json:"time"`
+	SubReddit string `json:"subreddit"`
+}
+
+func setRedisQueue(channel string, timeframe string, sub string) error {
+	var redisQueue RedisQueue
+	redisClient := initRedisOverride("", "", 1)
+	defer redisClient.Close()
+
+	redisQueue.Interval = timeframe
+	redisQueue.SubReddit = sub
+
+	jsonString, err := json.Marshal(redisQueue)
+
+	if err != nil {
+		return err
+	}
+
+	err = redisClient.Set(channel, string(jsonString), 0).Err()
+	return err
+}
+
+func getRedisQueue(channel string) (RedisQueue, error) {
+	var redisQueue RedisQueue
+
+	redisClient := initRedisOverride("", "", 1)
+	defer redisClient.Close()
+
+	value, err := redisClient.Get(channel).Result()
+
+	if err != nil {
+		return RedisQueue{}, err
+	}
+
+	json.Unmarshal([]byte(value), &redisQueue)
+
+	return redisQueue, err
+}
+
+func getAllQueueChannels() ([]string, error) {
+	var cursor uint64
+	var returnKeys []string
+	redisClient := initRedisOverride("", "", 1)
+	defer redisClient.Close()
+	for {
+		keys, cursor, err := redisClient.Scan(cursor, "key*", 10).Result()
+		if err != nil {
+			return nil, err
+		}
+		for _, key := range keys {
+			returnKeys = append(returnKeys, key)
+		}
+		if cursor == 0 {
+			break
+		}
+	}
+	return returnKeys, nil
 }
 
 // redisSave saves redis cache to disk
