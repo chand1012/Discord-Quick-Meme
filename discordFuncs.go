@@ -476,12 +476,12 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 		if redisQueue.Interval != "custom" || len(commandContent) != 5 {
 			redisQueue.CustomInterval = 0
 		} else if redisQueue.Interval == "custom" && len(commandContent) != 5 {
-			discord.ChannelMessageSend(channel, "Incorrect command syntax.")
+			discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
 			return
 		} else {
 			customInterval, err := strconv.ParseInt(commandContent[4], 10, 64)
 			if err != nil {
-				discord.ChannelMessageSend(channel, "Incorrect command syntax.")
+				discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
 				return
 			}
 			redisQueue.CustomInterval = customInterval * 60
@@ -495,7 +495,7 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 			}
 		}
 		if redisQueue.Interval == "custom" && redisQueue.Time == 0 {
-			discord.ChannelMessageSend(channel, "Incorrect command syntax.")
+			discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
 			return
 		}
 		redisQueue.SubReddits = strings.Split(commandContent[3], ",")
