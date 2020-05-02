@@ -123,7 +123,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 		go updateServerCount(serverCount, topgg)
 	}
 	go updateStatus(discord)
-	go queueWorker(discord)
+	go queueThread(discord)
 }
 
 // handes incoming commands
@@ -223,9 +223,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			subcommand = ""
 		}
 		subcommand = textFilter(subcommand)
-		if subcommand == "" {
-			subcommand = "status"
-		}
 		if !stringInSlice(user.ID, adminIDs) && !isUserMemeBotAdmin(discord, guildID, user) {
 			fmt.Println("Intruder tried to execute admin only command:")
 			fmt.Println(user.Username)
@@ -252,7 +249,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				unbanSubRoutine(discord, channel, commandContent, guildID, user)
 			case "getbanned":
 				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
-			case "queue":
+			case "subscribe":
 				setQueueRoutine(discord, channel, commandContent, nsfw)
 			case "unsubscribe":
 				delQueueRoutine(discord, channel)
@@ -267,7 +264,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				unbanSubRoutine(discord, channel, commandContent, guildID, user)
 			case "getbanned":
 				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
-			case "queue":
+			case "subscribe":
 				setQueueRoutine(discord, channel, commandContent, nsfw)
 			case "unsubscribe":
 				delQueueRoutine(discord, channel)

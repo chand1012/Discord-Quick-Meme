@@ -2,77 +2,90 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 )
 
-func queueWorker(discord *discordgo.Session) {
-	var timer int64
+func queueThread(discord *discordgo.Session) {
 	var checkInterval int64
-	checkInterval = 60
+	var timer int64
+	checkInterval = 10
 	timer = 0
 	fmt.Println("Starting Queue Processing thread.")
+
 	for {
 		if timer <= time.Now().Unix() {
-			//fmt.Println("Checking queue...")
+			var wg sync.WaitGroup
+
 			keys, err := getAllQueueChannels()
 			if err != nil {
 				fmt.Println("Error running worker queue: ", err.Error())
 				continue
 			}
-			//fmt.Println(keys)
-			for _, key := range keys {
-				if key == "" {
-					continue
-				}
-				var newTime int64
-				//fmt.Println(key)
-				queueItem, err := getRedisQueue(key)
-				if err == redis.Nil {
-					continue
-				}
-				if err != nil {
-					fmt.Println("Error getting from redis queue: ", err.Error())
-					errSendRoutine(discord, key, err)
-					continue
-				}
-				subs := &queueItem.SubReddits
-				interval := &queueItem.Interval
-				postTime := &queueItem.Time
-				postType := &queueItem.Type
-				postNSFW := &queueItem.NSFW
-				customInterval := &queueItem.CustomInterval
-				if *postTime <= time.Now().Unix() {
-					switch *postType {
-					case "media":
-						getMediaPost(discord, key, *postNSFW, *subs, "hot")
-					case "text":
-						getTextPost(discord, key, *postNSFW, *subs, "hot")
-					case "link":
-						getLinkPost(discord, key, *postNSFW, *subs, "hot")
-					}
 
-					switch *interval {
-					case "hourly":
-						newTime = time.Now().Unix() + 3600
-					case "daily":
-						newTime = time.Now().Unix() + 86400
-					case "twice daily":
-						newTime = time.Now().Unix() + 43200
-					case "custom":
-						newTime = time.Now().Unix() + *customInterval
-					}
-					queueItem.Time = newTime
-					err = setRedisQueueRaw(queueItem, key)
-					if err != nil {
-						fmt.Println("Error setting redis queue: ", err.Error())
-						errSendRoutine(discord, key, err)
-					}
+			for _, key := range keys {
+				if key != "" {
+					wg.Add(1)
+					go queueWorker(discord, key, &wg)
 				}
 			}
+
+			wg.Wait()
 			timer = time.Now().Unix() + checkInterval
+		}
+	}
+}
+
+func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup) {
+	var newTime int64
+
+	defer wg.Done()
+
+	queueItem, err := getRedisQueue(channel)
+	if err == redis.Nil {
+		return
+	}
+	if err != nil {
+		fmt.Println("Error getting from redis queue: ", err.Error())
+		errSendRoutine(discord, channel, err)
+		return
+	}
+
+	if queueItem.Time <= time.Now().Unix() {
+
+		fmt.Println("Posting in", channel, "from queue.")
+
+		switch queueItem.Type {
+		case "media":
+			getMediaPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+		case "text":
+			getTextPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+		case "link":
+			getLinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+		}
+
+		switch queueItem.Interval {
+		case "hourly":
+			newTime = time.Now().Unix() + 3600
+		case "daily":
+			newTime = time.Now().Unix() + 86400
+		case "bidaily":
+			newTime = time.Now().Unix() + 43200
+		case "weekly":
+			newTime = time.Now().Unix() + 604800
+		case "custom":
+			newTime = time.Now().Unix() + queueItem.CustomInterval
+		}
+
+		queueItem.Time = newTime
+		err = setRedisQueueRaw(queueItem, channel)
+
+		if err != nil {
+			fmt.Println("Error setting redis queue: ", err.Error())
+			errSendRoutine(discord, channel, err)
 		}
 	}
 }

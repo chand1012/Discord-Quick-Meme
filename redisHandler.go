@@ -146,6 +146,13 @@ func getAllQueueChannels() ([]string, error) {
 func redisDelete(key string, database int) error {
 	redisClient := initRedisOverride("", "", database)
 	defer redisClient.Close()
+
+	err := redisClient.Get(key).Err()
+
+	if err != nil {
+		return err
+	}
+
 	return redisClient.Del(key).Err()
 }
 
