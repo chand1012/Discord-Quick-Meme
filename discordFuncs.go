@@ -473,31 +473,36 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 		redisQueue.Interval = commandContent[2]
 		redisQueue.Time = 0
 		redisQueue.Type = "media" // this *should* be changable
-		if redisQueue.Interval != "custom" || len(commandContent) != 5 {
-			redisQueue.CustomInterval = 0
-		} else if redisQueue.Interval == "custom" && len(commandContent) != 5 {
-			discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
-			return
-		} else {
-			customInterval, err := strconv.ParseInt(commandContent[4], 10, 64)
-			if err != nil {
-				discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
-				return
-			}
-			redisQueue.CustomInterval = customInterval * 60
-			if redisQueue.CustomInterval < 600 {
-				discord.ChannelMessageSend(channel, "There is a minimum time interval of 10 minutes, so the time will be set to that. Sorry for any inconvenience, but these servers aren't free.")
-				redisQueue.CustomInterval = 600
-			}
-			if redisQueue.CustomInterval > 604800 {
-				discord.ChannelMessageSend(channel, "There is a maximum time interval of one week, so the time will be set to that maximum. Storage isn't free, sorry for the inconvenience.")
-				redisQueue.CustomInterval = 604800
-			}
-		}
-		if redisQueue.Interval == "custom" && redisQueue.Time == 0 {
+		intervals := []string{"hourly", "daily", "12h", "weekly", "6h"}
+		if !stringInSlice(redisQueue.Interval, intervals) {
 			discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
 			return
 		}
+		// if redisQueue.Interval != "custom" || len(commandContent) != 5 {
+		// 	redisQueue.CustomInterval = 0
+		// } else if redisQueue.Interval == "custom" && len(commandContent) != 5 {
+		// 	discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+		// 	return
+		// } else {
+		// 	customInterval, err := strconv.ParseInt(commandContent[4], 10, 64)
+		// 	if err != nil {
+		// 		discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+		// 		return
+		// 	}
+		// 	redisQueue.CustomInterval = customInterval * 60
+		// 	if redisQueue.CustomInterval < 600 {
+		// 		discord.ChannelMessageSend(channel, "There is a minimum time interval of 10 minutes, so the time will be set to that. Sorry for any inconvenience, but these servers aren't free.")
+		// 		redisQueue.CustomInterval = 600
+		// 	}
+		// 	if redisQueue.CustomInterval > 604800 {
+		// 		discord.ChannelMessageSend(channel, "There is a maximum time interval of one week, so the time will be set to that maximum. Storage isn't free, sorry for the inconvenience.")
+		// 		redisQueue.CustomInterval = 604800
+		// 	}
+		// }
+		// if redisQueue.Interval == "custom" && redisQueue.Time == 0 {
+		// 	discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+		// 	return
+		// }
 		redisQueue.SubReddits = strings.Split(commandContent[3], ",")
 		err = setRedisQueueRaw(redisQueue, channel)
 		if err != nil {

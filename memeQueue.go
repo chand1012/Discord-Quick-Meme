@@ -72,12 +72,12 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			newTime = time.Now().Unix() + 3600
 		case "daily":
 			newTime = time.Now().Unix() + 86400
-		case "bidaily":
+		case "12h":
 			newTime = time.Now().Unix() + 43200
 		case "weekly":
 			newTime = time.Now().Unix() + 604800
-		case "custom":
-			newTime = time.Now().Unix() + queueItem.CustomInterval
+		case "6h":
+			newTime = time.Now().Unix() + 21600
 		}
 
 		queueItem.Time = newTime
