@@ -113,7 +113,6 @@ func main() {
 // handles bot initialization
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
-	getAllChannelNames(discord)
 	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()
