@@ -472,12 +472,12 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 		redisQueue.NSFW = channelNsfw
 		redisQueue.Time = 0
 		redisQueue.Type = "media" // this *should* be changable
+		redisQueue.Interval = commandContent[2]
+		expressions := []string{"[0-9]+m", "[0-9]+h", "[0-9]+d"}
+		match := matchRegexList(expressions, redisQueue.Interval)
 
-		givenInterval := commandContent[2]
-
-		intervals := []string{"hourly", "daily", "12h", "weekly", "6h"}
-		if !stringInSlice(redisQueue.Interval, intervals) {
-			discord.ChannelMessageSend(channel, "Incorrect command syntax. See here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+		if !match {
+			discord.ChannelMessageSend(channel, "There was an error with your syntax, see here: https://bit.ly/DiscordQuickMemeAdminSyntax")
 			return
 		}
 
