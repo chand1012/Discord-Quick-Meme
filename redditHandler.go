@@ -54,12 +54,14 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	go updateCommonSubCounter(sub)
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
-	if now >= CacheTime {
+	if now >= CacheTime && !CachePopulating {
 		fmt.Println("Clearing Cache...")
 		ClearCache()
 		success = false
 		CacheTime = time.Now().Unix() + 3600
 		fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
+		CachePopulating = true
+		go PopulateCache()
 	}
 	if !success {
 		starttime := GetMillis()
@@ -117,12 +119,9 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		} else if ContainsAnySubstring(sub, subList) {
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
-			if !CachePopulating {
-				go PopulateCache()
-			}
 		} else {
 			AddToCache(sub, gottenPosts)
-			CacheTime = time.Now().Unix() + 3600
+			CacheTime = time.Now().Unix() + 1800
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
 			endtime := GetMillis()
