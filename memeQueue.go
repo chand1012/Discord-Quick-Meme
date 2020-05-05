@@ -67,7 +67,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			getLinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		}
 
-		switch queueItem.Interval {
+		switch queueItem.Interval { // this iwll be replaced with custom times only
 		case "hourly":
 			newTime = time.Now().Unix() + 3600
 		case "daily":
