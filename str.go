@@ -95,3 +95,19 @@ func interfaceToStringSlice(inter interface{}) []string {
 	stringSlice = strings.Split(interString, " ")
 	return stringSlice
 }
+
+func matchRegexList(expressions []string, testStr string) bool {
+	for _, item := range expressions {
+		compiled, err := regexp.Compile(item)
+		if err != nil {
+			fmt.Println("Error compiling regexp", item)
+			fmt.Println(err.Error())
+			fmt.Println("Skipping.")
+			continue
+		}
+		if compiled.MatchString(testStr) {
+			return true
+		}
+	}
+	return false
+}
