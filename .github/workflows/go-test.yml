@@ -1,7 +1,7 @@
-name: Build and Deploy
+name: Build Bot
 on: 
   push:
-    branches:
+    branches-ignore:
       - master
 jobs:
 
@@ -30,23 +30,3 @@ jobs:
     - name: Build Linux x86_64
       run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
     
-    - name: SSH Deploy
-      uses: easingthemes/ssh-deploy@v2.1.2
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.PRIVATEKEY }}
-        REMOTE_HOST: ${{ secrets.HOST }}
-        REMOTE_USER: ${{ secrets.USER }}
-        REMOTE_PORT: ${{ secrets.PORT }}
-        SOURCE: GoDiscordBot
-
-    - name: Remote SSH Commands
-      uses: fifsky/ssh-action@v0.0.4\
-      with:
-        command: |
-          cd BotFiles
-          sudo systemctl stop discordbot.service
-          rm -f GoDiscordBot
-          mv ../GoDiscordBot .
-          sudo systemctl start discordbot.service
-
-      
