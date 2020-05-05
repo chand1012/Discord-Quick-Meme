@@ -39,14 +39,14 @@ jobs:
         REMOTE_PORT: ${{ secrets.PORT }}
         SOURCE: GoDiscordBot
 
-    - name: Remote SSH Commands
-      uses: fifsky/ssh-action@v0.0.4
+    - name: SSH Remote Commands
+      uses: appleboy/ssh-action@v0.0.9
       with:
         host: ${{ secrets.HOST }}
-        port: ${{ secrets.PORT }}
         username: ${{ secrets.USER }}
-        privateKey: ${{ secrets.PRIVATEKEY }}
-        command: |
+        port: ${{ secrets.PORT }}
+        key: ${{ secrets.PRIVATEKEY }}
+        script: |
           cd BotFiles
           sudo systemctl stop discordbot.service
           rm -f GoDiscordBot
