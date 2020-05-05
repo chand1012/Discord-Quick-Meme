@@ -33,6 +33,7 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.PRIVATEKEY }}
         REMOTE_HOST: ${{ secrets.HOST }}
         REMOTE_USER: ${{ secrets.USER }}
+        REMOTE_PORT: ${{ secrets.PORT }}
         SOURCE: GoDiscordBot
 
     
