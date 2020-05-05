@@ -26,6 +26,14 @@ jobs:
 
     - name: Build Linux x86_64
       run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
-    - name: Build Linux ARMv7
-      run: GOOS=linux GOARCH=arm GOARM=7 go build -v -o GoDiscordBotArm
+    
+    - name: SSH Deploy
+      uses: easingthemes/ssh-deploy@v2.1.2
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.PRIVATEKEY }}
+        REMOTE_HOST: ${{ secrets.HOST }}
+        REMOTE_USER: ${{ secrets.USER }}
+        SOURCE: GoDiscordBot
+
+    
     
