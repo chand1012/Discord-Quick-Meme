@@ -54,7 +54,9 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		return
 	}
 
-	if queueItem.Time <= time.Now().Unix() {
+	if queueItem.Time <= time.Now().Unix() && !QueueState[channel] {
+
+		QueueState[channel] = true
 
 		fmt.Println("Posting in", channel, "from queue.")
 
