@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -22,58 +21,58 @@ type Server struct {
 }
 
 // worker for getting all channel names
-func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup) {
-	defer wg.Done()
-	var ids []string
-	var names []string
-	var nsfws []bool
-	channels, err := discord.GuildChannels(guildID)
-	if err != nil {
-		fmt.Println("Error getting channel name: ", err)
-		return
-	}
-	for _, channel := range channels {
-		if channel.Type != discordgo.ChannelTypeGuildText {
-			continue
-		}
-		ids = append(ids, channel.ID)
-		names = append(names, channel.Name)
-		nsfws = append(nsfws, channel.NSFW)
-	}
-	server := Server{
-		IDs:   ids,
-		Names: names,
-		NSFWs: nsfws,
-	}
-	send <- server
-}
+// func getAllWorker(discord *discordgo.Session, guildID string, send chan<- Server, wg *sync.WaitGroup) {
+// 	defer wg.Done()
+// 	var ids []string
+// 	var names []string
+// 	var nsfws []bool
+// 	channels, err := discord.GuildChannels(guildID)
+// 	if err != nil {
+// 		fmt.Println("Error getting channel name: ", err)
+// 		return
+// 	}
+// 	for _, channel := range channels {
+// 		if channel.Type != discordgo.ChannelTypeGuildText {
+// 			continue
+// 		}
+// 		ids = append(ids, channel.ID)
+// 		names = append(names, channel.Name)
+// 		nsfws = append(nsfws, channel.NSFW)
+// 	}
+// 	server := Server{
+// 		IDs:   ids,
+// 		Names: names,
+// 		NSFWs: nsfws,
+// 	}
+// 	send <- server
+// }
 
 // gets all channel names via multithreading
-func getAllChannelNames(discord *discordgo.Session) {
-	var wg sync.WaitGroup
-	fmt.Println("Getting current channel names and NSFW status...")
-	starttime := GetMillis()
-	guilds := discord.State.Guilds
-	bufferSize := len(guilds)
-	recv := make(chan Server, bufferSize)
-	for _, guild := range guilds {
-		wg.Add(1)
-		go getAllWorker(discord, guild.ID, recv, &wg)
-	}
-	wg.Wait()
-	close(recv)
-	for i := 0; i < bufferSize; i++ {
-		thing := <-recv
-		length := len(thing.IDs)
-		for x := 0; x < length; x++ {
-			ServerMap[thing.IDs[x]] = thing.Names[x]
-			NSFWMap[thing.IDs[x]] = thing.NSFWs[x]
-		}
-	}
-	endtime := GetMillis()
-	t := endtime - starttime
-	fmt.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
-}
+// func getAllChannelNames(discord *discordgo.Session) {
+// 	var wg sync.WaitGroup
+// 	fmt.Println("Getting current channel names and NSFW status...")
+// 	starttime := GetMillis()
+// 	guilds := discord.State.Guilds
+// 	bufferSize := len(guilds)
+// 	recv := make(chan Server, bufferSize)
+// 	for _, guild := range guilds {
+// 		wg.Add(1)
+// 		go getAllWorker(discord, guild.ID, recv, &wg)
+// 	}
+// 	wg.Wait()
+// 	close(recv)
+// 	for i := 0; i < bufferSize; i++ {
+// 		thing := <-recv
+// 		length := len(thing.IDs)
+// 		for x := 0; x < length; x++ {
+// 			ServerMap[thing.IDs[x]] = thing.Names[x]
+// 			NSFWMap[thing.IDs[x]] = thing.NSFWs[x]
+// 		}
+// 	}
+// 	endtime := GetMillis()
+// 	t := endtime - starttime
+// 	fmt.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
+// }
 
 // gets a channel name from the cache, otherwise searches all channels on server that send the message
 func getChannelName(discord *discordgo.Session, channelid string, guildID string) string {

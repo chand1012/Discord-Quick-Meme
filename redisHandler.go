@@ -101,6 +101,8 @@ func setRedisQueueRaw(redisQueue RedisQueue, channel string) error {
 		return err
 	}
 
+	QueueState[channel] = false
+
 	err = redisClient.Set(channel, string(jsonString), 0).Err()
 	return err
 }

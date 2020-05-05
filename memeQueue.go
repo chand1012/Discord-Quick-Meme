@@ -54,7 +54,9 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		return
 	}
 
-	if queueItem.Time <= time.Now().Unix() {
+	if queueItem.Time <= time.Now().Unix() && !QueueState[channel] {
+
+		QueueState[channel] = true
 
 		fmt.Println("Posting in", channel, "from queue.")
 
@@ -67,7 +69,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			getLinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		}
 
-		switch queueItem.Interval {
+		switch queueItem.Interval { // this iwll be replaced with custom times only
 		case "hourly":
 			newTime = time.Now().Unix() + 3600
 		case "daily":

@@ -53,6 +53,8 @@ var (
 	RequestTimer map[string]int64
 	// RunMode the mode that the bot is running in
 	RunMode string
+	// QueueState checks if queue is running for specific channel
+	QueueState map[string]bool
 )
 
 // main loop
@@ -72,6 +74,7 @@ func main() {
 	SubMap = make(map[string][]string)
 	RequestCount = make(map[string]uint8)
 	RequestTimer = make(map[string]int64)
+	QueueState = make(map[string]bool)
 	RunMode = getMode("data.json")
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
@@ -113,7 +116,6 @@ func main() {
 // handles bot initialization
 func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	servers := discord.State.Guilds
-	getAllChannelNames(discord)
 	CachePopulating = true
 	PopulateCache()
 	ResetBlacklist()

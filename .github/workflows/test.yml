@@ -1,5 +1,8 @@
 name: Build Bot
-on: [push]
+on: 
+  push:
+    branches-ignore:
+      - master
 jobs:
 
   build:
@@ -26,6 +29,4 @@ jobs:
 
     - name: Build Linux x86_64
       run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
-    - name: Build Linux ARMv7
-      run: GOOS=linux GOARCH=arm GOARM=7 go build -v -o GoDiscordBotArm
     
