@@ -42,6 +42,10 @@ jobs:
     - name: Remote SSH Commands
       uses: fifsky/ssh-action@v0.0.4
       with:
+        host: ${{ secrets.HOST }}
+        port: ${{ secrets.PORT }}
+        username: ${{ secrets.USER }}
+        privateKey: ${{ secrets.PRIVATEKEY }}
         command: |
           cd BotFiles
           sudo systemctl stop discordbot.service
