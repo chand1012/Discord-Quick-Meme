@@ -1,6 +1,6 @@
 # Discord-Quick-Meme
 
-[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/lib/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/servers/438381344943374346.svg)](https://top.gg/bot/438381344943374346) ![](https://github.com/chand1012/Discord-Quick-Meme/workflows/Go/badge.svg) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chand1012_Discord-Quick-Meme&metric=alert_status)](https://sonarcloud.io/dashboard?id=chand1012_Discord-Quick-Meme)
+[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/lib/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/servers/438381344943374346.svg)](https://top.gg/bot/438381344943374346) ![](https://github.com/chand1012/Discord-Quick-Meme/workflows/Go/badge.svg) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chand1012_Discord-Quick-Meme&metric=alert_status)](https://sonarcloud.io/dashboard?id=chand1012_Discord-Quick-Meme) ![Go Version](https://img.shields.io/github/go-mod/go-version/chand1012/Discord-Quick-Meme/master) [![](https://img.shields.io/discord/626209936262823937)](https://discord.gg/YNnp9uy)
 
 A discord bot that sends Reddit memes and news to a channel.
 
