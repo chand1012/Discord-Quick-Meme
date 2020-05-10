@@ -149,40 +149,33 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 	embed := &discordgo.MessageEmbed{
 		Author:      &discordgo.MessageEmbedAuthor{},
 		Color:       randColor,
-		Description: "Score: " + humanize.Comma(int64(score)),
+		Description: "From r/" + sub + "\n Score: " + humanize.Comma(int64(score)),
 		Image: &discordgo.MessageEmbedImage{
 			URL: url,
 		},
 		Timestamp: time.Now().Format(time.RFC3339),
 		Title:     title,
 	}
-	discord.ChannelMessageSend(channel, "From r/"+sub)
 	discord.ChannelMessageSendEmbed(channel, embed)
 }
 
 // sending a text message routine
 func successSendRoutine(discord *discordgo.Session, channel string, sub string, textone string, texttwo string, score int32) {
-	discord.ChannelMessageSend(channel, "From r/"+sub)
-	discord.ChannelMessageSend(channel, textone)
-	discord.ChannelMessageSend(channel, texttwo)
-	discord.ChannelMessageSend(channel, "Score: "+humanize.Comma(int64(score)))
+	discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+textone+"\n"+texttwo+"\nScore: "+humanize.Comma(int64(score)))
 }
 
 // banned subreddit routine
 func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
-	discord.ChannelMessageSend(channel, "Error!")
-	discord.ChannelMessageSend(channel, "Request contains a banned subreddit: "+sub)
+	discord.ChannelMessageSend(channel, "Error!\nRequest contains a banned subreddit: "+sub)
 }
 
 // nsfw subreddit not allowed routine
 func nsfwSendRoutine(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Error!")
-	discord.ChannelMessageSend(channel, "Too many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
 }
 
 func errSendRoutine(discord *discordgo.Session, channel string, err error) {
-	discord.ChannelMessageSend(channel, "Critical Error.")
-	discord.ChannelMessageSend(channel, "There was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
+	discord.ChannelMessageSend(channel, "Critical Error!\nThere was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
 }
 
 // loop routine that gets posts from the cache.
