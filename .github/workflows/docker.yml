@@ -13,4 +13,5 @@ jobs:
       run: |
        docker login docker.pkg.github.com -u chand1012 --password ${{ secrets.PASSWORD }}
        docker build -t discord-quick-meme:${{ steps.extract_branch.outputs.branch }} .
+       docker tag discord-quick-meme:${{ steps.extract_branch.outputs.branch }} docker.pkg.github.com/chand1012/discord-quick-meme/discord-quick-meme:${{ steps.extract_branch.outputs.branch }}
        docker push docker.pkg.github.com/chand1012/discord-quick-meme/discord-quick-meme:${{ steps.extract_branch.outputs.branch }}
