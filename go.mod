@@ -9,4 +9,5 @@ require (
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/turnage/graw v0.0.0-20200310021449-891adb47d855
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
