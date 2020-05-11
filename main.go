@@ -77,6 +77,9 @@ func main() {
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	key, topgg, RunMode, adminRawIDs = getDataEnv()
+	fmt.Println("Generating agent file...")
+	err = generateAgentFile()
+	fmt.Println("Done.")
 	mrisaAddress = getMRISAEnv()
 	if err != nil {
 		panic(err) // can't run without a login
