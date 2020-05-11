@@ -60,7 +60,6 @@ var (
 // main loop
 func main() {
 	var err error
-	var file string
 	var key string
 	var adminRawIDs []string
 	ServerMap = make(map[string]string)
@@ -75,12 +74,10 @@ func main() {
 	RequestCount = make(map[string]uint8)
 	RequestTimer = make(map[string]int64)
 	QueueState = make(map[string]bool)
-	RunMode = getMode("data.json")
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
-	file = "data.json"
-	key, adminRawIDs, topgg, err = loginExtract(file)
-	mrisaAddress = mrisaExtract(file)
+	key, topgg, RunMode, adminRawIDs = getDataEnv()
+	mrisaAddress = getMRISAEnv()
 	if err != nil {
 		panic(err) // can't run without a login
 	}

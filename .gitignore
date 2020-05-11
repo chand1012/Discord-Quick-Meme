@@ -33,3 +33,5 @@ ignore.txt
 test/*
 
 Dockerfile2
+
+test.sh

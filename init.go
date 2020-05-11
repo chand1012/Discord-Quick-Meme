@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -39,10 +40,33 @@ func generateAgentFile() error {
 	return err
 }
 
-func getDataEnv() (string, string, string, string, string, []string) { // discord token, redis address, mrisa address, topgg key, mode, comma seperated list of admin ids
-	token := os.Getenv("DISCORD_TOKEN")
+func getRedisEnv() (string, string, int) {
+	var redisDB int
 	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPasswd := os.Getenv("REDIS_PASSWORD")
+	redisDBRaw := os.Getenv("REDIS_DB")
+	if redisAddr == "" {
+		redisAddr = "127.0.0.1:6379"
+	}
+	if redisDBRaw == "" {
+		redisDB = 0
+	} else {
+		redisDB, _ = strconv.Atoi(redisDBRaw)
+	}
+
+	return redisAddr, redisPasswd, redisDB
+}
+
+func getMRISAEnv() string {
 	mrisa := os.Getenv("MRISA")
+	if mrisa == "" {
+		mrisa = "http://192.168.1.2:5000/search"
+	}
+	return mrisa
+}
+
+func getDataEnv() (string, string, string, []string) { // discord token, topgg key, mode, comma seperated list of admin ids
+	token := os.Getenv("DISCORD_TOKEN")
 	topKey := os.Getenv("TOPGG")
 	mode := os.Getenv("MODE")
 	adminsRaw := os.Getenv("ADMINS")
@@ -53,14 +77,8 @@ func getDataEnv() (string, string, string, string, string, []string) { // discor
 		fmt.Println("Cannot continue, no Discord token specified.")
 		os.Exit(1)
 	}
-	if redisAddr == "" {
-		redisAddr = "127.0.0.1:6379"
-	}
-	if mrisa == "" {
-		mrisa = "http://192.168.1.2:5000/search"
-	}
 	if mode == "" {
 		mode = "prod"
 	}
-	return token, redisAddr, mrisa, topKey, mode, admins
+	return token, topKey, mode, admins
 }
