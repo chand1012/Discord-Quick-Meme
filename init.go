@@ -42,6 +42,7 @@ func generateAgentFile() error {
 
 func getRedisEnv() (string, string, int) {
 	var redisDB int
+	var err error
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisPasswd := os.Getenv("REDIS_PASSWORD")
 	redisDBRaw := os.Getenv("REDIS_DB")
@@ -51,7 +52,10 @@ func getRedisEnv() (string, string, int) {
 	if redisDBRaw == "" {
 		redisDB = 0
 	} else {
-		redisDB, _ = strconv.Atoi(redisDBRaw)
+		redisDB, err = strconv.Atoi(redisDBRaw)
+		if err != nil {
+			redisDB = 0
+		}
 	}
 
 	return redisAddr, redisPasswd, redisDB
