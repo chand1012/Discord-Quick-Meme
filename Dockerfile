@@ -7,4 +7,5 @@ RUN go build -v -o GoDiscordBot
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /go/src/app/GoDiscordBot .
+COPY subs.json .
 CMD ["./GoDiscordBot"]
