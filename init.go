@@ -2,12 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
-
-	"gopkg.in/yaml.v2"
 )
 
 type agentFile struct {
@@ -18,28 +15,18 @@ type agentFile struct {
 	Password     string `yaml:"password"`
 }
 
-func generateAgentFile() error {
+func getRedditEnv() agentFile {
 	var agent agentFile
 	agent.UserAgent = "DiscordQuickMemeBot"
 	agent.ClientID = os.Getenv("REDDIT_ID")
 	agent.ClientSecret = os.Getenv("REDDIT_SECRET")
-	agent.Username = os.Getenv("REDDIT_USERNAME")
-	agent.Password = os.Getenv("REDDIT_PASSWORD")
 
 	if agent.ClientID == "" || agent.ClientSecret == "" {
 		fmt.Println("Cannot continue, Reddit client ID or Secret not set.")
 		os.Exit(1)
 	}
 
-	rawYAML, err := yaml.Marshal(&agent)
-
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile("./agent.yml", rawYAML, 0644)
-
-	return err
+	return agent
 }
 
 func getRedisEnv() (string, string, int) {

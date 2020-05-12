@@ -78,7 +78,6 @@ func main() {
 	JSONError = "Error reading JSON file"
 	key, topgg, RunMode, adminRawIDs = getDataEnv()
 	fmt.Println("Generating agent file...")
-	err = generateAgentFile()
 	fmt.Println("Done.")
 	mrisaAddress = getMRISAEnv()
 	if err != nil {
