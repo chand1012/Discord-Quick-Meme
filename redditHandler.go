@@ -10,6 +10,30 @@ import (
 	"github.com/turnage/graw/reddit"
 )
 
+// Replaces the "reddit.NewBotFromAgentFile" with a simple function call. Uses
+// getRedditEnv and gets data from environment
+func initBot() (reddit.Bot, error) {
+	var agent agentFile
+
+	agent = getRedditEnv()
+
+	app := reddit.App{
+		ID:       agent.ClientID,
+		Secret:   agent.ClientSecret,
+		Username: agent.Username,
+		Password: agent.Password,
+	}
+
+	bot, err := reddit.NewBot(
+		reddit.BotConfig{
+			Agent: agent.UserAgent,
+			App:   app,
+			Rate:  0,
+		},
+	)
+	return bot, err
+}
+
 // GuessPostType get the type of the post so a
 func GuessPostType(post *reddit.Post) string {
 	selfText := post.SelfText
@@ -27,7 +51,7 @@ func GuessPostType(post *reddit.Post) string {
 
 // PingReddit tests reddit connection
 func PingReddit() error {
-	bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
+	bot, err := initBot()
 	_, err = bot.Listing("/r/all", "")
 	if err != nil {
 		fmt.Println("Error pinging Reddit:", err)
@@ -66,7 +90,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	if !success {
 		starttime := GetMillis()
 		fmt.Println("Adding r/" + sub + " to cache.")
-		bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
+		bot, err := initBot()
 		if err != nil {
 			fmt.Println("Error creating new Reddit bot:", err)
 			return QuickPost{}, ""

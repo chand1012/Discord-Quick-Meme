@@ -10,10 +10,8 @@ import (
 
 //initializes the redis client
 func initRedis() *redis.Client {
-	address, password, db, err := redisExtract("data.json")
-	if err != nil {
-		panic(err) // cannot launch without this
-	}
+	address, password, db := getRedisEnv()
+
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: password,
@@ -24,10 +22,8 @@ func initRedis() *redis.Client {
 
 // this is because we are going to use a seperate database within redis for all queue data
 func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client {
-	address, password, db, err := redisExtract("data.json")
-	if err != nil {
-		panic(err)
-	}
+	address, password, db := getRedisEnv()
+
 	if oAddress != "" {
 		address = oAddress
 	}

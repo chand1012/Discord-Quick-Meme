@@ -6,8 +6,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/turnage/graw/reddit"
 )
 
 // QuickPost variant of reddit.Post but designed to be pulled from ram on the fly
@@ -33,7 +31,7 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	defer wg.Done()
 	var gottenPosts []QuickPost
 	var gotPost QuickPost
-	bot, err := reddit.NewBotFromAgentFile("agent.yml", 0)
+	bot, err := initBot()
 	if err != nil {
 		fmt.Println("Error creating Bot: ", err)
 		return
