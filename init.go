@@ -8,11 +8,11 @@ import (
 )
 
 type agentFile struct {
-	UserAgent    string `yaml:"user_agent"`
-	ClientID     string `yaml:"client_id"`
-	ClientSecret string `yaml:"client_secret"`
-	Username     string `yaml:"username"`
-	Password     string `yaml:"password"`
+	UserAgent    string
+	ClientID     string
+	ClientSecret string
+	Username     string
+	Password     string
 }
 
 func getRedditEnv() agentFile {
@@ -20,6 +20,8 @@ func getRedditEnv() agentFile {
 	agent.UserAgent = "DiscordQuickMemeBot"
 	agent.ClientID = os.Getenv("REDDIT_ID")
 	agent.ClientSecret = os.Getenv("REDDIT_SECRET")
+	agent.Username = os.Getenv("REDDIT_USERNAME")
+	agent.Password = os.Getenv("REDDIT_PASSWORD")
 
 	if agent.ClientID == "" || agent.ClientSecret == "" {
 		fmt.Println("Cannot continue, Reddit client ID or Secret not set.")
