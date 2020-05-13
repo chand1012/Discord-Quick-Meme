@@ -166,7 +166,7 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 
 // banned subreddit routine
 func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
-	discord.ChannelMessageSend(channel, "Error!\nRequest contains a banned subreddit: "+sub)
+	discord.ChannelMessageSend(channel, "Error!\nToo many attempts due to find an acceptable post due to a banned subreddit: "+sub)
 }
 
 // nsfw subreddit not allowed routine
@@ -198,11 +198,6 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		blacklisted := CheckBlacklist(channel, returnPost)
 		banned := stringInSlice(sub, bannedSubs)
 
-		if banned {
-			fmt.Println("Channel banned sub " + sub + ", exiting...")
-			return sub, 0, "", "", false, true
-		}
-
 		if !banned {
 			LastPost[channel] = returnPost
 		}
@@ -227,6 +222,11 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		} else {
 			if !blacklisted && !banned {
 				fmt.Println("Channel is not NSFW but post is NSFW, retrying....")
+			} else if banned {
+				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				if i == 9 {
+					bannedToggle = true
+				}
 			}
 		}
 	}
@@ -365,7 +365,7 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 			for _, chat := range channels {
 				// this should be async to save time
 				for _, subreddit := range subreddits {
-					go AppendBannedSubreddit(chat.ID, subreddit)
+					go AppendBannedSubreddit(chat.ID, strings.ToLower(subreddit))
 				}
 			}
 			// this should be a message about the ban
