@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
 	"sync"
 	"time"
 
@@ -40,9 +42,12 @@ func queueThread(discord *discordgo.Session) {
 }
 
 func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup) {
-	var newTime int64
 
 	defer wg.Done()
+
+	var interval time.Duration
+
+	maxTime := time.Hour * 168
 
 	queueItem, err := getRedisQueue(channel)
 	if err == redis.Nil {
@@ -69,20 +74,63 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			getLinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		}
 
-		switch queueItem.Interval { // this iwll be replaced with custom times only
-		case "1h":
-			newTime = time.Now().Unix() + 3600
-		case "1d":
-			newTime = time.Now().Unix() + 86400
-		case "12h":
-			newTime = time.Now().Unix() + 43200
-		case "1w":
-			newTime = time.Now().Unix() + 604800
-		case "6h":
-			newTime = time.Now().Unix() + 21600
+		letters, err := regexp.Compile("[^a-zA-Z]+")
+
+		if err != nil {
+			fmt.Println("Error setting redis queue: ", err.Error())
+			errSendRoutine(discord, channel, err)
+			return
 		}
 
-		queueItem.Time = newTime
+		numbers, err := regexp.Compile("[^0-9]+")
+
+		if err != nil {
+			fmt.Println("Error setting redis queue: ", err.Error())
+			errSendRoutine(discord, channel, err)
+			return
+		}
+
+		multiplier, err := strconv.ParseFloat(numbers.ReplaceAllString(queueItem.Interval, ""), 64)
+
+		if err != nil {
+			fmt.Println("Error setting redis queue: ", err.Error())
+			errSendRoutine(discord, channel, err)
+			return
+		}
+
+		duration := letters.ReplaceAllString(queueItem.Interval, "")
+
+		if err != nil {
+			fmt.Println("Error setting redis queue: ", err.Error())
+			errSendRoutine(discord, channel, err)
+			return
+		}
+
+		if multiplier <= 0 {
+			multiplier = 1
+			discord.ChannelMessageSend(channel, "Time cannot be negative or zero, setting to one.")
+		}
+
+		switch duration {
+		case "s":
+			interval = time.Second * time.Duration(multiplier)
+		case "m":
+			interval = time.Minute * time.Duration(multiplier)
+		case "d":
+			interval = time.Hour * 24 * time.Duration(multiplier)
+		case "w":
+			interval = time.Hour * 168 * time.Duration(multiplier)
+		default:
+			interval = time.Hour * time.Duration(multiplier)
+		}
+
+		queueItem.Time = interval.Milliseconds()
+
+		if queueItem.Time > maxTime.Milliseconds() {
+			queueItem.Time = maxTime.Milliseconds()
+			discord.ChannelMessageSend(channel, "The maximum interval between memes is one week, so the interval will be set to that. For slower memes, check Facebook or a newspaper.")
+		}
+
 		err = setRedisQueueRaw(queueItem, channel)
 
 		if err != nil {
