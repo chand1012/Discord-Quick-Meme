@@ -48,6 +48,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 	var interval time.Duration
 
 	maxTime := time.Hour * 168
+	minTime := time.Minute * 15
 
 	queueItem, err := getRedisQueue(channel)
 	if err == redis.Nil {
@@ -124,12 +125,19 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			interval = time.Hour * time.Duration(multiplier)
 		}
 
-		queueItem.Time = interval.Milliseconds()
-
-		if queueItem.Time > maxTime.Milliseconds() {
-			queueItem.Time = maxTime.Milliseconds()
+		if interval > maxTime {
+			interval = maxTime
+			queueItem.Interval = "1w"
 			discord.ChannelMessageSend(channel, "The maximum interval between memes is one week, so the interval will be set to that. For slower memes, check Facebook or a newspaper.")
 		}
+
+		if interval < minTime {
+			interval = minTime
+			queueItem.Interval = "15m"
+			discord.ChannelMessageSend(channel, "There is minimum time interval between posts of 15 minutes, setting the interval to that.")
+		}
+
+		queueItem.Time = time.Now().Unix() + int64(interval.Seconds())
 
 		err = setRedisQueueRaw(queueItem, channel)
 
