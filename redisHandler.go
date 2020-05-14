@@ -20,7 +20,7 @@ func initRedis() *redis.Client {
 	return redisClient
 }
 
-// this is because we are going to use a seperate database within redis for all queue data
+// this is because we are going to use a separate database within redis for all queue data
 func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client {
 	address, password, db := getRedisEnv()
 
@@ -44,15 +44,14 @@ func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client
 
 // RedisQueue data structure for the redis queue
 type RedisQueue struct {
-	Interval       string   `json:"interval"`
-	Time           int64    `json:"time"`
-	Type           string   `json:"type"`
-	SubReddits     []string `json:"subreddit"`
-	NSFW           bool     `json:"nsfw"`
-	CustomInterval int64    `json:"customInterval"`
+	Interval   string   `json:"interval"`
+	Time       int64    `json:"time"`
+	Type       string   `json:"type"`
+	SubReddits []string `json:"subreddit"`
+	NSFW       bool     `json:"nsfw"`
 }
 
-func setRedisQueue(channel string, timeframe string, postType string, subs []string, nsfw bool, customInterval int64) error {
+func setRedisQueue(channel string, timeframe string, postType string, subs []string, nsfw bool) error {
 	var redisQueue RedisQueue
 	var redisDB int
 
@@ -69,7 +68,6 @@ func setRedisQueue(channel string, timeframe string, postType string, subs []str
 	redisQueue.Type = postType
 	redisQueue.NSFW = nsfw
 	redisQueue.Time = 0
-	redisQueue.CustomInterval = customInterval
 
 	jsonString, err := json.Marshal(redisQueue)
 
