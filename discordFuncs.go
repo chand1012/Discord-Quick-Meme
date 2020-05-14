@@ -161,7 +161,10 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 
 // sending a text message routine
 func successSendRoutine(discord *discordgo.Session, channel string, sub string, textone string, texttwo string, score int32) {
-	discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+textone+"\n"+texttwo+"\nScore: "+humanize.Comma(int64(score)))
+	_, err := discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+textone+"\n"+texttwo+"\nScore: "+humanize.Comma(int64(score)))
+	if err != nil {
+		fmt.Println("Error posting to channel:", err.Error())
+	}
 }
 
 // banned subreddit routine
