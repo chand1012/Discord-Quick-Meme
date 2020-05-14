@@ -55,7 +55,7 @@ func getRedisEnv() (string, string, int) {
 func getMRISAEnv() string {
 	mrisa := os.Getenv("MRISA")
 	if mrisa == "" {
-		mrisa = "http://192.168.1.2:5000/search"
+		mrisa = "http://127.0.0.1:5000/search"
 	}
 	return mrisa
 }
