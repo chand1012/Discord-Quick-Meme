@@ -27,16 +27,16 @@ jobs:
 
     - name: Install Test Dependencies
       run: |
-      sudo apt-get update
-      sudo apt-get install redis-server -y
-      docker pull chand1012/mrisa:master
-      docker run -p 5000:5000 -d chand1012/mrisa:master
+       sudo apt-get update
+       sudo apt-get install redis-server -y
+       docker pull chand1012/mrisa:master
+       docker run -p 5000:5000 -d chand1012/mrisa:master
 
     - name: Runs Unit Tests
       run: |
-      export REDDIT_CLIENT="${{ secrets.REDDIT_CLIENT }}"
-      export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
-      go test -bench=.
+       export REDDIT_CLIENT="${{ secrets.REDDIT_CLIENT }}"
+       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
+       go test -bench=.
     
     - name: Build Linux x86_64
       run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
