@@ -36,8 +36,9 @@ jobs:
       run: |
        export REDDIT_ID="${{ secrets.REDDIT_ID }}"
        export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
+       go test
        go test -bench=.
     
     - name: Build Linux x86_64
       run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
-    
+  
