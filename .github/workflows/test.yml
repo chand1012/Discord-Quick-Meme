@@ -34,7 +34,7 @@ jobs:
 
     - name: Runs Unit Tests
       run: |
-       export REDDIT_CLIENT="${{ secrets.REDDIT_CLIENT }}"
+       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
        export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
        go test -bench=.
     
