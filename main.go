@@ -55,6 +55,8 @@ var (
 	RunMode string
 	// QueueState checks if queue is running for specific channel
 	QueueState map[string]bool
+	// QueueThread checks if the queue thread is started
+	QueueThread bool
 )
 
 // main loop
@@ -74,6 +76,7 @@ func main() {
 	RequestCount = make(map[string]uint8)
 	RequestTimer = make(map[string]int64)
 	QueueState = make(map[string]bool)
+	QueueThread = false
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	key, topgg, RunMode, adminRawIDs = getDataEnv()
@@ -122,7 +125,9 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 		go updateServerCount(serverCount, topgg)
 	}
 	go updateStatus(discord)
-	go queueThread(discord)
+	if !QueueThread {
+		go queueThread(discord)
+	}
 }
 
 // handes incoming commands

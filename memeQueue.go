@@ -17,7 +17,7 @@ func queueThread(discord *discordgo.Session) {
 	checkInterval = 10
 	timer = 0
 	fmt.Println("Starting Queue Processing thread.")
-
+	QueueThread = true
 	for {
 		if timer <= time.Now().Unix() {
 			var wg sync.WaitGroup
