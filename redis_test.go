@@ -33,9 +33,6 @@ func TestRedisConnection(t *testing.T) {
 	if err != nil {
 		t.Errorf("There was an error unbanning the subreddit: %d", err)
 	}
-
-	err = AppendBannedSubreddit(channel, "dankmemes")
-
 }
 
 // Benchmarks
