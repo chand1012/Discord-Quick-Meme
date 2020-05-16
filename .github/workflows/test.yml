@@ -30,7 +30,7 @@ jobs:
 
     - name: Runs Unit Tests
       run: |
-       go test
+       go test -run ''
     
     - name: Runs Benchmark Tests
       run: |
