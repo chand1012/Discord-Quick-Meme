@@ -3,7 +3,6 @@ package main
 import "testing"
 
 //Testing
-// Nothing here yet
 
 // TestRedisConnection creates some example values and tests to see if they are
 // retrieveable. Values are used in benchmarks as well
