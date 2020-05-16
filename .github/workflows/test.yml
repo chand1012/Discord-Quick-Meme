@@ -17,16 +17,14 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
 
-    - name: Get dependencies
+    - name: Get Dependencies
       run: |
         go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
 
     - name: Install Test Dependencies
       run: |
+       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
+       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
        sudo apt-get update
        sudo apt-get install redis-server -y
        docker pull chand1012/mrisa:master
@@ -34,11 +32,9 @@ jobs:
 
     - name: Runs Unit Tests
       run: |
-       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
-       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
        go test
+    
+    - name: Runs Benchmark Tests
+      run: |
        go test -bench=.
     
-    - name: Build Linux x86_64
-      run: GOOS=linux GOARCH=amd64 go build -v -o GoDiscordBot
-  
