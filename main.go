@@ -40,7 +40,6 @@ var (
 	SubMap map[string][]string
 	//CachePopulating if true, do not run the populate cache until finished
 	CachePopulating bool
-	mrisaAddress    string
 	//ErrorMsg Main error message that gets send when something goes seriously wrong
 	ErrorMsg string
 	//JSONError JSON error message
@@ -80,7 +79,6 @@ func main() {
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	key, topgg, RunMode, adminRawIDs = getDataEnv()
-	mrisaAddress = getMRISAEnv()
 	if err != nil {
 		panic(err) // can't run without a login
 	}
