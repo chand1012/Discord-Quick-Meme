@@ -52,14 +52,6 @@ func getRedisEnv() (string, string, int) {
 	return redisAddr, redisPasswd, redisDB
 }
 
-func getMRISAEnv() string {
-	mrisa := os.Getenv("MRISA")
-	if mrisa == "" {
-		mrisa = "http://127.0.0.1:5000/search"
-	}
-	return mrisa
-}
-
 func getDataEnv() (string, string, string, []string) { // discord token, topgg key, mode, comma seperated list of admin ids
 	token := os.Getenv("DISCORD_TOKEN")
 	topKey := os.Getenv("TOPGG")

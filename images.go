@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -66,6 +67,11 @@ func imageSearch(url string) ([]string, []string) {
 	if err != nil {
 		fmt.Println("Error processing JSON data for payload: ", err)
 		return nil, nil
+	}
+
+	mrisaAddress := os.Getenv("MRISA")
+	if mrisaAddress == "" {
+		mrisaAddress = "http://127.0.0.1:5000/search"
 	}
 
 	resp, err := http.Post(mrisaAddress, "application/json", bytes.NewBuffer(data))
