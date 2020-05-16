@@ -1,6 +1,6 @@
 # Discord-Quick-Meme
 
-[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/lib/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/servers/438381344943374346.svg)](https://top.gg/bot/438381344943374346) ![](https://github.com/chand1012/Discord-Quick-Meme/workflows/Go/badge.svg) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chand1012_Discord-Quick-Meme&metric=alert_status)](https://sonarcloud.io/dashboard?id=chand1012_Discord-Quick-Meme) ![Go Version](https://img.shields.io/github/go-mod/go-version/chand1012/Discord-Quick-Meme/master) [![](https://img.shields.io/discord/626209936262823937)](https://discord.gg/YNnp9uy)
+[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/lib/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/servers/438381344943374346.svg)](https://top.gg/bot/438381344943374346) ![Build and Test Bot](https://github.com/chand1012/Discord-Quick-Meme/workflows/Build%20and%20Test%20Bot/badge.svg) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=chand1012_Discord-Quick-Meme&metric=alert_status)](https://sonarcloud.io/dashboard?id=chand1012_Discord-Quick-Meme) ![Go Version](https://img.shields.io/github/go-mod/go-version/chand1012/Discord-Quick-Meme/master) [![](https://img.shields.io/discord/626209936262823937)](https://discord.gg/YNnp9uy)
 
 A discord bot that sends Reddit memes and news to a channel.
 
@@ -45,8 +45,8 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 - [Discordgo](https://github.com/bwmarrin/discordgo).
 - [Graw](https://github.com/turnage/graw).
 - [go-redis](https://github.com/go-redis/redis).
-- [MRISA](https://github.com/vivithemage/mrisa) running on the same local machine as the bot, or with the address correctly updated in `data.json`.
-- [Redis](https://redis.io/) running on the same local machine as the bot, or with the address correctly updated in `data.json`.
+- [MRISA](https://github.com/vivithemage/mrisa)
+- [Redis](https://redis.io/)
 
 ### **Disclaimer**
 
@@ -54,12 +54,8 @@ If its offline, I am probably working on it.
 
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823) via [Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)](https://creativecommons.org/licenses/by-sa/3.0/).
 
-### Coming Soon
-
-- full custom meme queue
-
 ### To Do
-- fix the spam bug with the periodic memes
 - Refactor and organize better (especially the main loop)
+- write more unit tests
 - get more users
 
