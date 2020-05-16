@@ -23,8 +23,6 @@ jobs:
 
     - name: Install Test Dependencies
       run: |
-       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
-       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
        sudo apt-get update
        sudo apt-get install redis-server -y
        docker pull chand1012/mrisa:master
@@ -36,5 +34,7 @@ jobs:
     
     - name: Runs Benchmark Tests
       run: |
+       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
+       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
        go test -bench=.
     
