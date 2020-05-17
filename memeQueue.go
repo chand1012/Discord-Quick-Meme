@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"math/rand"
+	"os"
 	"regexp"
 	"strconv"
 	"sync"
@@ -17,10 +21,27 @@ func queueThread(discord *discordgo.Session) {
 	checkInterval = 10
 	timer = 0
 	fmt.Println("Starting Queue Processing thread.")
-	QueueThread = true
+	fmt.Println("Generating lock file.")
+	testData, err := lockFileCreate()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Thread started.")
 	for {
 		if timer <= time.Now().Unix() {
 			var wg sync.WaitGroup
+
+			fileEqual, err := lockFileEqu(testData)
+
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+
+			if !fileEqual {
+				fmt.Println("New processing thread started, killing old thread.")
+				break
+			}
 
 			keys, err := getAllQueueChannels()
 			if err != nil {
@@ -39,6 +60,7 @@ func queueThread(discord *discordgo.Session) {
 			timer = time.Now().Unix() + checkInterval
 		}
 	}
+	fmt.Println("Queue processing thread killed.")
 }
 
 func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup) {
@@ -146,4 +168,30 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			errSendRoutine(discord, channel, err)
 		}
 	}
+}
+
+func lockFileEqu(input []byte) (bool, error) {
+	data, err := ioutil.ReadFile("./thread.lock")
+	if err != nil {
+		return false, err
+	}
+	if bytes.Compare(input, data) == 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func lockFileExists() bool {
+	info, err := os.Stat("./thread.lock")
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func lockFileCreate() ([]byte, error) {
+	fileData := make([]byte, 8)
+	rand.Read(fileData)
+	err := ioutil.WriteFile("./thread.lock", fileData, 0644)
+	return fileData, err
 }

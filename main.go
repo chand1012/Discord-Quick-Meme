@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
@@ -54,8 +57,6 @@ var (
 	RunMode string
 	// QueueState checks if queue is running for specific channel
 	QueueState map[string]bool
-	// QueueThread checks if the queue thread is started
-	QueueThread bool
 )
 
 // main loop
@@ -75,7 +76,6 @@ func main() {
 	RequestCount = make(map[string]uint8)
 	RequestTimer = make(map[string]int64)
 	QueueState = make(map[string]bool)
-	QueueThread = false
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	key, topgg, RunMode, adminRawIDs = getDataEnv()
@@ -108,7 +108,20 @@ func main() {
 	}
 	defer discord.Close()
 	commandPrefix = "!"
-	<-make(chan struct{})
+	fmt.Println("Discord-Quick-Meme is starting up.")
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+
+	// Clean up
+	fmt.Println("leaning up ..")
+	if lockFileExists() {
+		err = os.Remove("./thread.lock")
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	fmt.Println("Cleanly shutdown.")
 }
 
 // handles bot initialization
@@ -123,9 +136,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 		go updateServerCount(serverCount, topgg)
 	}
 	go updateStatus(discord)
-	if !QueueThread {
-		go queueThread(discord)
-	}
+	go queueThread(discord)
 }
 
 // handes incoming commands
