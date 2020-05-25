@@ -30,7 +30,8 @@ jobs:
 
     - name: Runs Unit Tests
       run: |
-       go test -run ''
+       export TOPGG="${{ secrets.TOPGG }}"
+       go test
     
     - name: Runs Benchmark Tests
       run: |
