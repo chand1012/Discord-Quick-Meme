@@ -15,7 +15,8 @@ type subJSON struct {
 	FiftyFifty []string `json:"fiftyfifty"`
 }
 
-func subExtract(filename string) map[string][]string {
+// SubExtract gets all subs from the specified file.
+func SubExtract(filename string) map[string][]string {
 	jsonfile, err := os.Open(filename)
 	if err != nil {
 		panic(err) // these are situations that the bot cannot run if it errors out
@@ -44,14 +45,15 @@ func subExtract(filename string) map[string][]string {
 	return subMap
 }
 
-func getAllSubs(filename string) []string {
-	var subs []string
-	subMap := subExtract(filename)
-	for key := range subMap {
-		subsFromMap := subMap[key]
-		for i := 0; i < len(subsFromMap); i++ {
-			subs = append(subs, subsFromMap[i])
-		}
-	}
-	return subs
-}
+// isn't used yet.
+// func getAllSubs(filename string) []string {
+// 	var subs []string
+// 	subMap := SubExtract(filename)
+// 	for key := range subMap {
+// 		subsFromMap := subMap[key]
+// 		for i := 0; i < len(subsFromMap); i++ {
+// 			subs = append(subs, subsFromMap[i])
+// 		}
+// 	}
+// 	return subs
+// }
