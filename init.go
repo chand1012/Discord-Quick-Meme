@@ -69,3 +69,15 @@ func getDataEnv() (string, string, string, []string) { // discord token, topgg k
 	}
 	return token, topKey, mode, admins
 }
+
+func getDBEnv() string { // returns the string that the DB can use
+	user := os.Getenv("DBUSER")
+	password := os.Getenv("DBPASSWD")
+	database := os.Getenv("DB")
+	host := os.Getenv("DBHOST")
+	port := "3306"
+
+	endstr := user + ":" + password + "@tcp(" + host + ":" + port + ")" + "/" + database
+
+	return endstr
+}
