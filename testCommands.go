@@ -85,7 +85,7 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	var avgTime float64
 	for i := 0; i < 10; i++ {
 		st := GetMillis()
-		_, _ = GetBannedSubreddits(channel)
+		_, _ = GetAllBannedSubs(channel)
 		et := GetMillis()
 		t := et - st
 		times = append(times, t)

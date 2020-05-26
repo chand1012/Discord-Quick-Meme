@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"strings"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -32,17 +33,39 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 		return err
 	}
 
-	insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name) VALUES (?, ?, ?)")
-
-	defer insert.Close()
-
 	if nsfw {
 		nsfwInt = 1
 	} else {
 		nsfwInt = 0
 	}
 
-	_, err = insert.Exec(channel, nsfwInt, name)
+	// gets the channel from the database to see if it exists.
+	output, err := db.Prepare("SELECT channelID from channels WHERE channelID = ?")
+	defer output.Close()
+
+	if err != nil {
+		return err
+	}
+
+	err = output.QueryRow(channel).Scan(&channel)
+
+	if err == nil { // if there is no error that means that the entry must be updated. Ideally this won't happen often.
+		chanTime := time.Now().Unix()
+		_, err = db.Exec("UPDATE channels SET name = ?, nsfw = ?, time = ? WHERE channelID = ?", name, nsfwInt, chanTime, channel)
+
+	} else if err == sql.ErrNoRows {
+		insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name, time) VALUES (?, ?, ?, ?)")
+
+		defer insert.Close()
+
+		if err != nil {
+			return err
+		}
+
+		chanTime := time.Now().Unix()
+
+		_, err = insert.Exec(channel, nsfwInt, name, chanTime)
+	}
 
 	return err
 }
@@ -74,8 +97,57 @@ func GetChannelFromDB(channel string) (bool, string, error) {
 	return nsfwInt == 1, name, err
 }
 
-// add a function that sets the last time that the channel made a request
-// If the channel hasn't had a meme sent to it in a month, delete its records
+// RemoveChannelFromDB Removes the channel from the database
+func RemoveChannelFromDB(channel string) error {
+
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
+
+	return err
+}
+
+// UpdateChannelTime updates the time for the channel
+func UpdateChannelTime(channel string) error {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	nowTime := time.Now().Unix()
+
+	_, err = db.Exec("UPDATE channels SET time = ? WHERE channelID = ?", nowTime, channel)
+
+	return err
+}
+
+// RemoveDormantChannels removes all channels that have not made a meme request in a month
+func RemoveDormantChannels() error {
+
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	monthAgo := time.Now().Unix() - 2592000
+
+	_, err = db.Exec("DELETE FROM channels WHERE time <= ?", monthAgo)
+
+	return err
+
+}
 
 // SetBannedSubreddit adds a sub to the channel bans
 func SetBannedSubreddit(channel string, subreddit string) error {
@@ -210,12 +282,6 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		return err
 	}
 
-	insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, interval, subreddits) VALUES (?, ?, ?, ?)")
-
-	if err != nil {
-		return err
-	}
-
 	var nsfwInt int
 
 	if nsfw {
@@ -224,7 +290,49 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		nsfwInt = 0
 	}
 
-	_, err = insert.Exec(channel, nsfwInt, interval, subs)
+	output, err := db.Prepare("SELECT channelID from queue WHERE channelID = ?")
+	defer output.Close()
+
+	if err != nil {
+		return err
+	}
+
+	err = output.QueryRow(channel).Scan(&channel)
+
+	if err == nil {
+		// update
+		_, err = db.Exec("UPDATE queue SET nsfw = ?, interval = ?, subreddits = ? WHERE channelID = ?", nsfwInt, interval, subs, channel)
+
+	} else if err == sql.ErrNoRows {
+		// add
+		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, interval, subreddits) VALUES (?, ?, ?, ?)")
+
+		defer insert.Close()
+
+		if err != nil {
+			return err
+		}
+
+		_, err = insert.Exec(channel, nsfwInt, interval, subs)
+
+	}
+
+	return err
+}
+
+// UpdateMemeQueueTime updates the time for a queue item.
+func UpdateMemeQueueTime(channel string) error {
+	now := time.Now().Unix()
+
+	db, err := initDB()
+
+	db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("UPDATE queue SET time = ? WHERE channelID = ?", now, channel)
 
 	return err
 }

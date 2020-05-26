@@ -26,6 +26,12 @@ func TestChannelDB(t *testing.T) {
 		t.Errorf("Expected set values, got %t and %s", returnNSFW, returnName)
 	}
 
+	err = RemoveChannelFromDB(testChannel)
+
+	if err != nil {
+		t.Errorf("There was an error removing the channel from the database: %v", err)
+	}
+
 }
 
 // need tests for subreddit banning and the queue

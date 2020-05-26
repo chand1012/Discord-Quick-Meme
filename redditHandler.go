@@ -75,7 +75,6 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	subList = getAllSubsFromMap()
 	sub = subs[rand.Intn(len(subs))]
-	go updateCommonSubCounter(sub)
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime && !CachePopulating {

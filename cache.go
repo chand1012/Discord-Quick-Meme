@@ -123,23 +123,3 @@ func AddToCache(sub string, addPosts []QuickPost) {
 func ClearCache() {
 	PostCache = make(map[string][]QuickPost)
 }
-
-// This will update the counter
-// if the sub is in the map, increment it
-// otherwise set it to one
-func updateCommonSubCounter(sub string) {
-	max := uint8(60 - len(getAllSubsFromMap()))
-	if CommonSubsCounter <= max && !stringInSlice(sub, getAllSubsFromMap()) {
-		if GetMillis() > CommonSubsTime[sub] {
-			CommonSubs[sub] = 0
-			CommonSubsTime[sub] = GetMillis() + 604800000 // ms in a week
-		}
-		if CommonSubs[sub] < 5 {
-			CommonSubs[sub]++
-		}
-	}
-	err := saveCommonSubsRedis()
-	if err != nil {
-		fmt.Println("Error saving common subreddits to redis: ", err)
-	}
-}

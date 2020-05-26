@@ -46,7 +46,7 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 - [Graw](https://github.com/turnage/graw).
 - [go-redis](https://github.com/go-redis/redis).
 - [MRISA](https://github.com/vivithemage/mrisa)
-- [Redis](https://redis.io/)
+- ~~[Redis](https://redis.io/)~~ Migrating to SQL Database
 
 ### **Disclaimer**
 
@@ -55,7 +55,4 @@ If its offline, I am probably working on it.
 Icon by [sandiskplayer34](https://www.deviantart.com/sandiskplayer34) on [DeviantArt](https://www.deviantart.com/sandiskplayer34/art/Reddit-App-Icon-537731823) via [Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)](https://creativecommons.org/licenses/by-sa/3.0/).
 
 ### To Do
-- Refactor and organize better (especially the main loop)
-- write more unit tests
-- get more users
-
+- finish removing redis
