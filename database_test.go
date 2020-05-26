@@ -1,0 +1,31 @@
+package main
+
+import "testing"
+
+// Tests
+
+// TestChannelDB tests the channel database operations
+func TestChannelDB(t *testing.T) {
+	testChannel := "0000000000"
+	testNSFW := true
+	name := "testChannel"
+
+	err := AddChannelToDB(testChannel, testNSFW, name)
+
+	if err != nil {
+		t.Errorf("There was an error adding to the channel DB, %v", err)
+	}
+
+	returnNSFW, returnName, err := GetChannelFromDB(testChannel)
+
+	if err != nil {
+		t.Errorf("There was an error getting channel from the DB, %v", err)
+	}
+
+	if !returnNSFW && returnName != "testChannel" {
+		t.Errorf("Expected set values, got %t and %s", returnNSFW, returnName)
+	}
+
+}
+
+// need tests for subreddit banning and the queue

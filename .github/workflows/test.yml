@@ -31,6 +31,10 @@ jobs:
     - name: Runs Unit Tests
       run: |
        export TOPGG="${{ secrets.TOPGG }}"
+       export DB="${{ secrets.DB }}"
+       export DBUSER="${{ secrets.DBUSER }}"
+       export DBHOST="${{ secrets.DBHOST }}"
+       export DBPASSWD="${{ secrets.DBPASSWD }}"
        go test
     
     - name: Runs Benchmark Tests

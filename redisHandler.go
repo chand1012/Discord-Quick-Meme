@@ -42,8 +42,8 @@ func initRedisOverride(oAddress string, oPassword string, oDB int) *redis.Client
 	return redisClient
 }
 
-// RedisQueue data structure for the redis queue
-type RedisQueue struct {
+// QueueObj data structure for the queue
+type QueueObj struct {
 	Interval   string   `json:"interval"`
 	Time       int64    `json:"time"`
 	Type       string   `json:"type"`
@@ -52,7 +52,7 @@ type RedisQueue struct {
 }
 
 func setRedisQueue(channel string, timeframe string, postType string, subs []string, nsfw bool) error {
-	var redisQueue RedisQueue
+	var redisQueue QueueObj
 	var redisDB int
 
 	redisDB = 1
@@ -79,7 +79,7 @@ func setRedisQueue(channel string, timeframe string, postType string, subs []str
 	return err
 }
 
-func setRedisQueueRaw(redisQueue RedisQueue, channel string) error {
+func setRedisQueueRaw(redisQueue QueueObj, channel string) error {
 	var redisDB int
 
 	redisDB = 1
@@ -101,8 +101,8 @@ func setRedisQueueRaw(redisQueue RedisQueue, channel string) error {
 	return err
 }
 
-func getRedisQueue(channel string) (RedisQueue, error) {
-	var redisQueue RedisQueue
+func getRedisQueue(channel string) (QueueObj, error) {
+	var redisQueue QueueObj
 	var redisDB int
 
 	redisDB = 1
@@ -116,7 +116,7 @@ func getRedisQueue(channel string) (RedisQueue, error) {
 	value, err := redisClient.Get(channel).Result()
 
 	if err != nil {
-		return RedisQueue{}, err
+		return QueueObj{}, err
 	}
 
 	json.Unmarshal([]byte(value), &redisQueue)

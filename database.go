@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -19,7 +20,8 @@ func initDB() (*sql.DB, error) {
 	return db, err
 }
 
-func addChannelToDB(channel string, nsfw bool, name string) error {
+// AddChannelToDB adds a channel to the database
+func AddChannelToDB(channel string, nsfw bool, name string) error {
 	var nsfwInt int
 
 	db, err := initDB()
@@ -45,7 +47,8 @@ func addChannelToDB(channel string, nsfw bool, name string) error {
 	return err
 }
 
-func getChannelFromDB(channel string) (bool, string, error) {
+// GetChannelFromDB gets the channel from the database
+func GetChannelFromDB(channel string) (bool, string, error) {
 
 	db, err := initDB()
 
@@ -71,7 +74,11 @@ func getChannelFromDB(channel string) (bool, string, error) {
 	return nsfwInt == 1, name, err
 }
 
-func setBannedSubreddit(channel string, subreddit string) error {
+// add a function that sets the last time that the channel made a request
+// If the channel hasn't had a meme sent to it in a month, delete its records
+
+// SetBannedSubreddit adds a sub to the channel bans
+func SetBannedSubreddit(channel string, subreddit string) error {
 	db, err := initDB()
 
 	defer db.Close()
@@ -93,7 +100,8 @@ func setBannedSubreddit(channel string, subreddit string) error {
 	return err
 }
 
-func removeBannedSubreddit(channel string, subreddit string) error {
+// RemoveBannedSubreddit removes a sub from the bans list
+func RemoveBannedSubreddit(channel string, subreddit string) error {
 	db, err := initDB()
 
 	defer db.Close()
@@ -111,5 +119,112 @@ func removeBannedSubreddit(channel string, subreddit string) error {
 	return err
 }
 
-// need a get all banned subs function
-// also need functions related to the queue
+// GetAllBannedSubs gets all of the banned subreddits
+func GetAllBannedSubs(channel string) ([]string, error) {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Query("SELECT subreddit FROM banned_subs WHERE channelID = ?", channel)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var subs []string
+	var sub string
+
+	for rows.Next() {
+		err = rows.Scan(&sub)
+		if err != nil {
+			return nil, err
+		}
+
+		subs = append(subs, sub)
+	}
+
+	err = rows.Err()
+
+	return subs, err
+}
+
+// GetMemeQueue gets data for the meme queue for the specified channel
+func GetMemeQueue(channel string) (QueueObj, error) {
+	var queue QueueObj
+	var nsfwInt int
+	var subString string
+
+	db, err := initDB()
+
+	db.Close()
+
+	if err != nil {
+		return QueueObj{}, err
+	}
+
+	row := db.QueryRow("SELECT interval, subreddits, nsfw, time FROM queue WHERE channelID = ?", channel)
+	err = row.Scan(&queue.Interval, &subString, &nsfwInt, &queue.Time)
+
+	if err != nil {
+		return QueueObj{}, err
+	}
+
+	queue.SubReddits = strings.Split(subString, ",")
+
+	if nsfwInt == 1 {
+		queue.NSFW = true
+	} else {
+		queue.NSFW = false
+	}
+
+	return QueueObj{}, nil
+
+}
+
+// DeleteMemeQueue clears the meme queue for the specified channel
+func DeleteMemeQueue(channel string) error {
+	db, err := initDB()
+
+	db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
+
+	return err
+}
+
+// SetMemeQueue sets the meme queue for the channel
+func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error {
+	db, err := initDB()
+
+	db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, interval, subreddits) VALUES (?, ?, ?, ?)")
+
+	if err != nil {
+		return err
+	}
+
+	var nsfwInt int
+
+	if nsfw {
+		nsfwInt = 1
+	} else {
+		nsfwInt = 0
+	}
+
+	_, err = insert.Exec(channel, nsfwInt, interval, subs)
+
+	return err
+}

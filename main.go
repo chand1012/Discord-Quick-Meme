@@ -137,6 +137,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	}
 	go updateStatus(discord)
 	go queueThread(discord)
+	go getAllChannelNames()
 }
 
 // handes incoming commands
