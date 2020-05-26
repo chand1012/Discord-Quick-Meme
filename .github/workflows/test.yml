@@ -35,11 +35,15 @@ jobs:
        export DBUSER="${{ secrets.DBUSER }}"
        export DBHOST="${{ secrets.DBHOST }}"
        export DBPASSWD="${{ secrets.DBPASSWD }}"
-       go test
+       go test -run ''
     
     - name: Runs Benchmark Tests
       run: |
        export REDDIT_ID="${{ secrets.REDDIT_ID }}"
        export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
+       export DB="${{ secrets.DB }}"
+       export DBUSER="${{ secrets.DBUSER }}"
+       export DBHOST="${{ secrets.DBHOST }}"
+       export DBPASSWD="${{ secrets.DBPASSWD }}"
        go test -bench=.
     
