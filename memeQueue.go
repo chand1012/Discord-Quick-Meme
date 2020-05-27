@@ -161,7 +161,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 
 		queueItem.Time = time.Now().Unix() + int64(interval.Seconds())
 
-		err = setRedisQueueRaw(queueItem, channel)
+		err = UpdateMemeQueueTime(channel, queueItem.Time)
 
 		if err != nil {
 			fmt.Println("Error setting Queue: ", err.Error())

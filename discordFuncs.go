@@ -463,9 +463,11 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 
 // gets banned subreddits and send to channel
 func getbannedSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
-	banContext := commandContent[2]
-	if len(commandContent) != 3 {
+	var banContext string
+	if len(commandContent) < 3 {
 		banContext = "channel"
+	} else {
+		banContext = commandContent[2]
 	}
 
 	if banContext == "server" {

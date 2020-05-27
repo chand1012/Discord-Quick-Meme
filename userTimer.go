@@ -2,6 +2,7 @@ package main
 
 func updateChannelTimer(channel string) bool {
 	now := GetMillis()
+	go UpdateChannelTime(channel)
 	if now > RequestTimer[channel] {
 		RequestTimer[channel] = GetMillis() + 60000 // add a minute
 		RequestCount[channel] = 1
