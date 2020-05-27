@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis"
 )
 
 func queueThread(discord *discordgo.Session) {
@@ -43,7 +43,7 @@ func queueThread(discord *discordgo.Session) {
 				break
 			}
 
-			keys, err := getAllQueueChannels()
+			keys, err := GetAllQueueChannels()
 			if err != nil {
 				fmt.Println("Error running worker queue: ", err.Error())
 				continue
@@ -72,12 +72,12 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 	maxTime := time.Hour * 168
 	minTime := time.Minute * 15
 
-	queueItem, err := getRedisQueue(channel)
-	if err == redis.Nil {
+	queueItem, err := GetMemeQueue(channel)
+	if err == sql.ErrNoRows {
 		return
 	}
 	if err != nil {
-		fmt.Println("Error getting from redis queue: ", err.Error())
+		fmt.Println("Error getting from Queue: ", err.Error())
 		errSendRoutine(discord, channel, err)
 		return
 	}
@@ -100,7 +100,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		letters, err := regexp.Compile("[^a-zA-Z]+")
 
 		if err != nil {
-			fmt.Println("Error setting redis queue: ", err.Error())
+			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -108,7 +108,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		numbers, err := regexp.Compile("[^0-9]+")
 
 		if err != nil {
-			fmt.Println("Error setting redis queue: ", err.Error())
+			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -116,7 +116,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		multiplier, err := strconv.ParseFloat(numbers.ReplaceAllString(queueItem.Interval, ""), 64)
 
 		if err != nil {
-			fmt.Println("Error setting redis queue: ", err.Error())
+			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -124,7 +124,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		duration := letters.ReplaceAllString(queueItem.Interval, "")
 
 		if err != nil {
-			fmt.Println("Error setting redis queue: ", err.Error())
+			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -164,7 +164,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		err = setRedisQueueRaw(queueItem, channel)
 
 		if err != nil {
-			fmt.Println("Error setting redis queue: ", err.Error())
+			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 		}
 	}

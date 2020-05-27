@@ -30,13 +30,6 @@ var (
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
 	Blacklist map[string][]QuickPost // will be wiped every two to three hours
-	//CommonSubs stores the amount of times the subs are hit
-	CommonSubs map[string]uint8 // only needs to count up to 10
-	//CommonSubsTime if one week passes, clear the above cache
-	// 604800000ms in a week
-	CommonSubsTime map[string]int64
-	// CommonSubsCounter counts the number of common subs
-	CommonSubsCounter uint8
 	//LastPost gets the last post from the specified channel string
 	LastPost map[string]QuickPost
 	//SubMap contains all of the data for the subs
@@ -68,9 +61,6 @@ func main() {
 	NSFWMap = make(map[string]bool)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
-	CommonSubs = make(map[string]uint8)
-	CommonSubsTime = make(map[string]int64)
-	CommonSubsCounter = 0
 	LastPost = make(map[string]QuickPost)
 	SubMap = make(map[string][]string)
 	RequestCount = make(map[string]uint8)
@@ -85,7 +75,8 @@ func main() {
 	discord, err := discordgo.New("Bot " + key)
 
 	if err != nil {
-		panic(err)
+		fmt.Println("Error creating Discord bot!")
+		panic(err) // if it errors out at all in this init phase, its not gonna work anyway.
 	}
 
 	user, err := discord.User("@me")
@@ -95,7 +86,8 @@ func main() {
 	for _, admin := range adminRawIDs {
 		a, err := discord.User(admin)
 		if err != nil {
-			panic(err)
+			fmt.Println("WARNING: No admin IDs set, debug will not work!")
+			break
 		}
 		adminIDs = append(adminIDs, a.ID)
 	}
@@ -104,6 +96,7 @@ func main() {
 	discord.AddHandler(readyHandler)
 	err = discord.Open()
 	if err != nil {
+		fmt.Println("Error opening Discord connection!")
 		panic(err)
 	}
 	defer discord.Close()
@@ -114,7 +107,7 @@ func main() {
 	<-sc
 
 	// Clean up
-	fmt.Println("leaning up ..")
+	fmt.Println("Cleaning up ..")
 	if lockFileExists() {
 		err = os.Remove("./thread.lock")
 		if err != nil {
@@ -166,9 +159,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 		return
 	}
-	channelName = "#" + getChannelName(discord, channel, guildID)
+	channelName, nsfw := GetChannelData(discord, channel, guildID)
 	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
-	nsfw := getChannelNSFW(discord, channel, guildID)
 	switch {
 	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
@@ -246,8 +238,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				quickMemeTest(discord, channel)
 			case "testredis":
 				quickMemeTestRedis(discord, channel)
-			case "testcommoncache":
-				quickMemeTestCommonCache(discord, channel)
 			case "getcache":
 				quickMemeGetCache(discord, channel)
 			case "clearcache":

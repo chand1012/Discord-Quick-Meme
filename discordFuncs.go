@@ -509,7 +509,7 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 
 		err = SetMemeQueue(channel, channelNsfw, interval, commandContent[3])
 		if err != nil {
-			fmt.Println("There was an error setting the Redis Queue: " + err.Error())
+			fmt.Println("There was an error setting the Queue: " + err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}

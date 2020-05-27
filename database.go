@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 
@@ -23,6 +24,7 @@ func initDB() (*sql.DB, error) {
 
 // AddChannelToDB adds a channel to the database
 func AddChannelToDB(channel string, nsfw bool, name string) error {
+	fmt.Println("Adding channel to database: " + channel)
 	var nsfwInt int
 
 	db, err := initDB()
@@ -50,23 +52,24 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 	err = output.QueryRow(channel).Scan(&channel)
 
 	if err == nil { // if there is no error that means that the entry must be updated. Ideally this won't happen often.
+		fmt.Println("Already in database, updating existing record...")
 		chanTime := time.Now().Unix()
 		_, err = db.Exec("UPDATE channels SET name = ?, nsfw = ?, time = ? WHERE channelID = ?", name, nsfwInt, chanTime, channel)
 
 	} else if err == sql.ErrNoRows {
+		fmt.Println("Adding new entry...")
 		insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name, time) VALUES (?, ?, ?, ?)")
 
-		defer insert.Close()
-
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 
 		chanTime := time.Now().Unix()
-
 		_, err = insert.Exec(channel, nsfwInt, name, chanTime)
+		insert.Close()
 	}
-
+	fmt.Println("Done adding to DB.")
 	return err
 }
 
@@ -232,7 +235,7 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 
 	db, err := initDB()
 
-	db.Close()
+	defer db.Close()
 
 	if err != nil {
 		return QueueObj{}, err
@@ -261,7 +264,7 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 func DeleteMemeQueue(channel string) error {
 	db, err := initDB()
 
-	db.Close()
+	defer db.Close()
 
 	if err != nil {
 		return err
@@ -276,7 +279,7 @@ func DeleteMemeQueue(channel string) error {
 func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error {
 	db, err := initDB()
 
-	db.Close()
+	defer db.Close()
 
 	if err != nil {
 		return err
@@ -304,17 +307,17 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		_, err = db.Exec("UPDATE queue SET nsfw = ?, interval = ?, subreddits = ? WHERE channelID = ?", nsfwInt, interval, subs, channel)
 
 	} else if err == sql.ErrNoRows {
-		// add
+		// this isn't working.
+		// Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'interval, subreddits) VALUES (?, ?, ?, ?)' at line 1
 		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, interval, subreddits) VALUES (?, ?, ?, ?)")
 
-		defer insert.Close()
-
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 
 		_, err = insert.Exec(channel, nsfwInt, interval, subs)
-
+		insert.Close()
 	}
 
 	return err
@@ -326,7 +329,7 @@ func UpdateMemeQueueTime(channel string) error {
 
 	db, err := initDB()
 
-	db.Close()
+	defer db.Close()
 
 	if err != nil {
 		return err
@@ -335,4 +338,31 @@ func UpdateMemeQueueTime(channel string) error {
 	_, err = db.Exec("UPDATE queue SET time = ? WHERE channelID = ?", now, channel)
 
 	return err
+}
+
+// GetAllQueueChannels gets all of the queue channels
+func GetAllQueueChannels() ([]string, error) {
+
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Query("SELECT channelID FROM queue")
+
+	var channels []string
+	var channel string
+
+	for rows.Next() {
+		err = rows.Scan(&channel)
+		if err != nil {
+			return nil, err
+		}
+		channels = append(channels, channel)
+	}
+
+	return channels, err
 }

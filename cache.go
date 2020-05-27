@@ -78,16 +78,6 @@ func PopulateCache() {
 	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
 	subs := getAllSubsFromMap()
-	redisCommonSubs, err := getCommonSubsRedis()
-	if err != nil {
-		fmt.Println("Error getting common subreddits from redis: ", err)
-		CachePopulating = false
-		return
-	}
-	CommonSubsCounter = uint8(len(redisCommonSubs))
-	if redisCommonSubs != nil {
-		subs = append(subs, redisCommonSubs...)
-	}
 	var wg sync.WaitGroup
 	bufferSize := len(subs)
 	recv := make(chan []QuickPost, bufferSize)

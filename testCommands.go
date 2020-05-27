@@ -98,23 +98,6 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
 }
 
-// gets the number of common subreddits to cache
-func quickMemeTestCommonCache(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Getting stats on Common Subreddits....")
-	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(int(CommonSubsCounter))+" additional subs being cached.")
-	values, _ := getCommonSubsRedisRaw()
-	discord.ChannelMessageSend(channel, "Subs stored in Redis cache: "+values)
-	discord.ChannelMessageSend(channel, "Getting times for the cached subreddits....")
-	var sendStr string
-	counter := 0
-	sendStr = ""
-	for key := range CommonSubs {
-		sendStr += (strconv.Itoa(counter) + ") " + key + ": Count: " + strconv.Itoa(int(CommonSubs[key])) + " Time: " + strconv.FormatInt(CommonSubsTime[key], 10) + " ms\n")
-		counter++
-	}
-	discord.ChannelMessageSend(channel, sendStr)
-}
-
 // default case for the quickmeme command
 func quickMemeDefault(discord *discordgo.Session, channel string) {
 	servers := discord.State.Guilds
