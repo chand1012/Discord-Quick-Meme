@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"database/sql"
+	"testing"
+)
 
 // Tests
 
@@ -12,7 +15,7 @@ func TestChannelDB(t *testing.T) {
 
 	err := AddChannelToDB(testChannel, testNSFW, name)
 
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		t.Errorf("There was an error adding to the channel DB, %v", err)
 	}
 
