@@ -15,6 +15,15 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// QueueObj data structure for the queue
+type QueueObj struct {
+	Interval   string   `json:"interval"`
+	Time       int64    `json:"time"`
+	Type       string   `json:"type"`
+	SubReddits []string `json:"subreddit"`
+	NSFW       bool     `json:"nsfw"`
+}
+
 func queueThread(discord *discordgo.Session) {
 	var checkInterval int64
 	var timer int64
