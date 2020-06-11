@@ -98,14 +98,13 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		fmt.Println("Posting in", channel, "from queue.")
 
 		switch queueItem.Type {
-		case "media":
-			getMediaPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		case "text":
 			getTextPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		case "link":
 			getLinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+		default:
+			getMediaPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		}
-
 		letters, err := regexp.Compile("[^a-zA-Z]+")
 
 		if err != nil {
@@ -165,7 +164,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		if interval < minTime {
 			interval = minTime
 			queueItem.Interval = "15m"
-			discord.ChannelMessageSend(channel, "There is minimum time interval between posts of 15 minutes, setting the interval to that.")
+			discord.ChannelMessageSend(channel, "There is minimum time interval between posts of 15 minutes, setting the interval to that. These servers aren't free, you know.")
 		}
 
 		queueItem.Time = time.Now().Unix() + int64(interval.Seconds())
@@ -175,6 +174,8 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		if err != nil {
 			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
+		} else {
+			fmt.Println("Done.")
 		}
 	}
 }

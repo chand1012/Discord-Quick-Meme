@@ -259,7 +259,7 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 	} else {
 		queue.NSFW = false
 	}
-
+	queue.Type = "media" // this needs to be implemented. Either make it automatic or make the user specify
 	return queue, nil
 
 }
@@ -314,7 +314,6 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		// this isn't working.
 		// Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'interval, subreddits) VALUES (?, ?, ?, ?)' at line 1
 		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, time_interval, subreddits) VALUES (?, ?, ?, ?)")
-
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -323,7 +322,9 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		_, err = insert.Exec(channel, nsfwInt, interval, subs)
 		insert.Close()
 	}
-
+	if err == sql.ErrNoRows {
+		return nil
+	}
 	return err
 }
 
@@ -368,4 +369,34 @@ func GetAllQueueChannels() ([]string, error) {
 	}
 
 	return channels, err
+}
+
+//RemoveChannelFromDBAllTables removes a channel from all tables in the database. For examples such as if someone deletes a guild or channel
+func RemoveChannelFromDBAllTables(channel string) error {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
+
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM channels WHERE channelID = ?", channel)
+
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM banned_subs WHERE channelID = ?", channel)
+
+	if err == sql.ErrNoRows {
+		return nil
+	}
+	return err
 }
