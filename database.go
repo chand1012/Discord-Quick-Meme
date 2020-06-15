@@ -245,7 +245,7 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 		return QueueObj{}, err
 	}
 
-	row := db.QueryRow("SELECT time_interval, subreddits, nsfw, time FROM queue WHERE channelID = ?", channel)
+	row := db.QueryRow("SELECT timeInterval, subreddits, nsfw, time FROM queue WHERE channelID = ?", channel)
 	err = row.Scan(&queue.Interval, &subString, &nsfwInt, &queue.Time)
 
 	if err != nil {
@@ -308,12 +308,12 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 
 	if err == nil {
 		// update
-		_, err = db.Exec("UPDATE queue SET nsfw = ?, time_interval = ?, subreddits = ? WHERE channelID = ?", nsfwInt, interval, subs, channel)
+		_, err = db.Exec("UPDATE queue SET nsfw = ?, timeInterval = ?, subreddits = ? WHERE channelID = ?", nsfwInt, interval, subs, channel)
 
 	} else if err == sql.ErrNoRows {
 		// this isn't working.
 		// Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'interval, subreddits) VALUES (?, ?, ?, ?)' at line 1
-		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, time_interval, subreddits) VALUES (?, ?, ?, ?)")
+		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, timeInterval, subreddits) VALUES (?, ?, ?, ?)")
 		if err != nil {
 			fmt.Println(err)
 			return err
