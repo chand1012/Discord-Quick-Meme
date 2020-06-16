@@ -192,14 +192,14 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 		Title:     title,
 	}
 	_, err := discord.ChannelMessageSendEmbed(channel, embed)
-	if strings.Contains(err.Error(), string(discordgo.ErrCodeUnknownChannel)) {
-		fmt.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
-		err = RemoveChannelFromDBAllTables(channel)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
 	if err != nil {
+		if strings.Contains(err.Error(), string(discordgo.ErrCodeUnknownChannel)) {
+			fmt.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
+			err = RemoveChannelFromDBAllTables(channel)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 		fmt.Println("Error posting to channel:", err.Error())
 	}
 }
