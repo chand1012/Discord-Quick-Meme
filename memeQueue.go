@@ -25,10 +25,10 @@ type QueueObj struct {
 }
 
 func queueThread(discord *discordgo.Session) {
-	var checkInterval int64
-	var timer int64
-	checkInterval = 10
-	timer = 0
+	// var checkInterval int64
+	// var timer int64
+	// checkInterval = 10
+	// timer = 0
 	fmt.Println("Starting Queue Processing thread.")
 	fmt.Println("Generating lock file.")
 	testData, err := lockFileCreate()
@@ -37,37 +37,39 @@ func queueThread(discord *discordgo.Session) {
 	}
 	fmt.Println("Thread started.")
 	for {
-		if timer <= time.Now().Unix() {
-			var wg sync.WaitGroup
 
-			fileEqual, err := lockFileEqu(testData)
+		var wg sync.WaitGroup
 
-			if err != nil {
-				fmt.Println(err)
-				break
-			}
+		fileEqual, err := lockFileEqu(testData)
 
-			if !fileEqual {
-				fmt.Println("New processing thread started, killing old thread.")
-				break
-			}
-
-			keys, err := GetAllQueueChannels()
-			if err != nil {
-				fmt.Println("Error running worker queue: ", err.Error())
-				continue
-			}
-
-			for _, key := range keys {
-				if key != "" {
-					wg.Add(1)
-					go queueWorker(discord, key, &wg)
-				}
-			}
-
-			wg.Wait()
-			timer = time.Now().Unix() + checkInterval
+		if err != nil {
+			fmt.Println(err)
+			break
 		}
+
+		if !fileEqual {
+			fmt.Println("New processing thread started, killing old thread.")
+			break
+		}
+
+		keys, err := GetAllQueueChannels()
+		if err != nil {
+			fmt.Println("Error running worker queue: ", err.Error())
+			continue
+		}
+
+		for _, key := range keys {
+			if key != "" {
+				wg.Add(1)
+				go queueWorker(discord, key, &wg)
+			}
+		}
+
+		wg.Wait()
+		// This uses less CPU than the loop with timer
+		// And the end user will see no difference
+		// One of the few times I will use a sleep
+		time.Sleep(time.Second * 10)
 	}
 	fmt.Println("Queue processing thread killed.")
 }
@@ -87,13 +89,24 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 	}
 	if err != nil {
 		fmt.Println("Error getting from Queue: ", err.Error())
-		errSendRoutine(discord, channel, err)
-		return
 	}
 
 	if queueItem.Time <= time.Now().Unix() && !QueueState[channel] {
 
+		if err != nil {
+			// will only send the error to the channel if its time
+			// for the channel to get a meme. This should happen infrequently
+			// or never
+			errSendRoutine(discord, channel, err)
+			return
+		}
+
 		QueueState[channel] = true
+
+		// will always set the QueueState for the
+		// given channel to false no matter where the
+		// function ends.
+		defer resetQueueState(channel)
 
 		fmt.Println("Posting in", channel, "from queue.")
 
@@ -204,4 +217,8 @@ func lockFileCreate() ([]byte, error) {
 	rand.Read(fileData)
 	err := ioutil.WriteFile("./thread.lock", fileData, 0644)
 	return fileData, err
+}
+
+func resetQueueState(channel string) {
+	QueueState[channel] = false
 }
