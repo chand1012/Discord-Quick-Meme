@@ -349,13 +349,14 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 }
 
 // gets the number of users across all servers with the bot
-func getNumberOfUsers(discord *discordgo.Session) int {
-	count := 0
-	for _, guild := range discord.State.Guilds {
-		count += len(guild.Members)
-	}
-	return count
-}
+// Discordgo broke this, gonna keep it here in case it gets fixed
+// func getNumberOfUsers(discord *discordgo.Session) int {
+// 	count := 0
+// 	for _, guild := range discord.State.Guilds {
+// 		count += len(guild.Members)
+// 	}
+// 	return count
+// }
 
 // gets the user's member struct via their
 func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
