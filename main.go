@@ -124,7 +124,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	PopulateCache()
 	ResetBlacklist()
 	serverCount := int64(len(servers))
-	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers")
+	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers.")
 	if RunMode == "prod" { // only run if production
 		go updateServerCount(serverCount, topgg)
 	}

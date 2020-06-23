@@ -163,8 +163,9 @@ func getChannelNSFW(discord *discordgo.Session, channelID string, guildID string
 
 // updates the bot status
 func updateStatus(discord *discordgo.Session) {
-	uCount := getNumberOfUsers(discord)
-	err := discord.UpdateStatus(0, "with "+humanize.Comma(int64(uCount))+" others")
+	servers := discord.State.Guilds
+	serverCount := int64(len(servers))
+	err := discord.UpdateStatus(0, "on "+humanize.Comma(serverCount)+" servers")
 	if err != nil {
 		fmt.Println("Error updating the status: ", err)
 	}
