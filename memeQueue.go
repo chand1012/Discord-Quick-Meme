@@ -25,10 +25,7 @@ type QueueObj struct {
 }
 
 func queueThread(discord *discordgo.Session) {
-	// var checkInterval int64
-	// var timer int64
-	// checkInterval = 10
-	// timer = 0
+
 	fmt.Println("Starting Queue Processing thread.")
 	fmt.Println("Generating lock file.")
 	testData, err := lockFileCreate()
