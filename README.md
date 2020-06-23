@@ -46,7 +46,7 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 - [Graw](https://github.com/turnage/graw).
 - [go-redis](https://github.com/go-redis/redis).
 - [MRISA](https://github.com/vivithemage/mrisa)
-- ~~[Redis](https://redis.io/)~~ Migrating to SQL Database
+- [MySQL Database](https://www.mysql.com/)
 
 ### **Disclaimer**
 
