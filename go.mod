@@ -7,7 +7,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.4.2 // indirect
-	github.com/turnage/graw v0.0.0-20200404033202-65715eea1cd0
-	golang.org/x/net v0.0.0-20200520004742-59133d7f0dd7 // indirect
-	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299 // indirect
+	github.com/turnage/graw v0.0.0-20200617182045-4c520bf5831a
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
+	golang.org/x/sys v0.0.0-20200622214017-ed371f2e16b4 // indirect
 )

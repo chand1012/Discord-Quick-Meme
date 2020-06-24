@@ -23,7 +23,7 @@ func initDB() (*sql.DB, error) {
 }
 
 // AddChannelToDB adds a channel to the database
-func AddChannelToDB(channel string, nsfw bool, name string) error {
+func AddChannelToDB(channel string, nsfw bool, name string, guildID string) error {
 	fmt.Println("Adding channel to database: " + channel)
 	var nsfwInt int
 
@@ -54,11 +54,11 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 	if err == nil { // if there is no error that means that the entry must be updated. Ideally this won't happen often.
 		fmt.Println("Already in database, updating existing record...")
 		chanTime := time.Now().Unix()
-		_, err = db.Exec("UPDATE channels SET name = ?, nsfw = ?, time = ? WHERE channelID = ?", name, nsfwInt, chanTime, channel)
+		_, err = db.Exec("UPDATE channels SET name = ?, nsfw = ?, time = ?, guild = ? WHERE channelID = ?", name, nsfwInt, chanTime, guildID, channel)
 
 	} else if err == sql.ErrNoRows {
 		fmt.Println("Adding new entry...")
-		insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name, time) VALUES (?, ?, ?, ?)")
+		insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name, guild, time) VALUES (?, ?, ?, ?)")
 
 		if err != nil {
 			fmt.Println(err)
@@ -66,7 +66,7 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 		}
 
 		chanTime := time.Now().Unix()
-		_, err = insert.Exec(channel, nsfwInt, name, chanTime)
+		_, err = insert.Exec(channel, nsfwInt, name, guildID, chanTime)
 		insert.Close()
 	}
 	fmt.Println("Done adding to DB.")
@@ -74,30 +74,31 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 }
 
 // GetChannelFromDB gets the channel from the database
-func GetChannelFromDB(channel string) (bool, string, error) {
+func GetChannelFromDB(channel string) (bool, string, string, error) {
 
 	db, err := initDB()
 
 	defer db.Close()
 
 	if err != nil {
-		return false, "", err
+		return false, "", "", err
 	}
 
-	output, err := db.Prepare("SELECT nsfw, name from channels WHERE channelID = ?")
+	output, err := db.Prepare("SELECT nsfw, name, guild from channels WHERE channelID = ?")
 
 	defer output.Close()
 
 	if err != nil {
-		return false, "", err
+		return false, "", "", err
 	}
 
 	var nsfwInt int
 	var name string
+	var guild string
 
-	err = output.QueryRow(channel).Scan(&nsfwInt, &name)
+	err = output.QueryRow(channel).Scan(&nsfwInt, &name, &guild)
 
-	return nsfwInt == 1, name, err
+	return nsfwInt == 1, name, guild, err
 }
 
 // RemoveChannelFromDB Removes the channel from the database
@@ -399,4 +400,27 @@ func RemoveChannelFromDBAllTables(channel string) error {
 		return nil
 	}
 	return err
+}
+
+// GetGuildStatus gets if the guild has the extra features available
+func GetGuildStatus(guild string) (int, error) {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return -1, err
+	}
+
+	get, err := db.Prepare("SELECT guildID FROM boosted WHERE 'guildID' = ?")
+
+	_, err = get.Exec(guild)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	} else if err != nil {
+		return -1, err
+	}
+
+	return 1, err
 }
