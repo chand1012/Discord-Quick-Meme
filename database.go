@@ -312,8 +312,7 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		_, err = db.Exec("UPDATE queue SET nsfw = ?, timeInterval = ?, subreddits = ? WHERE channelID = ?", nsfwInt, interval, subs, channel)
 
 	} else if err == sql.ErrNoRows {
-		// this isn't working.
-		// Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'interval, subreddits) VALUES (?, ?, ?, ?)' at line 1
+		// add new
 		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, timeInterval, subreddits) VALUES (?, ?, ?, ?)")
 		if err != nil {
 			fmt.Println(err)
@@ -403,24 +402,28 @@ func RemoveChannelFromDBAllTables(channel string) error {
 }
 
 // GetGuildStatus gets if the guild has the extra features available
-func GetGuildStatus(guild string) (int, error) {
+func GetGuildStatus(guild string) (bool, bool, int8, error) {
+	var returnGuildID string
+	var proxy int8
+	var proxyMode int8
+
 	db, err := initDB()
 
 	defer db.Close()
 
 	if err != nil {
-		return -1, err
+		return false, false, -1, err
 	}
 
-	get, err := db.Prepare("SELECT guildID FROM boosted WHERE 'guildID' = ?")
+	get, err := db.Prepare("SELECT guildID, proxy, proxyMode FROM boosted WHERE 'guildID' = ?")
 
-	_, err = get.Exec(guild)
+	err = get.QueryRow(guild).Scan(&returnGuildID, &proxy, &proxyMode)
 
 	if err == sql.ErrNoRows {
-		return 0, nil
+		return false, false, 0, nil
 	} else if err != nil {
-		return -1, err
+		return false, false, -1, err
 	}
 
-	return 1, err
+	return guild == returnGuildID, proxy != 0, proxyMode, err
 }

@@ -26,6 +26,8 @@ var (
 	ServerMap map[string]string
 	// NSFWMap stores all nsfw values for each channel
 	NSFWMap map[string]bool
+	//SettingsMap stores the settings as a "guildSettings" for each guild.
+	SettingsMap map[string]guildSettings
 	//PostCache stores all posts
 	PostCache map[string][]QuickPost
 	//Blacklist list of all of the post that are blacklisted from the specified channel
@@ -59,6 +61,7 @@ func main() {
 	var adminRawIDs []string
 	ServerMap = make(map[string]string)
 	NSFWMap = make(map[string]bool)
+	SettingsMap = make(map[string]guildSettings)
 	PostCache = make(map[string][]QuickPost)
 	Blacklist = make(map[string][]QuickPost)
 	LastPost = make(map[string]QuickPost)
@@ -146,15 +149,27 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	commandContent := strings.Split(content, " ")
 	command := commandContent[0]
 	guildID := message.GuildID
+	settings, err := getServerSettings(discord, guildID)
+	if err != nil {
+		fmt.Println("Cannot determine status of guild with ID", guildID)
+		discord.ChannelMessageSend(channel, "Cannot determine guild settings. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		settings = guildSettings{
+			Supporter: false,
+			Proxy:     false,
+		}
+	}
 	if user.ID == botID || user.Bot || !stringInSlice(commandContent[0], commands) {
 		return
 	}
-	canUserPost := updateChannelTimer(channel)
+	canUserPost := true
+	if !settings.Supporter {
+		canUserPost = updateChannelTimer(channel)
+	}
 	if !canUserPost {
 		if RequestCount[channel] == 6 {
 			fmt.Println("Channel " + channel + "is sending a lot of requests, limiting their input for 60 seconds.")
 		}
-		if RequestCount[channel] > 10 {
+		if RequestCount[channel] > 6 {
 			discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds.")
 		}
 		return
