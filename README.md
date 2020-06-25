@@ -8,6 +8,23 @@ A discord bot that sends Reddit memes and news to a channel.
 
 If you are a server owner, just click [here](https://discordapp.com/oauth2/authorize?client_id=438381344943374346&scope=bot) and select your channel to add the bot to your channel.
 
+## COMING SOON: Support the bot!
+
+Soon I will be launching a Patreon, which will get you some cool extra features! Features are also available to those who support me on [GitHub Sponsors](https://github.com/sponsors/chand1012)! Cool features include:
+
+- No spam limiter!
+- Image proxies!
+    - Two image proxies will be available: 
+        - Discord's own image uploads (as long as the image in question is >=8MB).
+        - My custom [Image Proxy Service]().
+    - **DISCLAIMER**: This Discord bot is for fun, and the proxy service is mainly for speed increases when Reddit is at high load. Yes, you can use it to circumvent firewalls, but I am not responsible if you get in trouble.
+- More than one queue per channel!
+    - For example, you could have a queue from r/dankmemes set for once every hour and a queue set for r/prequelmemes set for once every 66 minutes.
+- Your name or username on my sponsor list on the bot!
+- More features to be announced!
+- Early access to certain alpha features! <sub> Beta features will always be public. </sub>
+- My gratitude and the knowledge that you are helping a developer get closer to making his hobby a living!
+
 ## To use
 
 ### General
@@ -27,7 +44,7 @@ If you are a server owner, just click [here](https://discordapp.com/oauth2/autho
 - If you are a server admin, add a role called `Memebot Admin` to your roles. This role allows you to use the `ban`, `unban`, `subscribe`, and `unsubscribe` commands. 
 - The `ban` and `unban` commands allow you ban certain subreddits on either just a channel or the entire server. To ban a subreddit, run the command `!quickmeme ban <mode> <subreddit>` , where mode is either `server` or `channel`. Just replace `ban` with `unban` to do the reverse effect.
     - Typing `!quickmeme getbanned <mode>`, where `<mode>` is either `server` or `channel` will give you a list of the banned subreddits on either the whole server or just the channel the command was executed on. This command can be executed by both admins and regular users.
-- (**BETA FEATURE**: May have bugs!) The `subscribe` command allows the bot to periodically post memes in the channel of your choice. The command syntax is `!quickmeme subscribe <interval> <subreddit1>,<subreddit2>,...`. Some examples of intervals are `1h` (hourly), `6h`, `12h`, `1d` (daily), and `1w` (weekly).<sup>There is a maximum time interval of one week and a minimum of 15 minutes.</sup> You can add as many subreddits as you want to the custom command, as long as your command is under 2000 characters (Discord's rule, not mine), and random one will be pulled from your list. The subreddits are separated with _commas_, **not** spaces. If you use spaces you will get an error.
+- The `subscribe` command allows the bot to periodically post memes in the channel of your choice. The command syntax is `!quickmeme subscribe <interval> <subreddit1>,<subreddit2>,...`. Some examples of intervals are `1h` (hourly), `6h`, `12h`, `1d` (daily), and `1w` (weekly).<sup>There is a maximum time interval of one week and a minimum of 15 minutes.</sup> You can add as many subreddits as you want to the custom command, as long as your command is under 2000 characters (Discord's rule, not mine), and random one will be pulled from your list. The subreddits are separated with _commas_, **not** spaces. If you use spaces you will get an error.
     - To unsubscribe, simply type `!quickmeme unsubscribe` and the bot will stop sending messages in that channel until prompted again.
     - The bot checks the queue every ten seconds, so many of the messages will not be exactly on-the-dot every hour, but should be within a minute or two.
 
