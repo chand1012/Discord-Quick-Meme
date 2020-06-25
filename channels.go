@@ -102,55 +102,56 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 	return channelID, false
 }
 
-// gets a channel name from the cache, otherwise searches all channels on server that send the message
-func getChannelName(discord *discordgo.Session, channelID string, guildID string) string {
-	fmt.Println("Getting channel name....")
-	if value, ok := ServerMap[channelID]; ok {
-		fmt.Println("Value cached.")
-		return value
-	}
-	starttime := GetMillis()
-	channels, err := discord.GuildChannels(guildID)
-	if err != nil {
-		fmt.Println("Error getting channel name: ", err)
-		return channelID
-	}
-	for _, channel := range channels {
-		if channel.ID == channelID {
-			ServerMap[channelID] = channel.Name
-			endtime := GetMillis()
-			t := endtime - starttime
-			fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
-			go AddChannelToDB(channel.ID, channel.NSFW, channel.Name, channel.GuildID)
-			return channel.Name
-		}
-	}
+// Currently not used, will stay in code base commented out for now.
+// // gets a channel name from the cache, otherwise searches all channels on server that send the message
+// func getChannelName(discord *discordgo.Session, channelID string, guildID string) string {
+// 	fmt.Println("Getting channel name....")
+// 	if value, ok := ServerMap[channelID]; ok {
+// 		fmt.Println("Value cached.")
+// 		return value
+// 	}
+// 	starttime := GetMillis()
+// 	channels, err := discord.GuildChannels(guildID)
+// 	if err != nil {
+// 		fmt.Println("Error getting channel name: ", err)
+// 		return channelID
+// 	}
+// 	for _, channel := range channels {
+// 		if channel.ID == channelID {
+// 			ServerMap[channelID] = channel.Name
+// 			endtime := GetMillis()
+// 			t := endtime - starttime
+// 			fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
+// 			go AddChannelToDB(channel.ID, channel.NSFW, channel.Name, channel.GuildID)
+// 			return channel.Name
+// 		}
+// 	}
 
-	return channelID
-}
+// 	return channelID
+// }
 
-func getChannelNSFW(discord *discordgo.Session, channelID string, guildID string) bool {
-	fmt.Println("Getting channel NSFW status....")
-	if value, ok := NSFWMap[channelID]; ok {
-		fmt.Println("Value cached.")
-		return value
-	}
-	starttime := GetMillis()
-	channels, err := discord.GuildChannels(guildID)
-	if err != nil {
-		fmt.Println("Error getting channel NSFW status: ", err)
-		return false
-	}
-	for _, channel := range channels {
-		if channel.ID == channelID {
-			NSFWMap[channelID] = channel.NSFW
-			endtime := GetMillis()
-			t := endtime - starttime
-			fmt.Println("Time to get channel NSFW Status: " + strconv.FormatInt(t, 10) + "ms")
-			return channel.NSFW
-		}
-	}
+// func getChannelNSFW(discord *discordgo.Session, channelID string, guildID string) bool {
+// 	fmt.Println("Getting channel NSFW status....")
+// 	if value, ok := NSFWMap[channelID]; ok {
+// 		fmt.Println("Value cached.")
+// 		return value
+// 	}
+// 	starttime := GetMillis()
+// 	channels, err := discord.GuildChannels(guildID)
+// 	if err != nil {
+// 		fmt.Println("Error getting channel NSFW status: ", err)
+// 		return false
+// 	}
+// 	for _, channel := range channels {
+// 		if channel.ID == channelID {
+// 			NSFWMap[channelID] = channel.NSFW
+// 			endtime := GetMillis()
+// 			t := endtime - starttime
+// 			fmt.Println("Time to get channel NSFW Status: " + strconv.FormatInt(t, 10) + "ms")
+// 			return channel.NSFW
+// 		}
+// 	}
 
-	return false
+// 	return false
 
-}
+// }
