@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 
@@ -234,19 +233,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			fmt.Println(user.Username)
 		} else if stringInSlice(user.ID, adminIDs) {
 			switch subcommand {
-			case "test":
-				quickMemeTest(discord, channel)
-			case "testredis":
-				quickMemeTestRedis(discord, channel)
-			case "getcache":
-				quickMemeGetCache(discord, channel)
-			case "clearcache":
-				quickMemeClearCache(discord, channel)
-			case "getservercache":
-				quickMemeServerCache(discord, channel)
-			case "resetblacklist":
-				ResetBlacklist()
-				discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 			case "ban":
 				banSubRoutine(discord, channel, commandContent, guildID, user)
 			case "unban":
@@ -257,6 +243,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				setQueueRoutine(discord, channel, commandContent, nsfw)
 			case "unsubscribe":
 				delQueueRoutine(discord, channel)
+			case "help":
+				helpRoutine(discord, channel)
 			default:
 				quickMemeDefault(discord, channel)
 			}
@@ -272,6 +260,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				setQueueRoutine(discord, channel, commandContent, nsfw)
 			case "unsubscribe":
 				delQueueRoutine(discord, channel)
+			case "help":
+				helpRoutine(discord, channel)
 			default:
 				quickMemeDefault(discord, channel)
 			}

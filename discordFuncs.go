@@ -550,3 +550,7 @@ func delQueueRoutine(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "You have successfully unsubscribed this channel from memes.")
 	fmt.Println("Done.")
 }
+
+func helpRoutine(discord *discordgo.Session, channel string) {
+	discord.ChannelMessageSend(channel, "For command syntax, see here: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+}
