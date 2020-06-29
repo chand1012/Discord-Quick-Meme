@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 
@@ -170,7 +169,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			fmt.Println("Channel " + channel + "is sending a lot of requests, limiting their input for 60 seconds.")
 		}
 		if RequestCount[channel] > 6 {
-			discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds.")
+			discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds. If you like the bot that much, and would like the restriction lifted, consider supporting the project: https://github.com/chand1012/Discord-Quick-Meme#coming-soon-support-the-bot")
 		}
 		return
 	}
@@ -249,19 +248,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			fmt.Println(user.Username)
 		} else if stringInSlice(user.ID, adminIDs) {
 			switch subcommand {
-			case "test":
-				quickMemeTest(discord, channel)
-			case "testredis":
-				quickMemeTestRedis(discord, channel)
-			case "getcache":
-				quickMemeGetCache(discord, channel)
-			case "clearcache":
-				quickMemeClearCache(discord, channel)
-			case "getservercache":
-				quickMemeServerCache(discord, channel)
-			case "resetblacklist":
-				ResetBlacklist()
-				discord.ChannelMessageSend(channel, "Blacklist reset. New Blacklist time is "+strconv.FormatInt(BlacklistTime, 10)+".")
 			case "ban":
 				banSubRoutine(discord, channel, commandContent, guildID, user)
 			case "unban":
@@ -272,6 +258,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				setQueueRoutine(discord, channel, commandContent, nsfw)
 			case "unsubscribe":
 				delQueueRoutine(discord, channel)
+			case "help":
+				helpRoutine(discord, channel)
 			default:
 				quickMemeDefault(discord, channel)
 			}
@@ -287,6 +275,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				setQueueRoutine(discord, channel, commandContent, nsfw)
 			case "unsubscribe":
 				delQueueRoutine(discord, channel)
+			case "help":
+				helpRoutine(discord, channel)
 			default:
 				quickMemeDefault(discord, channel)
 			}
