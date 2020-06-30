@@ -19,6 +19,13 @@ func supportedType(url string) bool {
 	return stringInSlice(fileType, supported)
 }
 
-func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
+// will be finished later, comment out for now
+// func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
+
+// }
+
+// This only applies to images at the moment, so assume that the post
+// is assumed to be an image
+func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, title string url string, score int32) {
 
 }
