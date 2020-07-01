@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -29,27 +28,6 @@ func getRedditEnv() agentFile {
 	}
 
 	return agent
-}
-
-func getRedisEnv() (string, string, int) {
-	var redisDB int
-	var err error
-	redisAddr := os.Getenv("REDIS_ADDR")
-	redisPasswd := os.Getenv("REDIS_PASSWORD")
-	redisDBRaw := os.Getenv("REDIS_DB")
-	if redisAddr == "" {
-		redisAddr = "127.0.0.1:6379"
-	}
-	if redisDBRaw == "" {
-		redisDB = 0
-	} else {
-		redisDB, err = strconv.Atoi(redisDBRaw)
-		if err != nil {
-			redisDB = 0
-		}
-	}
-
-	return redisAddr, redisPasswd, redisDB
 }
 
 func getDataEnv() (string, string, string, []string) { // discord token, topgg key, mode, comma seperated list of admin ids
