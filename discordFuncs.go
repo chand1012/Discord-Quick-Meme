@@ -150,6 +150,8 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 
 	if ContainsAnySubstring(url, imageEndings) && toggled {
 		embedSendRoutine(discord, channel, sub, title, url, score)
+		// This is for testing only
+		//fileUploadRoutine(discord, channel, sub, title, url, score)
 	} else if toggled {
 		successSendRoutine(discord, channel, sub, url, title, score)
 	} else if bannedToggle {
