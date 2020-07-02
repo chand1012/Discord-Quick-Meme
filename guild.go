@@ -1,6 +1,8 @@
 package main
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/bwmarrin/discordgo"
+)
 
 type guildSettings struct {
 	Supporter bool
@@ -13,7 +15,7 @@ func getServerSettings(discord *discordgo.Session, guildID string) (guildSetting
 		return value, nil
 	}
 
-	boosted, proxy, proxyMode, err := GetGuildStatus(guildID)
+	boosted, proxyEnable, proxyMode, err := GetGuildStatus(guildID)
 
 	if err != nil {
 		return guildSettings{}, err
@@ -21,7 +23,7 @@ func getServerSettings(discord *discordgo.Session, guildID string) (guildSetting
 
 	settings := guildSettings{
 		Supporter: boosted,
-		Proxy:     proxy,
+		Proxy:     proxyEnable,
 		ProxyMode: proxyMode,
 	}
 

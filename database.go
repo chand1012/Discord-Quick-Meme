@@ -404,7 +404,7 @@ func RemoveChannelFromDBAllTables(channel string) error {
 // GetGuildStatus gets if the guild has the extra features available
 func GetGuildStatus(guild string) (bool, bool, int8, error) {
 	var returnGuildID string
-	var proxy int8
+	var proxyEnable int8
 	var proxyMode int8
 
 	db, err := initDB()
@@ -415,9 +415,9 @@ func GetGuildStatus(guild string) (bool, bool, int8, error) {
 		return false, false, -1, err
 	}
 
-	get, err := db.Prepare("SELECT guildID, proxy, proxyMode FROM boosted WHERE 'guildID' = ?")
+	get, err := db.Prepare("SELECT guildID, proxyEnable, proxyMode FROM boosted WHERE guildID = ?")
 
-	err = get.QueryRow(guild).Scan(&returnGuildID, &proxy, &proxyMode)
+	err = get.QueryRow(guild).Scan(&returnGuildID, &proxyEnable, &proxyMode)
 
 	if err == sql.ErrNoRows {
 		return false, false, 0, nil
@@ -425,5 +425,5 @@ func GetGuildStatus(guild string) (bool, bool, int8, error) {
 		return false, false, -1, err
 	}
 
-	return guild == returnGuildID, proxy != 0, proxyMode, err
+	return guild == returnGuildID, proxyEnable != 0, proxyMode, err
 }

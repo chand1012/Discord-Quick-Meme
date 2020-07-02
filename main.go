@@ -177,7 +177,12 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	switch {
 	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
-		getMediaPost(discord, channel, nsfw, subs, "hot")
+		if settings.Supporter {
+			fmt.Println("User is supporter.")
+			getMediaPostSettings(discord, channel, nsfw, subs, "hot", settings)
+		} else {
+			getMediaPost(discord, channel, nsfw, subs, "hot")
+		}
 	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {

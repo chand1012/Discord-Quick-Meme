@@ -107,6 +107,37 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 
 }
 
+func getMediaPostSettings(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string, settings guildSettings) {
+	var score int32
+	var contentURL string
+	var title string
+	var sub string
+	var bannedToggle bool
+	var toggled bool
+
+	imageEndings := []string{".jpg", ".png", ".jpeg"}
+
+	sub, score, contentURL, title, toggled, bannedToggle = getPostLoop(subs, "media", channel, channelNsfw, sort)
+
+	if ContainsAnySubstring(contentURL, imageEndings) && toggled {
+		if settings.Proxy {
+			if settings.ProxyMode == 1 {
+				fileUploadRoutine(discord, channel, sub, title, contentURL, score)
+			} else {
+				proxySendRoutine(discord, channel, sub, title, contentURL, score)
+			}
+		} else {
+			embedSendRoutine(discord, channel, sub, title, contentURL, score)
+		}
+	} else if toggled {
+		successSendRoutine(discord, channel, sub, contentURL, title, score)
+	} else if bannedToggle {
+		bannedSendRoutine(discord, channel, sub)
+	} else {
+		nsfwSendRoutine(discord, channel)
+	}
+}
+
 // gets a text post and sends it
 func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
