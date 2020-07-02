@@ -26,9 +26,27 @@ func supportedType(url string) bool {
 }
 
 // will be finished later, comment out for now
-// func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
-
-// }
+func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
+	proxyBase := "https://image-proxy.chand1012.workers.dev/"
+	imageURL := proxyBase + url
+	rand.Seed(time.Now().Unix())
+	randColor := rand.Intn(0xffffff)
+	embed := &discordgo.MessageEmbed{
+		Author:      &discordgo.MessageEmbedAuthor{},
+		Color:       randColor,
+		Description: "From r/" + sub + "\n Score: " + humanize.Comma(int64(score)),
+		Image: &discordgo.MessageEmbedImage{
+			URL: imageURL,
+		},
+		Timestamp: time.Now().Format(time.RFC3339),
+		Title:     title,
+	}
+	_, err := discord.ChannelMessageSendEmbed(channel, embed)
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+	}
+}
 
 // This only applies to images at the moment, so the post should be checked beforehand
 // Also should be checked if they have this setting set.
