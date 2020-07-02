@@ -247,26 +247,9 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			subcommand = ""
 		}
 		subcommand = textFilter(subcommand)
-		if !stringInSlice(user.ID, adminIDs) && !isUserMemeBotAdmin(discord, guildID, user) {
+		if !isUserMemeBotAdmin(discord, guildID, user) {
 			fmt.Println("Intruder tried to execute admin only command:")
 			fmt.Println(user.Username)
-		} else if stringInSlice(user.ID, adminIDs) {
-			switch subcommand {
-			case "ban":
-				banSubRoutine(discord, channel, commandContent, guildID, user)
-			case "unban":
-				unbanSubRoutine(discord, channel, commandContent, guildID, user)
-			case "getbanned":
-				getbannedSubRoutine(discord, channel, commandContent, guildID, user)
-			case "subscribe":
-				setQueueRoutine(discord, channel, commandContent, nsfw)
-			case "unsubscribe":
-				delQueueRoutine(discord, channel)
-			case "help":
-				helpRoutine(discord, channel)
-			default:
-				quickMemeDefault(discord, channel)
-			}
 		} else {
 			switch subcommand {
 			case "ban":
@@ -281,6 +264,12 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				delQueueRoutine(discord, channel)
 			case "help":
 				helpRoutine(discord, channel)
+			case "proxy":
+				if settings.Supporter {
+					updateProxyRoutine(discord, channel, guildID, commandContent, settings)
+				} else {
+					discord.ChannelMessageSend(channel, "These settings are currently only available to supporters due to the high bandwidth requirements. To become a supporter, see here: https://github.com/chand1012/Discord-Quick-Meme#coming-soon-support-the-bot")
+				}
 			default:
 				quickMemeDefault(discord, channel)
 			}

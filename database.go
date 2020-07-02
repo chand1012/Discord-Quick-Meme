@@ -427,3 +427,26 @@ func GetGuildStatus(guild string) (bool, bool, int8, error) {
 
 	return guild == returnGuildID, proxyEnable != 0, proxyMode, err
 }
+
+// SetGuildStatus sets the status of the guild's proxy settings
+func SetGuildStatus(guild string, proxyEnable bool, proxyMode int8) error {
+	var proxy int8
+
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	if proxyEnable {
+		proxy = 1
+	} else {
+		proxy = 0
+	}
+
+	_, err = db.Exec("UPDATE boosted SET proxyEnable = ?, proxyMode = ? WHERE guildID = ?", proxy, proxyMode, guild)
+
+	return err
+}

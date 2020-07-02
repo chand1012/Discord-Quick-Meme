@@ -189,9 +189,12 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 // }
 
 // gets the user's member struct via their
+// this shit is broken
 func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
 	guildObject, _ := discord.Guild(guildID)
+	fmt.Println(guildObject.Members)
 	for _, member := range guildObject.Members {
+		fmt.Println(member.User.ID)
 		if member.User.ID == user.ID {
 			return *member
 		}
@@ -201,14 +204,13 @@ func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user dis
 
 // checks if user is a memebot admin.
 func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
-	adminCode := "memebot admin"
+	adminCode := "memebot"
 	member := getUserMemberFromGuild(discord, guildID, *user)
-	if member.User.ID == "" {
-		return false
-	}
 	guildRoles, _ := discord.GuildRoles(guildID)
 	for _, role := range guildRoles {
 		for _, roleID := range member.Roles {
+			fmt.Println(role.ID == roleID)
+			fmt.Println(strings.Contains(strings.ToLower(role.Name), adminCode))
 			if role.ID == roleID && strings.Contains(strings.ToLower(role.Name), adminCode) {
 				return true
 			}
@@ -383,4 +385,47 @@ func delQueueRoutine(discord *discordgo.Session, channel string) {
 
 func helpRoutine(discord *discordgo.Session, channel string) {
 	discord.ChannelMessageSend(channel, "For command syntax, see here: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+}
+
+func updateProxyRoutine(discord *discordgo.Session, channel string, guildID string, commandContent []string, settings guildSettings) {
+	var setting string
+	var value string
+	var proxyEnable bool
+	var proxyMode int8
+
+	if len(commandContent) != 4 {
+		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme proxy <setting> <value>` see here for more info: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+		return
+	}
+
+	proxyEnable = settings.Proxy
+	proxyMode = settings.ProxyMode
+	setting = commandContent[2]
+	value = commandContent[3]
+
+	switch setting {
+	case "enable":
+		if value == "false" {
+			proxyEnable = false
+		} else {
+			proxyEnable = true
+		}
+	case "mode":
+		if value == "discord" {
+			proxyMode = 1
+		} else if value == "worker" {
+			proxyMode = 2
+		} else {
+			discord.ChannelMessageSend(channel, "Incorrect command syntax! Proxy Mode must be `discord` for Discord's image upload as a proxy or `worker` for the external proxy.")
+			return
+		}
+	}
+
+	err := SetGuildStatus(guildID, proxyEnable, proxyMode)
+
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+	}
+
 }
