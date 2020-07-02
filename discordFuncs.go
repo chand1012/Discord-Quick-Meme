@@ -31,7 +31,7 @@ func getBuzzWord(discord *discordgo.Session, channel string) error {
 }
 
 // send routine for embedded messages
-func embedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
+func embedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
 	embed := &discordgo.MessageEmbed{
@@ -39,7 +39,7 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 		Color:       randColor,
 		Description: "From r/" + sub + "\n Score: " + humanize.Comma(int64(score)),
 		Image: &discordgo.MessageEmbedImage{
-			URL: url,
+			URL: contentURL,
 		},
 		Timestamp: time.Now().Format(time.RFC3339),
 		Title:     title,
@@ -84,7 +84,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 	var returnPost QuickPost
 	var sub string
 	var score int32
-	var url string
+	var contentURL string
 	var title string
 	var nsfw bool
 
@@ -104,7 +104,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		}
 
 		score = returnPost.Score
-		url = returnPost.Content
+		contentURL = returnPost.Content
 		title = returnPost.Title
 		nsfw = returnPost.Nsfw
 
@@ -131,14 +131,14 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 			}
 		}
 	}
-	return sub, score, url, title, toggled, bannedToggle
+	return sub, score, contentURL, title, toggled, bannedToggle
 
 }
 
 // gets a media post and sends it
 func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
-	var url string
+	var contentURL string
 	var title string
 	var sub string
 	var bannedToggle bool
@@ -146,15 +146,15 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 
 	imageEndings := []string{".jpg", ".png", ".jpeg"}
 
-	sub, score, url, title, toggled, bannedToggle = getPostLoop(subs, "media", channel, channelNsfw, sort)
+	sub, score, contentURL, title, toggled, bannedToggle = getPostLoop(subs, "media", channel, channelNsfw, sort)
 
-	if ContainsAnySubstring(url, imageEndings) && toggled {
-		embedSendRoutine(discord, channel, sub, title, url, score)
+	if ContainsAnySubstring(contentURL, imageEndings) && toggled {
+		embedSendRoutine(discord, channel, sub, title, contentURL, score)
 		// This is for testing only
-		//fileUploadRoutine(discord, channel, sub, title, url, score)
-		//proxySendRoutine(discord, channel, sub, title, url, score)
+		//fileUploadRoutine(discord, channel, sub, title, contentURL, score)
+		//proxySendRoutine(discord, channel, sub, title, contentURL, score)
 	} else if toggled {
-		successSendRoutine(discord, channel, sub, url, title, score)
+		successSendRoutine(discord, channel, sub, contentURL, title, score)
 	} else if bannedToggle {
 		bannedSendRoutine(discord, channel, sub)
 	} else {
@@ -186,16 +186,16 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 // gets a link post and sends it
 func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
-	var url string
+	var contentURL string
 	var title string
 	var sub string
 	var bannedToggle bool
 	var toggled bool
 
-	sub, score, url, title, toggled, bannedToggle = getPostLoop(subs, "link", channel, channelNsfw, sort)
+	sub, score, contentURL, title, toggled, bannedToggle = getPostLoop(subs, "link", channel, channelNsfw, sort)
 
 	if toggled {
-		successSendRoutine(discord, channel, sub, url, title, score)
+		successSendRoutine(discord, channel, sub, contentURL, title, score)
 	} else if bannedToggle {
 		bannedSendRoutine(discord, channel, sub)
 	} else {

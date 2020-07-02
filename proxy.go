@@ -12,23 +12,23 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func getFileType(url string) string {
-	reversedURL := reverseString(url)
+func getFileType(contentURL string) string {
+	reversedURL := reverseString(contentURL)
 	endingIndex := strings.Index(reversedURL, ".")
 	reversedEnding := []rune(reversedURL)[0:endingIndex]
 	return reverseString(string(reversedEnding))
 }
 
-func supportedType(url string) bool {
-	fileType := getFileType(url)
+func supportedType(contentURL string) bool {
+	fileType := getFileType(contentURL)
 	supported := []string{"jpg", "jpeg", "png", "gif", "gifv", "svg"}
 	return stringInSlice(fileType, supported)
 }
 
 // will be finished later, comment out for now
-func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
+func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	proxyBase := "https://image-proxy.chand1012.workers.dev/"
-	imageURL := proxyBase + url
+	imageURL := proxyBase + contentURL
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
 	embed := &discordgo.MessageEmbed{
@@ -50,8 +50,8 @@ func proxySendRoutine(discord *discordgo.Session, channel string, sub string, ti
 
 // This only applies to images at the moment, so the post should be checked beforehand
 // Also should be checked if they have this setting set.
-func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
-	req, err := http.NewRequest("GET", url, nil)
+func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
+	req, err := http.NewRequest("GET", contentURL, nil)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

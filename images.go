@@ -29,11 +29,11 @@ type returnPayload struct {
 }
 
 // MRISA search that only searches reddit
-func imageRedditSearch(url string) string {
+func imageRedditSearch(contentURL string) string {
 	var returnURL string
 	var oldest int64
 
-	urls, titles := imageSearch(url)
+	urls, titles := imageSearch(contentURL)
 
 	oldest = 0
 	for i := 0; i < len(urls); i++ {
@@ -56,10 +56,10 @@ func imageRedditSearch(url string) string {
 }
 
 // the MRISA search function
-func imageSearch(url string) ([]string, []string) {
+func imageSearch(contentURL string) ([]string, []string) {
 	var payload imagePayload
 	var parsedBody returnPayload
-	payload.ImageURL = url
+	payload.ImageURL = contentURL
 	payload.ResizedImages = false
 
 	data, err := json.Marshal(payload)
@@ -140,8 +140,8 @@ func imageSearchCommand(discord *discordgo.Session, channel string) {
 		return
 	}
 
-	url := imageRedditSearch(searchURL)
-	if url == "" {
+	contentURL := imageRedditSearch(searchURL)
+	if contentURL == "" {
 		discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
 		urls, _ := imageSearch(searchURL)
 		if urls == nil {
@@ -153,9 +153,13 @@ func imageSearchCommand(discord *discordgo.Session, channel string) {
 			printstr += link + "\n"
 		}
 		discord.ChannelMessageSend(channel, printstr)
-	} else if url == "nil" {
+	} else if contentURL == "nil" {
 		discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
 	} else {
-		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+url)
+		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+contentURL)
 	}
 }
+
+// func getImgurDirectLink(contentURL string) string {
+
+// }
