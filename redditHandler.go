@@ -73,10 +73,11 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 
 	var s int
 
+	now := time.Now().Unix()
+	rand.Seed(now)
 	subList = getAllSubsFromMap()
 	sub = subs[rand.Intn(len(subs))]
 	cachePosts, success = GetFromCache(sub)
-	now := time.Now().Unix()
 	if now >= CacheTime && !CachePopulating {
 		fmt.Println("Clearing Cache...")
 		ClearCache()
@@ -94,7 +95,6 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 			fmt.Println("Error creating new Reddit bot:", err)
 			return QuickPost{}, ""
 		}
-		rand.Seed(time.Now().Unix())
 		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "")
 		if err != nil {
 			fmt.Println("Error getting posts from sub '", sub, "':", err)
