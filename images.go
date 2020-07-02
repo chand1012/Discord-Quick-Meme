@@ -159,7 +159,3 @@ func imageSearchCommand(discord *discordgo.Session, channel string) {
 		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+contentURL)
 	}
 }
-
-// func getImgurDirectLink(contentURL string) string {
-
-// }
