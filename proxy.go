@@ -82,7 +82,7 @@ func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, t
 			Title:       title,
 		},
 		Files: []*discordgo.File{
-			&discordgo.File{
+			{
 				Name:   imageName,
 				Reader: resp.Body,
 			},
