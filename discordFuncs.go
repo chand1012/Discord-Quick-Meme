@@ -191,15 +191,12 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 // gets the user's member struct via their
 // this shit is broken
 func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
-	guildObject, _ := discord.Guild(guildID)
-	fmt.Println(guildObject.Members)
-	for _, member := range guildObject.Members {
-		fmt.Println(member.User.ID)
-		if member.User.ID == user.ID {
-			return *member
-		}
+	member, err := discord.GuildMember(guildID, user.ID)
+	if err != nil {
+		fmt.Println(err)
+		return discordgo.Member{}
 	}
-	return discordgo.Member{}
+	return *member
 }
 
 // checks if user is a memebot admin.
@@ -209,8 +206,6 @@ func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discor
 	guildRoles, _ := discord.GuildRoles(guildID)
 	for _, role := range guildRoles {
 		for _, roleID := range member.Roles {
-			fmt.Println(role.ID == roleID)
-			fmt.Println(strings.Contains(strings.ToLower(role.Name), adminCode))
 			if role.ID == roleID && strings.Contains(strings.ToLower(role.Name), adminCode) {
 				return true
 			}
@@ -407,14 +402,18 @@ func updateProxyRoutine(discord *discordgo.Session, channel string, guildID stri
 	case "enable":
 		if value == "false" {
 			proxyEnable = false
+			discord.ChannelMessageSend(channel, "Disabling Proxy.")
 		} else {
 			proxyEnable = true
+			discord.ChannelMessageSend(channel, "Enabling Proxy.")
 		}
 	case "mode":
 		if value == "discord" {
-			proxyMode = 1
+			proxyMode = 0
+			discord.ChannelMessageSend(channel, "Setting proxy mode to Discord Proxy.")
 		} else if value == "worker" {
-			proxyMode = 2
+			proxyMode = 1
+			discord.ChannelMessageSend(channel, "Setting proxy mode to Custom Proxy.")
 		} else {
 			discord.ChannelMessageSend(channel, "Incorrect command syntax! Proxy Mode must be `discord` for Discord's image upload as a proxy or `worker` for the external proxy.")
 			return
@@ -426,6 +425,8 @@ func updateProxyRoutine(discord *discordgo.Session, channel string, guildID stri
 	if err != nil {
 		fmt.Println(err)
 		errSendRoutine(discord, channel, err)
+	} else {
+		discord.ChannelMessageSend(channel, "Proxy settings updated.")
 	}
 
 }

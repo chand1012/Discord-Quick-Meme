@@ -40,7 +40,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		}
 
 		if strings.Contains(contentURL, "imgur") {
-			if !strings.Contains(contentURL, "i.imgur") && !strings.Contains(contentURL, "/a/") {
+			if !strings.Contains(contentURL, "i.imgur") && !strings.Contains(contentURL, "/a/") && !strings.Contains(contentURL, "gif") {
 				contentURL = getImgurDirectLink(contentURL)
 			}
 		}
