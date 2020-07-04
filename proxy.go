@@ -26,7 +26,7 @@ func supportedType(contentURL string) bool {
 }
 
 // will be finished later, comment out for now
-func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
+func proxyEmbedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	proxyBase := "https://image-proxy.chand1012.workers.dev/"
 	imageURL := proxyBase + contentURL
 	rand.Seed(time.Now().Unix())
@@ -50,7 +50,7 @@ func proxySendRoutine(discord *discordgo.Session, channel string, sub string, ti
 
 // This only applies to images at the moment, so the post should be checked beforehand
 // Also should be checked if they have this setting set.
-func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
+func uploadEmbedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	req, err := http.NewRequest("GET", contentURL, nil)
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -61,11 +61,6 @@ func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, t
 	defer resp.Body.Close()
 
 	imageName := path.Base(req.URL.Path)
-
-	if err != nil {
-		fmt.Println(err)
-		errSendRoutine(discord, channel, err)
-	}
 
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)
@@ -93,5 +88,44 @@ func fileUploadRoutine(discord *discordgo.Session, channel string, sub string, t
 	if err != nil {
 		fmt.Println(err)
 		errSendRoutine(discord, channel, err)
+	}
+}
+
+func uploadSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
+	req, err := http.NewRequest("GET", contentURL, nil)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+	}
+	defer resp.Body.Close()
+
+	imageName := path.Base(req.URL.Path)
+
+	message := &discordgo.MessageSend{
+		Content: "From r/" + sub + "\n" + title + "\nScore: " + humanize.Comma(int64(score)),
+		Files: []*discordgo.File{
+			{
+				Name:   imageName,
+				Reader: resp.Body,
+			},
+		},
+	}
+
+	_, err = discord.ChannelMessageSendComplex(channel, message)
+
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+	}
+}
+
+func proxySendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
+	proxyBase := "https://image-proxy.chand1012.workers.dev/"
+	imageURL := proxyBase + contentURL
+	_, err := discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+title+"\n"+imageURL+"\nScore: "+humanize.Comma(int64(score)))
+	if err != nil {
+		fmt.Println("Error posting to channel:", err.Error())
 	}
 }

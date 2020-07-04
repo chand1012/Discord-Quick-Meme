@@ -94,9 +94,6 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 
 	if ContainsAnySubstring(contentURL, imageEndings) && toggled {
 		embedSendRoutine(discord, channel, sub, title, contentURL, score)
-		// This is for testing only
-		//fileUploadRoutine(discord, channel, sub, title, contentURL, score)
-		//proxySendRoutine(discord, channel, sub, title, contentURL, score)
 	} else if toggled {
 		successSendRoutine(discord, channel, sub, contentURL, title, score)
 	} else if bannedToggle {
@@ -122,15 +119,27 @@ func getMediaPostSettings(discord *discordgo.Session, channel string, channelNsf
 	if ContainsAnySubstring(contentURL, imageEndings) && toggled {
 		if settings.Proxy {
 			if settings.ProxyMode == 1 {
-				fileUploadRoutine(discord, channel, sub, title, contentURL, score)
+				uploadEmbedSendRoutine(discord, channel, sub, title, contentURL, score)
 			} else {
-				proxySendRoutine(discord, channel, sub, title, contentURL, score)
+				proxyEmbedSendRoutine(discord, channel, sub, title, contentURL, score)
 			}
 		} else {
 			embedSendRoutine(discord, channel, sub, title, contentURL, score)
 		}
 	} else if toggled {
-		successSendRoutine(discord, channel, sub, contentURL, title, score)
+		// get this working
+		// the issue here is that you need to check
+		// if the post is a gif or a gifv
+		// download gifv as gifs and re-serve
+		if settings.Proxy {
+			if settings.ProxyMode == 1 {
+				uploadSendRoutine(discord, channel, sub, title, contentURL, score)
+			} else {
+				proxySendRoutine(discord, channel, sub, title, contentURL, score)
+			}
+		} else {
+			successSendRoutine(discord, channel, sub, contentURL, title, score)
+		}
 	} else if bannedToggle {
 		bannedSendRoutine(discord, channel, sub)
 	} else {
