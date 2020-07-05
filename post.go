@@ -40,7 +40,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		}
 
 		if strings.Contains(contentURL, "imgur") {
-			if !strings.Contains(contentURL, "i.imgur") && !strings.Contains(contentURL, "/a/") && !strings.Contains(contentURL, "gif") {
+			if !strings.Contains(contentURL, "i.imgur") && !strings.Contains(contentURL, "/a/") {
 				contentURL = getImgurDirectLink(contentURL)
 			}
 		}
@@ -75,6 +75,10 @@ func getImgurDirectLink(contentURL string) string {
 		return contentURL
 	}
 	imgurDirect := "https://i.imgur.com"
+	ending := ".jpg"
+	if strings.Contains(contentURL, "gif") {
+		ending = ".mp4"
+	}
 	// use jpeg because its small and works
-	return imgurDirect + parsedURL.Path + ".jpg"
+	return imgurDirect + parsedURL.Path + ending
 }
