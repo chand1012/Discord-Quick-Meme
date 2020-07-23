@@ -197,20 +197,20 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 // }
 
 // gets the user's member struct via their
-// this shit is broken
-func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
-	member, err := discord.GuildMember(guildID, user.ID)
-	if err != nil {
-		fmt.Println(err)
-		return discordgo.Member{}
-	}
-	return *member
-}
+// func getUserMemberFromGuild(discord *discordgo.Session, guildID string, user discordgo.User) discordgo.Member {
+// 	guildObject, _ := discord.Guild(guildID)
+// 	for _, member := range guildObject.Members {
+// 		if member.User.ID == user.ID {
+// 			return *member
+// 		}
+// 	}
+// 	return discordgo.Member{}
+// }
 
 // checks if user is a memebot admin.
 func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
-	adminCode := "memebot"
-	member := getUserMemberFromGuild(discord, guildID, *user)
+	adminCode := "memebot admin"
+	member, _ := discord.GuildMember(guildID, user.ID)
 	guildRoles, _ := discord.GuildRoles(guildID)
 	for _, role := range guildRoles {
 		for _, roleID := range member.Roles {
@@ -237,7 +237,7 @@ func getSource(discord *discordgo.Session, channel string) error {
 
 // ban a subreddit routine
 func banSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
-	if len(commandContent) < 4 || len(commandContent) > 5 {
+	if len(commandContent) != 4 {
 		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
 	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 		if commandContent[2] == "server" {
