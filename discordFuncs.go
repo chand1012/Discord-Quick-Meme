@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 
@@ -437,4 +438,82 @@ func updateProxyRoutine(discord *discordgo.Session, channel string, guildID stri
 		discord.ChannelMessageSend(channel, "Proxy settings updated.")
 	}
 
+}
+
+func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID string, user *discordgo.User) {
+	userStatus, err := getPatronStatus(user.ID)
+
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
+
+	if userStatus == 0 {
+		discord.ChannelMessageSend(channel, user.Mention()+" , you are not a Patron! Subscribe and get some awesome benefits here: https://www.patreon.com/DiscordQuickMeme")
+		return
+	}
+
+	userStatus, cooldown, err := getBenefitServer(user.ID, guildID)
+
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
+
+	if cooldown != 0 || err != sql.ErrNoRows {
+		discord.ChannelMessageSend(channel, "This server is already enrolled in our Patreon benefits, silly!")
+		return
+	}
+
+	userStatus, benefitGuilds, err := getAllBenefitsForUser(user.ID)
+
+	if userStatus == 1 && len(benefitGuilds) > 0 {
+		discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either upgrade your package to allow for more servers, remove the server you have already benefit, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")
+		return
+	} else if userStatus == 2 && len(benefitGuilds) >= 3 {
+		discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either remove a server from your benefits, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")
+		return
+	}
+
+	err = setBenefitServer(user.ID, userStatus, guildID)
+
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
+
+	discord.ChannelMessageSend(channel, "Hey, @everyone ! "+user.Mention()+" just gave you QuickMeme server benefits! Give them love! :clap:")
+}
+
+func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID string, user *discordgo.User) {
+
+	_, cooldown, err := getBenefitServer(user.ID, guildID)
+
+	if err == sql.ErrNoRows {
+		discord.ChannelMessageSend(channel, "This server isn't subscribed to QuickMeme benefits. If you want to subscribe, please sign up here: https://www.patreon.com/DiscordQuickMeme")
+		return
+	} else if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
+
+	if cooldown < time.Now().Unix() {
+		waitTime := (cooldown - time.Now().Unix()) / 86400 // seconds in a day
+		discord.ChannelMessageSend(channel, "You must wait 30 days before changing your server. You have about "+strconv.FormatInt(waitTime, 10)+" days before you can change servers.")
+		return
+	}
+
+	err = removeBenefitServer(user.ID, guildID)
+
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
+
+	discord.ChannelMessageSend(channel, user.Mention()+" has removed their benefits from this server. You may now take your benefits elsewhere. If anyone else would like to provide QuickMeme benefits to this server, sign up can be found here: https://www.patreon.com/DiscordQuickMeme")
 }
