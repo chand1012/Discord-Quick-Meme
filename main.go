@@ -142,7 +142,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	go updateStatus(discord)
 	go UpdateBlacklistTime()
 	channel := message.ChannelID
-	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!revsearch"}
+	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!revsearch", "!benefit", "!unbenefit"}
 	user := message.Author
 	content := message.Content
 	commandContent := strings.Split(content, " ")
@@ -239,6 +239,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 	case command == "!revsearch":
 		imageSearchCommand(discord, channel)
+	case command == "!benefit":
+		setBenefitsRoutine(discord, channel, guildID, user)
+	case command == "!unbenefit":
+		removeBenefitsRoutine(discord, channel, guildID, user)
 	case command == "!quickmeme":
 		var subcommand string
 		if len(commandContent) > 1 {
