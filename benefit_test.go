@@ -44,7 +44,7 @@ func TestBenefitsSingle(t *testing.T) {
 		t.Errorf("There was an error getting the status for the server, expected 1, got %d", status)
 	}
 
-	if cooldown >= time.Now().Unix() {
+	if cooldown < time.Now().Unix() {
 		t.Errorf("There was an error getting the cooldown for the server, expected to be less than %d, but got %d", time.Now().Unix(), cooldown)
 	}
 
