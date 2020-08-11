@@ -27,7 +27,7 @@ func setBenefitServer(userID string, status uint8, guild string) error {
 		return err
 	}
 
-	cooldown := time.Now().Unix() + 2700000
+	cooldown := time.Now().Unix() + 2700000 // seconds in a month
 
 	_, err = insert.Exec(userID, status, guild, cooldown)
 	insert.Close()
@@ -35,14 +35,10 @@ func setBenefitServer(userID string, status uint8, guild string) error {
 	return err
 }
 
-func removeBenefitServer(userID string, guild string) error {
+func removeBenefitServer(guild string) error {
 	db, err := initDB()
 
 	defer db.Close()
-
-	if err != nil {
-		return err
-	}
 
 	if err != nil {
 		return err
@@ -109,5 +105,20 @@ func getAllBenefitsForUser(userID string) (uint8, []string, error) {
 	err = rows.Err()
 
 	return status, guildIDs, err
+
+}
+
+func removeAllBenefitsForUser(userID string) error {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("DELETE FROM boosted WHERE userID = ?", userID)
+
+	return err
 
 }
