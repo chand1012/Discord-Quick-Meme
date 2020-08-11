@@ -507,7 +507,7 @@ func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID s
 		return
 	}
 
-	err = removeBenefitServer(user.ID, guildID)
+	err = removeBenefitServer(guildID)
 
 	if err != nil {
 		fmt.Println(err)
