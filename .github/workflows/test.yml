@@ -4,7 +4,7 @@ on:
 jobs:
 
   build:
-    name: Build
+    name: Runs Tests
     runs-on: ubuntu-latest
     steps:
 
@@ -23,8 +23,6 @@ jobs:
 
     - name: Install Test Dependencies
       run: |
-       sudo apt-get update
-       sudo apt-get install redis-server -y
        docker pull chand1012/mrisa:master
        docker run -p 5000:5000 -d chand1012/mrisa:master
 

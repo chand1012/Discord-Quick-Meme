@@ -20,7 +20,7 @@ func setBenefitServer(userID string, status uint8, guild string) error {
 		return err
 	}
 
-	insert, err := db.Prepare("INSERT INTO boosted (userID, status, guildID, cooldown) VALUES ?, ?, ?, ?")
+	insert, err := db.Prepare("INSERT INTO boosted (userID, status, guildID, cooldown) VALUES (?, ?, ?, ?)")
 
 	if err != nil {
 		fmt.Println(err)
