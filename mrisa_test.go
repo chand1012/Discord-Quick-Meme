@@ -20,7 +20,7 @@ func TestMRISAConnection(t *testing.T) {
 
 // BenchmarkMRISAConnection tests how long a connection takes to the MRISA server
 func BenchmarkMRISAConnection(b *testing.B) {
-	testImg := "https://raw.githubusercontent.com/chand1012/Discord-Quick-Meme/master/canary-icon.png"
+	testImg := "https://raw.githubusercontent.com/chand1012/Discord-Quick-Meme/master/icon/MemeBotBlue512.png"
 
 	for i := 0; i < b.N; i++ {
 		_, _ = imageSearch(testImg)
