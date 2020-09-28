@@ -1,6 +1,6 @@
 module github.com/chand1012/Discord-Quick-Meme
 
-go 1.13
+go 1.15
 
 require (
 	github.com/bwmarrin/discordgo v0.22.0
