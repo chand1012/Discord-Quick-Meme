@@ -69,4 +69,4 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 
 If its offline, I am probably working on it.
 
-Icon by my friend, Mel. Logo licensed under MIT like the rest of the Bot.
+Icon by my friend, Mel. All rights to the logo/icon are reserved.
