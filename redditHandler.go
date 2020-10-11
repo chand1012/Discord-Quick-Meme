@@ -88,14 +88,14 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	}
 	if !success {
 		starttime := GetMillis()
-		fmt.Println("Adding r/" + sub + " to cache.")
 		bot, err := initBot()
 		if err != nil {
 			fmt.Println("Error creating new Reddit bot:", err)
 			return QuickPost{}, ""
 		}
 		rand.Seed(time.Now().Unix())
-		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "")
+		fmt.Println("Adding r/" + sub + " to cache.")
+		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "") // the bot is locking up here
 		if err != nil {
 			fmt.Println("Error getting posts from sub '", sub, "':", err)
 			return QuickPost{}, sub
