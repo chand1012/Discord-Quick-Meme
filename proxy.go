@@ -16,7 +16,7 @@ func getFileType(contentURL string) string {
 	reversedURL := reverseString(contentURL)
 	endingIndex := strings.Index(reversedURL, ".")
 	reversedEnding := []rune(reversedURL)[0:endingIndex]
-	return reverseString(string(reversedEnding))
+	return reverseString(fmt.Sprint(reversedEnding))
 }
 
 func supportedType(contentURL string) bool {
