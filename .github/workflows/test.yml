@@ -35,6 +35,7 @@ jobs:
        export DBUSER="${{ secrets.DBUSER }}"
        export DBHOST="${{ secrets.DBHOST }}"
        export DBPASSWD="${{ secrets.DBPASSWD }}"
+       export DBPORT="${{ secrets.DBPORT }}"
        go test -run ''
     
     - name: Runs Benchmark Tests
@@ -45,5 +46,6 @@ jobs:
        export DBUSER="${{ secrets.DBUSER }}"
        export DBHOST="${{ secrets.DBHOST }}"
        export DBPASSWD="${{ secrets.DBPASSWD }}"
+       export DBPORT="${{ secrets.DBPORT }}"
        go test -bench=.
     
