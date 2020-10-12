@@ -54,6 +54,9 @@ func getDBEnv() string { // returns the string that the DB can use
 	database := os.Getenv("DB")
 	host := os.Getenv("DBHOST")
 	port := os.Getenv("DBPORT")
+	if port == "" {
+		port = "3306"
+	}
 
 	endstr := user + ":" + password + "@tcp(" + host + ":" + port + ")" + "/" + database
 
