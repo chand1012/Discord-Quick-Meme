@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.13
+    - name: Set up Go 1.15
       uses: actions/setup-go@v1
       with:
-        go-version: 1.13
+        go-version: 1.15
       id: go
 
     - name: Check out code into the Go module directory
@@ -33,6 +33,7 @@ jobs:
        export DBUSER="${{ secrets.DBUSER }}"
        export DBHOST="${{ secrets.DBHOST }}"
        export DBPASSWD="${{ secrets.DBPASSWD }}"
+       export DBPORT="${{ secrets.DBPORT }}"
        go test -run ''
     
     - name: Runs Benchmark Tests
@@ -43,5 +44,6 @@ jobs:
        export DBUSER="${{ secrets.DBUSER }}"
        export DBHOST="${{ secrets.DBHOST }}"
        export DBPASSWD="${{ secrets.DBPASSWD }}"
+       export DBPORT="${{ secrets.DBPORT }}"
        go test -bench=.
     
