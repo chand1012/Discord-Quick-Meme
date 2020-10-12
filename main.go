@@ -35,6 +35,8 @@ var (
 	LastPost map[string]QuickPost
 	//SubMap contains all of the data for the subs
 	SubMap map[string][]string
+	// PatronCache Map containing all of the patrons and their status
+	PatronCache map[string]uint8
 	//CachePopulating if true, do not run the populate cache until finished
 	CachePopulating bool
 	//ErrorMsg Main error message that gets send when something goes seriously wrong
@@ -68,6 +70,7 @@ func main() {
 	RequestCount = make(map[string]uint8)
 	RequestTimer = make(map[string]int64)
 	QueueState = make(map[string]bool)
+	PatronCache = make(map[string]uint8)
 	ErrorMsg = "There was an error processing your request. If this persists, please submit a report here: https://github.com/chand1012/Discord-Quick-Meme/issues"
 	JSONError = "Error reading JSON file"
 	key, topgg, RunMode, adminRawIDs = getDataEnv()
@@ -144,6 +147,11 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	channel := message.ChannelID
 	commands := []string{"!meme", "!joke", "!hentai", "!news", "!fiftyfifty", "!5050", "!all", "!quickmeme", "!text", "!link", "!source", "!buzzword", "!revsearch", "!benefit", "!unbenefit"}
 	user := message.Author
+	userStatus, err := getPatronStatus(user.ID, true)
+	if err != nil {
+		fmt.Println("Cannot determine user status. ", userStatus)
+		discord.ChannelMessageSend(channel, "Cannot determine user status. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+	}
 	content := message.Content
 	commandContent := strings.Split(content, " ")
 	command := commandContent[0]
@@ -151,7 +159,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	settings, err := getServerSettings(discord, guildID)
 	if err != nil {
 		fmt.Println("Cannot determine status of guild with ID", guildID)
-		discord.ChannelMessageSend(channel, "Cannot determine guild settings. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		discord.ChannelMessageSend(channel, "Cannot determine server settings. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
 		settings = guildSettings{
 			Supporter: false,
 			Proxy:     false,
@@ -161,7 +169,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		return
 	}
 	canUserPost := true
-	if !settings.Supporter {
+	if !settings.Supporter && userStatus == 0 {
 		canUserPost = updateChannelTimer(channel)
 	}
 	if !canUserPost {

@@ -20,17 +20,10 @@ func setBenefitServer(userID string, status uint8, guild string) error {
 		return err
 	}
 
-	insert, err := db.Prepare("INSERT INTO boosted (userID, status, guildID, cooldown) VALUES (?, ?, ?, ?)")
-
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
 	cooldown := time.Now().Unix() + 2700000 // seconds in a month
 
-	_, err = insert.Exec(userID, status, guild, cooldown)
-	insert.Close()
+	// this isn't working
+	_, err = db.Exec("INSERT INTO boosted (guildID, userID, status, cooldown) VALUES (?, ?, ?, ?)", guild, userID, status, cooldown)
 
 	return err
 }
@@ -87,7 +80,7 @@ func getAllBenefitsForUser(userID string) (uint8, []string, error) {
 	if err != nil {
 		return 0, nil, err
 	}
-
+	fmt.Println("Adding guild to database...")
 	rows, err := db.Query("SELECT status, guildID FROM boosted WHERE userID = ?", userID)
 
 	if err != nil {

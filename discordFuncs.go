@@ -453,7 +453,9 @@ func updateProxyRoutine(discord *discordgo.Session, channel string, guildID stri
 }
 
 func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID string, user *discordgo.User) {
-	userStatus, err := getPatronStatus(user.ID)
+	resetPatronCache()
+
+	userStatus, err := getPatronStatus(user.ID, false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -497,7 +499,7 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 		return
 	}
 
-	discord.ChannelMessageSend(channel, "Hey, @everyone ! "+user.Mention()+" just gave you QuickMeme server benefits! Give them love! :clap:")
+	discord.ChannelMessageSend(channel, "Hey, @everyone ! "+user.Mention()+" just gave you QuickMeme server benefits! Give them some love! :clap:")
 }
 
 func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID string, user *discordgo.User) {
