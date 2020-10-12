@@ -221,6 +221,9 @@ func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 func isUserMemeBotAdmin(discord *discordgo.Session, guildID string, user *discordgo.User) bool {
 	adminCode := "memebot admin"
 	member, _ := discord.GuildMember(guildID, user.ID)
+	if member.User.ID == "" {
+		return false
+	}
 	guildRoles, _ := discord.GuildRoles(guildID)
 	for _, role := range guildRoles {
 		for _, roleID := range member.Roles {

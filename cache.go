@@ -43,6 +43,8 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 			fmt.Println(sub)
 			return
 		}
+		fmt.Println(err)
+		return
 	}
 	for _, post := range harvest.Posts {
 		mode := GuessPostType(post)
