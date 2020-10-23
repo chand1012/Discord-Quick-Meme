@@ -1,4 +1,5 @@
 FROM golang:1.13-alpine AS builder
+LABEL org.opencontainers.image.source=https://github.com/chand1012/Discord-Quick-Meme
 WORKDIR /go/src/app
 COPY . . 
 RUN go get -d -v ./...
