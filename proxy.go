@@ -28,6 +28,13 @@ func supportedType(contentURL string) bool {
 // will be finished later, comment out for now
 func proxyEmbedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	proxyBase := "https://image-proxy.chand1012.workers.dev/"
+	if !supportedType(contentURL) {
+		_, err := discord.ChannelMessageSend(channel, "Error: Unsupported file type. Please try again.")
+		if err != nil {
+			fmt.Println(err)
+		}
+		return
+	}
 	imageURL := proxyBase + contentURL
 	rand.Seed(time.Now().Unix())
 	randColor := rand.Intn(0xffffff)

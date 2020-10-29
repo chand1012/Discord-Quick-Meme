@@ -13,10 +13,9 @@ import (
 )
 
 var (
-	commandPrefix string
-	botID         string
-	adminIDs      []string
-	topgg         string
+	botID    string
+	adminIDs []string
+	topgg    string
 	// CacheTime stores cache timer value
 	CacheTime int64
 	//BlacklistTime stores the blacklist time for all of the channels
@@ -105,7 +104,6 @@ func main() {
 		panic(err)
 	}
 	defer discord.Close()
-	commandPrefix = "!"
 	fmt.Println("Discord-Quick-Meme is starting up.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
