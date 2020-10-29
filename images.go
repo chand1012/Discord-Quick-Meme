@@ -90,7 +90,11 @@ func imageSearch(contentURL string) ([]string, []string) {
 		return nil, nil
 	}
 
-	json.Unmarshal(body, &parsedBody)
+	err = json.Unmarshal(body, &parsedBody)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil
+	}
 
 	urls := parsedBody.Links
 	titles := parsedBody.Descriptions
@@ -101,7 +105,10 @@ func imageSearch(contentURL string) ([]string, []string) {
 func imageSearchCommand(discord *discordgo.Session, channel string) {
 	searchURL := ""
 	extensions := []string{".jpg", ".png", ".jpeg"}
-	discord.ChannelMessageSend(channel, "Searching Reddit...")
+	_, err := discord.ChannelMessageSend(channel, "Searching Reddit...")
+	if err != nil {
+		fmt.Println(err)
+	}
 	lastMessages, _ := discord.ChannelMessages(channel, 100, "", "", "")
 	for _, message := range lastMessages {
 		attachmentsLength := len(message.Attachments)
@@ -136,26 +143,44 @@ func imageSearchCommand(discord *discordgo.Session, channel string) {
 	}
 
 	if searchURL == "" {
-		discord.ChannelMessageSend(channel, "404: URL not found. If you think that this is a mistake, post on our Github issues page along with appropriate screenshots and information. https://github.com/chand1012/Discord-Quick-Meme/issues")
+		_, err = discord.ChannelMessageSend(channel, "404: URL not found. If you think that this is a mistake, post on our Github issues page along with appropriate screenshots and information. https://github.com/chand1012/Discord-Quick-Meme/issues")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
 	contentURL := imageRedditSearch(searchURL)
 	if contentURL == "" {
-		discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
+		_, err = discord.ChannelMessageSend(channel, "Couldn't find anything on Reddit, searching the web....")
+		if err != nil {
+			fmt.Println(err)
+		}
 		urls, _ := imageSearch(searchURL)
 		if urls == nil {
-			discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+			_, err = discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 		printstr := "Found " + strconv.Itoa(len(urls)) + " results:\n"
 		for _, link := range urls {
 			printstr += link + "\n"
 		}
-		discord.ChannelMessageSend(channel, printstr)
+		_, err = discord.ChannelMessageSend(channel, printstr)
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else if contentURL == "nil" {
-		discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		_, err = discord.ChannelMessageSend(channel, "500: Error connecting to image search service. If this persists, report at the Github issues page found here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else {
-		discord.ChannelMessageSend(channel, "I think I found the meme: \n"+contentURL)
+		_, err = discord.ChannelMessageSend(channel, "I think I found the meme: \n"+contentURL)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

@@ -148,7 +148,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	userStatus, err := getPatronStatus(user.ID, true)
 	if err != nil {
 		fmt.Println("Cannot determine user status. ", userStatus)
-		discord.ChannelMessageSend(channel, "Cannot determine user status. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		_, err = discord.ChannelMessageSend(channel, "Cannot determine user status. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	content := message.Content
 	commandContent := strings.Split(content, " ")
@@ -157,7 +160,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	settings, err := getServerSettings(discord, guildID)
 	if err != nil {
 		fmt.Println("Cannot determine status of guild with ID", guildID)
-		discord.ChannelMessageSend(channel, "Cannot determine server settings. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		_, err = discord.ChannelMessageSend(channel, "Cannot determine server settings. If this issue persists, please report here: https://github.com/chand1012/Discord-Quick-Meme/issues")
+		if err != nil {
+			fmt.Println(err)
+		}
 		settings = guildSettings{
 			Supporter: false,
 			Proxy:     false,
@@ -173,7 +179,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	if !canUserPost {
 		if RequestCount[channel] == 6 {
 			fmt.Println("Channel " + channel + "is sending a lot of requests, limiting their input for 60 seconds.")
-			discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds. If you like the bot that much, and would like the restriction lifted, consider supporting the project: https://github.com/chand1012/Discord-Quick-Meme#coming-soon-support-the-bot")
+			_, err = discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds. If you like the bot that much, and would like the restriction lifted, consider supporting the project: https://github.com/chand1012/Discord-Quick-Meme#coming-soon-support-the-bot")
+			if err != nil {
+				fmt.Println(err)
+			}
 			RequestCount[channel]++
 		}
 		return
@@ -192,7 +201,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
-			discord.ChannelMessageSend(channel, ErrorMsg)
+			_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 		getMediaPost(discord, channel, nsfw, subs, "hot")
@@ -202,7 +214,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
-			discord.ChannelMessageSend(channel, ErrorMsg)
+			_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 		getTextPost(discord, channel, nsfw, subs, "hot")
@@ -212,7 +227,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
-			discord.ChannelMessageSend(channel, ErrorMsg)
+			_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 		getLinkPost(discord, channel, nsfw, subs, "hot")
@@ -240,7 +258,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		err := getSource(discord, channel)
 		if err != nil {
 			fmt.Println("Error getting source of meme:", err)
-			discord.ChannelMessageSend(channel, "Error getting source of meme: "+err.Error())
+			_, err = discord.ChannelMessageSend(channel, "Error getting source of meme: "+err.Error())
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 	case command == "!revsearch":
@@ -278,7 +299,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 				if settings.Supporter {
 					updateProxyRoutine(discord, channel, guildID, commandContent, settings)
 				} else {
-					discord.ChannelMessageSend(channel, "These settings are currently only available to supporters due to the high bandwidth requirements. To become a supporter, see here: https://github.com/chand1012/Discord-Quick-Meme#coming-soon-support-the-bot")
+					_, err = discord.ChannelMessageSend(channel, "These settings are currently only available to supporters due to the high bandwidth requirements. To become a supporter, see here: https://github.com/chand1012/Discord-Quick-Meme#coming-soon-support-the-bot")
+					if err != nil {
+						fmt.Println(err)
+					}
 				}
 			default:
 				quickMemeDefault(discord, channel)

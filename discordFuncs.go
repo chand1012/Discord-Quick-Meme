@@ -84,16 +84,25 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 
 // banned subreddit routine
 func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
-	discord.ChannelMessageSend(channel, "Error!\nToo many attempts due to find an acceptable post due to a banned subreddit: "+sub)
+	_, err := discord.ChannelMessageSend(channel, "Error!\nToo many attempts due to find an acceptable post due to a banned subreddit: "+sub)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // nsfw subreddit not allowed routine
 func nsfwSendRoutine(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Make sure that the channel is marked as \"NSFW\".")
+	_, err := discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Make sure that the channel is marked as \"NSFW\".")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func errSendRoutine(discord *discordgo.Session, channel string, err error) {
-	discord.ChannelMessageSend(channel, "Critical Error!\nThere was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
+	_, err = discord.ChannelMessageSend(channel, "Critical Error!\nThere was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
+	if err != nil {
+		fmt.Println(err)
+	}
 	if strings.Contains(err.Error(), "1267") {
 		go FixDatabaseTableCharset()
 	}
@@ -260,14 +269,21 @@ func getSource(discord *discordgo.Session, channel string) error {
 
 // ban a subreddit routine
 func banSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
+	var err error
 	if len(commandContent) != 4 {
-		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+		_, err = discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme ban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 		if commandContent[2] == "server" {
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, ErrorMsg)
+				_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+				if err != nil {
+					fmt.Println(err)
+				}
 				return
 			}
 			for _, chat := range channels {
@@ -277,33 +293,52 @@ func banSubRoutine(discord *discordgo.Session, channel string, commandContent []
 				}
 			}
 			// this should be a message about the ban
-			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
+			_, err = discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, ErrorMsg)
+				_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+				if err != nil {
+					fmt.Println(err)
+				}
 				return
 			}
 			for _, subreddit := range subreddits {
 				go SetBannedSubreddit(channel, subreddit)
 			}
-			discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
+			_, err = discord.ChannelMessageSend(channel, user.Mention()+" banned subreddit(s) "+strings.Join(subreddits, ", ")+".")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	} else {
-		discord.ChannelMessageSend(channel, ErrorMsg)
+		_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
 // unban a subreddit routine
 func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent []string, guildID string, user *discordgo.User) {
+	var err error
 	if len(commandContent) < 4 || len(commandContent) > 5 {
-		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+		_, err = discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme unban [mode] [subreddit]`\nMode can be `channel` or `server`.")
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else if isUserMemeBotAdmin(discord, guildID, user) { // fix this
 		if commandContent[2] == "server" {
 			channels, _ := discord.GuildChannels(guildID)
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, ErrorMsg)
+				_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+				if err != nil {
+					fmt.Println(err)
+				}
 				return
 			}
 			for _, chat := range channels {
@@ -313,21 +348,33 @@ func unbanSubRoutine(discord *discordgo.Session, channel string, commandContent 
 				}
 			}
 			// this should be a message about the ban
-			discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
+			_, err = discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+" on all channels.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
 			// there should be a message about the ban here
 			subreddits := textFilterSlice(commandContent[3:])
 			if subreddits == nil {
-				discord.ChannelMessageSend(channel, ErrorMsg)
+				_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+				if err != nil {
+					fmt.Println(err)
+				}
 				return
 			}
 			for _, subreddit := range subreddits {
 				go RemoveBannedSubreddit(channel, subreddit)
 			}
-			discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
+			_, err = discord.ChannelMessageSend(channel, user.Mention()+" unbanned subreddit(s) "+strings.Join(subreddits, ", ")+".")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	} else {
-		discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+		_, err = discord.ChannelMessageSend(channel, "Insufficient Permissions! You must have the \"Memebot Admin\" role to ban subreddits!")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
@@ -345,23 +392,35 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 		for _, chat := range channels {
 			bannedSubs, err := GetAllBannedSubs(chat.ID)
 			if err != nil {
-				discord.ChannelMessageSend(channel, ErrorMsg)
 				fmt.Println(err)
+				_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+				if err != nil {
+					fmt.Println(err)
+				}
 				break
 			}
 			msgString := strings.Join(bannedSubs, ", ")
 			if msgString != "" && chat.Type == discordgo.ChannelTypeGuildText {
-				discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
+				_, err = discord.ChannelMessageSend(channel, "Subs banned on "+chat.Name+":\n"+msgString)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	} else {
 		bannedSubs, err := GetAllBannedSubs(channel)
 		if err != nil {
-			discord.ChannelMessageSend(channel, ErrorMsg)
 			fmt.Println(err)
+			_, err = discord.ChannelMessageSend(channel, ErrorMsg)
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
 			msgString := strings.Join(bannedSubs, ", ")
-			discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+			_, err = discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 
@@ -375,7 +434,10 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 		match := matchRegexList(expressions, interval)
 
 		if !match {
-			discord.ChannelMessageSend(channel, "There was an error with your syntax, see here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+			_, err = discord.ChannelMessageSend(channel, "There was an error with your syntax, see here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 
@@ -385,10 +447,15 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 			errSendRoutine(discord, channel, err)
 			return
 		}
-		discord.ChannelMessageSend(channel, "Memes will now be sent at a regularly scheduled time.")
+		_, err = discord.ChannelMessageSend(channel, "Memes will now be sent at a regularly scheduled time.")
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else {
-		discord.ChannelMessageSend(channel, "There was an error with your syntax, see here: https://bit.ly/DiscordQuickMemeAdminSyntax")
-		return
+		_, err = discord.ChannelMessageSend(channel, "There was an error with your syntax, see here: https://bit.ly/DiscordQuickMemeAdminSyntax")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
@@ -397,7 +464,10 @@ func delQueueRoutine(discord *discordgo.Session, channel string) {
 	err := DeleteMemeQueue(channel)
 	fmt.Println("Checking for errors...")
 	if err == sql.ErrNoRows {
-		discord.ChannelMessageSend(channel, "Error, this channel isn't subscribed.")
+		_, err = discord.ChannelMessageSend(channel, "Error, this channel isn't subscribed.")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 	if err != nil {
@@ -405,12 +475,18 @@ func delQueueRoutine(discord *discordgo.Session, channel string) {
 		errSendRoutine(discord, channel, err)
 		return
 	}
-	discord.ChannelMessageSend(channel, "You have successfully unsubscribed this channel from memes.")
+	_, err = discord.ChannelMessageSend(channel, "You have successfully unsubscribed this channel from memes.")
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println("Done.")
 }
 
 func helpRoutine(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "For command syntax, see here: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+	_, err := discord.ChannelMessageSend(channel, "For command syntax, see here: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func updateProxyRoutine(discord *discordgo.Session, channel string, guildID string, commandContent []string, settings guildSettings) {
@@ -418,9 +494,13 @@ func updateProxyRoutine(discord *discordgo.Session, channel string, guildID stri
 	var value string
 	var proxyEnable bool
 	var proxyMode int8
+	var err error
 
 	if len(commandContent) != 4 {
-		discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme proxy <setting> <value>` see here for more info: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+		_, err = discord.ChannelMessageSend(channel, "Incorrect command syntax! Correct syntax is `!quickmeme proxy <setting> <value>` see here for more info: https://github.com/chand1012/Discord-Quick-Meme#to-use")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
@@ -433,31 +513,49 @@ func updateProxyRoutine(discord *discordgo.Session, channel string, guildID stri
 	case "enable":
 		if value == "false" {
 			proxyEnable = false
-			discord.ChannelMessageSend(channel, "Disabling Proxy.")
+			_, err = discord.ChannelMessageSend(channel, "Disabling Proxy.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
 			proxyEnable = true
-			discord.ChannelMessageSend(channel, "Enabling Proxy.")
+			_, err = discord.ChannelMessageSend(channel, "Enabling Proxy.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	case "mode":
 		if value == "discord" {
 			proxyMode = 0
-			discord.ChannelMessageSend(channel, "Setting proxy mode to Discord Proxy.")
+			_, err = discord.ChannelMessageSend(channel, "Setting proxy mode to Discord Proxy.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else if value == "worker" {
 			proxyMode = 1
-			discord.ChannelMessageSend(channel, "Setting proxy mode to Custom Proxy.")
+			_, err = discord.ChannelMessageSend(channel, "Setting proxy mode to Custom Proxy.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
-			discord.ChannelMessageSend(channel, "Incorrect command syntax! Proxy Mode must be `discord` for Discord's image upload as a proxy or `worker` for the external proxy.")
+			_, err = discord.ChannelMessageSend(channel, "Incorrect command syntax! Proxy Mode must be `discord` for Discord's image upload as a proxy or `worker` for the external proxy.")
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 	}
 
-	err := SetGuildStatus(guildID, proxyEnable, proxyMode)
+	err = SetGuildStatus(guildID, proxyEnable, proxyMode)
 
 	if err != nil {
 		fmt.Println(err)
 		errSendRoutine(discord, channel, err)
 	} else {
-		discord.ChannelMessageSend(channel, "Proxy settings updated.")
+		_, err = discord.ChannelMessageSend(channel, "Proxy settings updated.")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 }
@@ -474,7 +572,10 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 	}
 
 	if userStatus == 0 {
-		discord.ChannelMessageSend(channel, user.Mention()+" , you are not a Patron! Subscribe and get some awesome benefits here: https://www.patreon.com/DiscordQuickMeme")
+		_, err = discord.ChannelMessageSend(channel, user.Mention()+" , you are not a Patron! Subscribe and get some awesome benefits here: https://www.patreon.com/DiscordQuickMeme")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
@@ -487,7 +588,10 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 	}
 
 	if cooldown != 0 || err != sql.ErrNoRows {
-		discord.ChannelMessageSend(channel, "This server is already enrolled in our Patreon benefits, silly!")
+		_, err = discord.ChannelMessageSend(channel, "This server is already enrolled in our Patreon benefits, silly!")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
@@ -500,10 +604,16 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 	}
 
 	if userStatus == 1 && len(benefitGuilds) > 0 {
-		discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either upgrade your package to allow for more servers, remove the server you have already benefit, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")
+		_, err = discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either upgrade your package to allow for more servers, remove the server you have already benefit, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	} else if userStatus == 2 && len(benefitGuilds) >= 3 {
-		discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either remove a server from your benefits, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")
+		_, err = discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either remove a server from your benefits, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
@@ -515,7 +625,10 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 		return
 	}
 
-	discord.ChannelMessageSend(channel, "Hey, @everyone ! "+user.Mention()+" just gave you QuickMeme server benefits! Give them some love! :clap:")
+	_, err = discord.ChannelMessageSend(channel, "Hey, @everyone ! "+user.Mention()+" just gave you QuickMeme server benefits! Give them some love! :clap:")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID string, user *discordgo.User) {
@@ -523,7 +636,10 @@ func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID s
 	_, cooldown, err := getBenefitServer(user.ID, guildID)
 
 	if err == sql.ErrNoRows {
-		discord.ChannelMessageSend(channel, "This server isn't subscribed to QuickMeme benefits. If you want to subscribe, please sign up here: https://www.patreon.com/DiscordQuickMeme")
+		_, err = discord.ChannelMessageSend(channel, "This server isn't subscribed to QuickMeme benefits. If you want to subscribe, please sign up here: https://www.patreon.com/DiscordQuickMeme")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	} else if err != nil {
 		fmt.Println(err)
@@ -533,7 +649,10 @@ func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID s
 
 	if cooldown < time.Now().Unix() {
 		waitTime := (cooldown - time.Now().Unix()) / 86400 // seconds in a day
-		discord.ChannelMessageSend(channel, "You must wait 30 days before changing your server. You have about "+strconv.FormatInt(waitTime, 10)+" days before you can change servers.")
+		_, err = discord.ChannelMessageSend(channel, "You must wait 30 days before changing your server. You have about "+strconv.FormatInt(waitTime, 10)+" days before you can change servers.")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
@@ -545,5 +664,8 @@ func removeBenefitsRoutine(discord *discordgo.Session, channel string, guildID s
 		return
 	}
 
-	discord.ChannelMessageSend(channel, user.Mention()+" has removed their benefits from this server. You may now take your benefits elsewhere. If anyone else would like to provide QuickMeme benefits to this server, sign up can be found here: https://www.patreon.com/DiscordQuickMeme")
+	_, err = discord.ChannelMessageSend(channel, user.Mention()+" has removed their benefits from this server. You may now take your benefits elsewhere. If anyone else would like to provide QuickMeme benefits to this server, sign up can be found here: https://www.patreon.com/DiscordQuickMeme")
+	if err != nil {
+		fmt.Println(err)
+	}
 }

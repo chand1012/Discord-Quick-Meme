@@ -15,7 +15,10 @@ func quickMemeTest(discord *discordgo.Session, channel string) {
 	var redditResult float64
 	var msg string
 	msg = "Starting Quick-Meme speed test..."
-	discord.ChannelMessageSend(channel, msg)
+	_, err := discord.ChannelMessageSend(channel, msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println(msg)
 	for i := 0; i < 10; i++ {
 		starttime := GetMillis()
@@ -26,7 +29,10 @@ func quickMemeTest(discord *discordgo.Session, channel string) {
 	}
 	redditResult = float64(total) / float64(count)
 	msg = "Average Reddit response time over 10 trials: " + strconv.FormatFloat(redditResult, 'f', 1, 64) + "ms"
-	discord.ChannelMessageSend(channel, msg)
+	_, err = discord.ChannelMessageSend(channel, msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println(msg)
 }
 
@@ -35,7 +41,10 @@ func quickMemeGetCache(discord *discordgo.Session, channel string) {
 	var postCount int
 	var cachedReddits []string
 	var cachedRedditCount int
-	discord.ChannelMessageSend(channel, "Getting cache info...")
+	_, err := discord.ChannelMessageSend(channel, "Getting cache info...")
+	if err != nil {
+		fmt.Println(err)
+	}
 	cachedRedditCount = len(PostCache)
 	for k := range PostCache {
 		cachedReddits = append(cachedReddits, k)
@@ -45,27 +54,47 @@ func quickMemeGetCache(discord *discordgo.Session, channel string) {
 	msgtwo := "Cached subs: " + strings.Join(cachedReddits, ", ")
 	fmt.Println(msgone)
 	fmt.Println(msgtwo)
-	discord.ChannelMessageSend(channel, msgone)
-	discord.ChannelMessageSend(channel, msgtwo)
+	_, err = discord.ChannelMessageSend(channel, msgone)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = discord.ChannelMessageSend(channel, msgtwo)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // clears the cache and repopulates
 func quickMemeClearCache(discord *discordgo.Session, channel string) {
+	var err error
 	if !CachePopulating {
 		CachePopulating = true
-		discord.ChannelMessageSend(channel, "Clearing cache...")
+		_, err = discord.ChannelMessageSend(channel, "Clearing cache...")
+		if err != nil {
+			fmt.Println(err)
+		}
 		fmt.Println("Admin issued cache clear...")
 		ClearCache()
 		fmt.Println("Cache cleared. Repopulating...")
-		discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
+		_, err = discord.ChannelMessageSend(channel, "Cache cleared. Repopulating...")
+		if err != nil {
+			fmt.Println(err)
+		}
 		st := GetMillis()
 		PopulateCache()
 		et := GetMillis()
 		msg := "New cache time is " + strconv.FormatInt(CacheTime, 10)
 		msgtwo := ". Took " + strconv.FormatInt(et-st, 10) + "ms to populate cache."
-		discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
+		_, err = discord.ChannelMessageSend(channel, "Done. "+msg+msgtwo)
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else {
-		discord.ChannelMessageSend(channel, "Cache is currently repopulating! Please try again in a few minutes.")
+		_, err = discord.ChannelMessageSend(channel, "Cache is currently repopulating! Please try again in a few minutes.")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
@@ -74,12 +103,19 @@ func quickMemeServerCache(discord *discordgo.Session, channel string) {
 	//channelCount := len(ServerMap)
 	channelCount := 0
 	fmt.Println("There are " + strconv.Itoa(channelCount) + " text channels currently cached.")
-	discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
+	_, err := discord.ChannelMessageSend(channel, "There are "+strconv.Itoa(channelCount)+" text channels currently cached.")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // tests redis response time
 func quickMemeTestRedis(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Testing Redis response time....")
+	_, err := discord.ChannelMessageSend(channel, "Testing Redis response time....")
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	var times []int64
 	var totalTime int64
 	var avgTime float64
@@ -95,7 +131,10 @@ func quickMemeTestRedis(discord *discordgo.Session, channel string) {
 	}
 	avgTime = float64(totalTime) / float64(len(times))
 	fmt.Println("Average redis response time: " + strconv.FormatFloat(avgTime, 'f', 6, 64) + " ms")
-	discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
+	_, err = discord.ChannelMessageSend(channel, "Average redis response time: "+strconv.FormatFloat(avgTime, 'f', 3, 64)+" ms")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // default case for the quickmeme command
@@ -104,5 +143,8 @@ func quickMemeDefault(discord *discordgo.Session, channel string) {
 	//userCount := getNumberOfUsers(discord)
 	msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers."
 	fmt.Println(msg)
-	discord.ChannelMessageSend(channel, msg)
+	_, err := discord.ChannelMessageSend(channel, msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

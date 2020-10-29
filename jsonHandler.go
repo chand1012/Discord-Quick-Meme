@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -32,7 +33,12 @@ func SubExtract(filename string) map[string][]string {
 
 	var subJSON subJSON
 
-	json.Unmarshal(rawjson, &subJSON)
+	err = json.Unmarshal(rawjson, &subJSON)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
 	subMap := make(map[string][]string)
 

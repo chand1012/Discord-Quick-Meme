@@ -149,7 +149,10 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 
 		if multiplier <= 0 {
 			multiplier = 1
-			discord.ChannelMessageSend(channel, "Time cannot be negative or zero, setting to one.")
+			_, err = discord.ChannelMessageSend(channel, "Time cannot be negative or zero, setting to one.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		switch duration {
@@ -168,13 +171,19 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		if interval > maxTime {
 			interval = maxTime
 			queueItem.Interval = "1w"
-			discord.ChannelMessageSend(channel, "The maximum interval between memes is one week, so the interval will be set to that. For slower memes, check Facebook or a newspaper.")
+			_, err = discord.ChannelMessageSend(channel, "The maximum interval between memes is one week, so the interval will be set to that. For slower memes, check Facebook or a newspaper.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		if interval < minTime {
 			interval = minTime
 			queueItem.Interval = "15m"
-			discord.ChannelMessageSend(channel, "There is minimum time interval between posts of 15 minutes, setting the interval to that. These servers aren't free, you know.")
+			_, err = discord.ChannelMessageSend(channel, "There is minimum time interval between posts of 15 minutes, setting the interval to that. These servers aren't free, you know.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		queueItem.Time = time.Now().Unix() + int64(interval.Seconds())
@@ -211,8 +220,13 @@ func lockFileExists() bool {
 
 func lockFileCreate() ([]byte, error) {
 	fileData := make([]byte, 8)
-	rand.Read(fileData) // skipcq: GSC-G404
-	err := ioutil.WriteFile("./thread.lock", fileData, 0644)
+	_, err := rand.Read(fileData) // skipcq: GSC-G404
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = ioutil.WriteFile("./thread.lock", fileData, 0644)
 	return fileData, err
 }
 
