@@ -216,8 +216,15 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 			if err != nil {
 				fmt.Println(err)
 			}
+		} else if strings.Contains(err.Error(), "Must be 2000 or fewer in length.") {
+			fmt.Println(err)
+			_, err = discord.ChannelMessageSend(channel, "Sorry, but the requested content is too long to be sent via Discord. Please try again.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
-			fmt.Println("Error posting to channel:", err.Error())
+			fmt.Println("Error posting to channel:")
+			fmt.Println(err)
 		}
 	}
 }
