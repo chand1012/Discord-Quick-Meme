@@ -35,6 +35,11 @@ func getAllChannelNames() {
 	for rows.Next() {
 		err = rows.Scan(&channel, &nsfwInt, &name)
 
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 		if nsfwInt == 1 {
 			nsfw = true
 		} else {

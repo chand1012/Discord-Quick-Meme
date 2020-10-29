@@ -67,7 +67,10 @@ func AddChannelToDB(channel string, nsfw bool, name string, guildID string) erro
 
 		chanTime := time.Now().Unix()
 		_, err = insert.Exec(channel, nsfwInt, name, guildID, chanTime)
-		insert.Close()
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		defer insert.Close()
 	}
 	fmt.Println("Done adding to DB.")
 	return err
@@ -191,6 +194,10 @@ func RemoveBannedSubreddit(channel string, subreddit string) error {
 	}
 
 	remove, err := db.Prepare("DELETE FROM banned_subs WHERE channelID = ? AND subreddit = ?")
+
+	if err != nil {
+		return err
+	}
 
 	defer remove.Close()
 
@@ -416,6 +423,10 @@ func GetGuildStatus(guild string) (bool, bool, int8, error) {
 	}
 
 	get, err := db.Prepare("SELECT guildID, proxyEnable, proxyMode FROM boosted WHERE guildID = ?")
+
+	if err != nil {
+		return false, false, -1, err
+	}
 
 	err = get.QueryRow(guild).Scan(&returnGuildID, &proxyEnable, &proxyMode)
 

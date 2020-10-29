@@ -52,12 +52,20 @@ func proxyEmbedSendRoutine(discord *discordgo.Session, channel string, sub strin
 // Also should be checked if they have this setting set.
 func uploadEmbedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	req, err := http.NewRequest("GET", contentURL, nil)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
 	if err != nil {
 		fmt.Println(err)
 		errSendRoutine(discord, channel, err)
 	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+	}
+
 	defer resp.Body.Close()
 
 	imageName := path.Base(req.URL.Path)
@@ -93,12 +101,20 @@ func uploadEmbedSendRoutine(discord *discordgo.Session, channel string, sub stri
 
 func uploadSendRoutine(discord *discordgo.Session, channel string, sub string, title string, contentURL string, score int32) {
 	req, err := http.NewRequest("GET", contentURL, nil)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
 	if err != nil {
 		fmt.Println(err)
 		errSendRoutine(discord, channel, err)
 	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+	}
+
 	defer resp.Body.Close()
 
 	imageName := path.Base(req.URL.Path)

@@ -478,7 +478,7 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 		return
 	}
 
-	userStatus, cooldown, err := getBenefitServer(user.ID, guildID)
+	_, cooldown, err := getBenefitServer(user.ID, guildID)
 
 	if err != nil && err != sql.ErrNoRows {
 		fmt.Println(err)
@@ -492,6 +492,12 @@ func setBenefitsRoutine(discord *discordgo.Session, channel string, guildID stri
 	}
 
 	userStatus, benefitGuilds, err := getAllBenefitsForUser(user.ID)
+
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println(err)
+		errSendRoutine(discord, channel, err)
+		return
+	}
 
 	if userStatus == 1 && len(benefitGuilds) > 0 {
 		discord.ChannelMessageSend(channel, user.Mention()+" has already met their benefit server limit. Either upgrade your package to allow for more servers, remove the server you have already benefit, or have someone else give this server benefits: https://www.patreon.com/DiscordQuickMeme")

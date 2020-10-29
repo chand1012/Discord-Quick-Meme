@@ -25,6 +25,10 @@ func TestTOPGGConnection(t *testing.T) {
 
 	resp, err := client.Do(req)
 
+	if err != nil {
+		t.Errorf("There was an error processing your request: %v", err)
+	}
+
 	if resp.StatusCode != 200 {
 		if resp.StatusCode >= 500 {
 			t.Logf("Got a status code of %d, which isn't our fault.", resp.StatusCode)
