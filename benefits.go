@@ -14,11 +14,11 @@ func setBenefitServer(userID string, status uint8, guild string) error {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	cooldown := time.Now().Unix() + 2700000 // seconds in a month
 
@@ -31,11 +31,11 @@ func setBenefitServer(userID string, status uint8, guild string) error {
 func removeBenefitServer(guild string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	_, err = db.Exec("DELETE FROM boosted WHERE guildID = ?", guild)
 
@@ -49,11 +49,11 @@ func getBenefitServer(userID string, guildID string) (uint8, int64, error) {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return 0, 0, err
 	}
+
+	defer db.Close()
 
 	output, err := db.Prepare("SELECT status, cooldown FROM boosted WHERE guildID = ? AND userID = ?")
 
@@ -75,11 +75,12 @@ func getAllBenefitsForUser(userID string) (uint8, []string, error) {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return 0, nil, err
 	}
+
+	defer db.Close()
+
 	fmt.Println("Adding guild to database...")
 	rows, err := db.Query("SELECT status, guildID FROM boosted WHERE userID = ?", userID)
 
@@ -104,11 +105,11 @@ func getAllBenefitsForUser(userID string) (uint8, []string, error) {
 func removeAllBenefitsForUser(userID string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	_, err = db.Exec("DELETE FROM boosted WHERE userID = ?", userID)
 

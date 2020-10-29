@@ -26,11 +26,11 @@ func getPatronStatus(userID string, cache bool) (uint8, error) {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return 0, err
 	}
+
+	defer db.Close()
 
 	output, err := db.Prepare("SELECT status FROM patrons WHERE userID = ?")
 

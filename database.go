@@ -29,11 +29,11 @@ func AddChannelToDB(channel string, nsfw bool, name string, guildID string) erro
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	if nsfw {
 		nsfwInt = 1
@@ -78,14 +78,13 @@ func AddChannelToDB(channel string, nsfw bool, name string, guildID string) erro
 
 // GetChannelFromDB gets the channel from the database
 func GetChannelFromDB(channel string) (bool, string, string, error) {
-
 	db, err := initDB()
-
-	defer db.Close()
 
 	if err != nil {
 		return false, "", "", err
 	}
+
+	defer db.Close()
 
 	output, err := db.Prepare("SELECT nsfw, name, guild from channels WHERE channelID = ?")
 
@@ -106,14 +105,13 @@ func GetChannelFromDB(channel string) (bool, string, string, error) {
 
 // RemoveChannelFromDB Removes the channel from the database
 func RemoveChannelFromDB(channel string) error {
-
 	db, err := initDB()
-
-	defer db.Close()
 
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
 
@@ -124,12 +122,11 @@ func RemoveChannelFromDB(channel string) error {
 func UpdateChannelTime(channel string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
+
+	defer db.Close()
 
 	nowTime := time.Now().Unix()
 
@@ -146,11 +143,11 @@ func RemoveDormantChannels() error {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	monthAgo := time.Now().Unix() - 2592000
 
@@ -164,11 +161,11 @@ func RemoveDormantChannels() error {
 func SetBannedSubreddit(channel string, subreddit string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	insert, err := db.Prepare("INSERT INTO banned_subs (channelID, subreddit) VALUES (?, ?)")
 
@@ -187,11 +184,11 @@ func SetBannedSubreddit(channel string, subreddit string) error {
 func RemoveBannedSubreddit(channel string, subreddit string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	remove, err := db.Prepare("DELETE FROM banned_subs WHERE channelID = ? AND subreddit = ?")
 
@@ -210,11 +207,11 @@ func RemoveBannedSubreddit(channel string, subreddit string) error {
 func GetAllBannedSubs(channel string) ([]string, error) {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.Close()
 
 	rows, err := db.Query("SELECT subreddit FROM banned_subs WHERE channelID = ?", channel)
 
@@ -247,11 +244,11 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return QueueObj{}, err
 	}
+
+	defer db.Close()
 
 	row := db.QueryRow("SELECT timeInterval, subreddits, nsfw, time FROM queue WHERE channelID = ?", channel)
 	err = row.Scan(&queue.Interval, &subString, &nsfwInt, &queue.Time)
@@ -291,11 +288,11 @@ func DeleteMemeQueue(channel string) error {
 func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	var nsfwInt int
 
