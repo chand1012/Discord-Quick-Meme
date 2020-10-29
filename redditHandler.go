@@ -38,7 +38,7 @@ func initBot() (reddit.Bot, error) {
 func GuessPostType(post *reddit.Post) string {
 	selfText := post.SelfText
 	urlContent := post.URL
-	if len(selfText) == 0 {
+	if selfText == "" {
 		urlItems := []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
 		if !strings.Contains(urlContent, "v.redd.it") && ContainsAnySubstring(urlContent, urlItems) {
 			return "media"
