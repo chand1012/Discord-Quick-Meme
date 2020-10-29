@@ -190,9 +190,7 @@ func getSubFromPermalink(permalink string) string {
 func getAllSubsFromMap() []string {
 	var allSubs []string
 	for _, value := range SubMap {
-		for _, sub := range value {
-			allSubs = append(allSubs, sub)
-		}
+		allSubs = append(allSubs, value...)
 	}
 	return allSubs
 }
