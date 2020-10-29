@@ -170,11 +170,11 @@ func SetBannedSubreddit(channel string, subreddit string) error {
 
 	insert, err := db.Prepare("INSERT INTO banned_subs (channelID, subreddit) VALUES (?, ?)")
 
-	defer insert.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer insert.Close()
 
 	_, err = insert.Exec(channel, subreddit)
 
