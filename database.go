@@ -43,11 +43,12 @@ func AddChannelToDB(channel string, nsfw bool, name string, guildID string) erro
 
 	// gets the channel from the database to see if it exists.
 	output, err := db.Prepare("SELECT channelID from channels WHERE channelID = ?")
-	defer output.Close()
 
 	if err != nil {
 		return err
 	}
+
+	defer output.Close()
 
 	err = output.QueryRow(channel).Scan(&channel)
 
@@ -88,11 +89,11 @@ func GetChannelFromDB(channel string) (bool, string, string, error) {
 
 	output, err := db.Prepare("SELECT nsfw, name, guild from channels WHERE channelID = ?")
 
-	defer output.Close()
-
 	if err != nil {
 		return false, "", "", err
 	}
+
+	defer output.Close()
 
 	var nsfwInt int
 	var name string
@@ -273,11 +274,11 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 func DeleteMemeQueue(channel string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
 
@@ -303,11 +304,12 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 	}
 
 	output, err := db.Prepare("SELECT channelID from queue WHERE channelID = ?")
-	defer output.Close()
 
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
+
+	defer output.Close()
 
 	err = output.QueryRow(channel).Scan(&channel)
 
@@ -339,11 +341,11 @@ func UpdateMemeQueueTime(channel string, setTime int64) error {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	_, err = db.Exec("UPDATE queue SET time = ? WHERE channelID = ?", setTime, channel)
 
@@ -355,11 +357,11 @@ func GetAllQueueChannels() ([]string, error) {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer db.Close()
 
 	rows, err := db.Query("SELECT channelID FROM queue")
 
@@ -381,11 +383,11 @@ func GetAllQueueChannels() ([]string, error) {
 func RemoveChannelFromDBAllTables(channel string) error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
 
@@ -415,11 +417,11 @@ func GetGuildStatus(guild string) (bool, bool, int8, error) {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return false, false, -1, err
 	}
+
+	defer db.Close()
 
 	get, err := db.Prepare("SELECT guildID, proxyEnable, proxyMode FROM boosted WHERE guildID = ?")
 
@@ -444,11 +446,11 @@ func SetGuildStatus(guild string, proxyEnable bool, proxyMode int8) error {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	if proxyEnable {
 		proxy = 1
@@ -465,11 +467,11 @@ func SetGuildStatus(guild string, proxyEnable bool, proxyMode int8) error {
 func FixDatabaseTableCharset() error {
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return err
 	}
+
+	defer db.Close()
 
 	tables := []string{"patrons", "channels", "boosted", "banned_subs", "queue"}
 

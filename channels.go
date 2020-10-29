@@ -15,11 +15,11 @@ func getAllChannelNames() {
 
 	db, err := initDB()
 
-	defer db.Close()
-
 	if err != nil {
 		return
 	}
+
+	defer db.Close()
 
 	rows, err := db.Query("SELECT channelID, nsfw, name FROM channels")
 

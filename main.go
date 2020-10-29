@@ -238,7 +238,10 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		subs = []string{"fiftyfifty"}
 		getLinkPost(discord, channel, nsfw, subs, "hot")
 	case commandContent[0] == "!buzzword":
-		getBuzzWord(discord, channel)
+		err = getBuzzWord(discord, channel)
+		if err != nil {
+			fmt.Println(err)
+		}
 	case commandContent[0] == "!hentai":
 		// This is still only here because a friend of mine
 		// suggested this and I am a nice person

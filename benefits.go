@@ -57,11 +57,11 @@ func getBenefitServer(userID string, guildID string) (uint8, int64, error) {
 
 	output, err := db.Prepare("SELECT status, cooldown FROM boosted WHERE guildID = ? AND userID = ?")
 
-	defer output.Close()
-
 	if err != nil {
 		return 0, 0, err
 	}
+
+	defer output.Close()
 
 	err = output.QueryRow(guildID, userID).Scan(&status, &cooldown)
 
