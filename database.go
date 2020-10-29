@@ -417,6 +417,7 @@ func FixDatabaseTableCharset() error {
 		_, err = db.Exec("ALTER TABLE " + table + " CONVERT TO CHARACTER SET utf8mb4")
 
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 	}
