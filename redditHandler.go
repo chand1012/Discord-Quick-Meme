@@ -13,9 +13,7 @@ import (
 // Replaces the "reddit.NewBotFromAgentFile" with a simple function call. Uses
 // getRedditEnv and gets data from environment
 func initBot() (reddit.Bot, error) {
-	var agent agentFile
-
-	agent = getRedditEnv()
+	var agent agentFile = getRedditEnv()
 
 	app := reddit.App{
 		ID:       agent.ClientID,
@@ -169,8 +167,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 // MinScore Formula for calculating effective minimum score.
 func MinScore(posts []QuickPost) int32 {
 	var total int32
-	var n int
-	n = len(posts)
+	var n int = len(posts)
 	for _, post := range posts {
 		total += post.Score
 	}
