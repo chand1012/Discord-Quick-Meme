@@ -37,3 +37,4 @@ Dockerfile2
 test.sh
 
 thread.lock
+*.patch
