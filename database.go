@@ -414,7 +414,7 @@ func FixDatabaseTableCharset() error {
 	tables := []string{"patrons", "channels", "boosted", "banned_subs", "queue"}
 
 	for _, table := range tables {
-		_, err = db.Exec("ALTER TABLE ? CONVERT TO CHARACTER SET utf8mb4", table)
+		_, err = db.Exec("ALTER TABLE " + table + " CONVERT TO CHARACTER SET utf8mb4")
 
 		if err != nil {
 			return err
