@@ -37,4 +37,12 @@ func TestChannelDB(t *testing.T) {
 
 }
 
+func TestCharsetRecovery(t *testing.T) {
+	err := FixDatabaseTableCharset()
+
+	if err != nil {
+		t.Errorf("There was an error setting the charset of the tables: %v", err)
+	}
+}
+
 // need tests for subreddit banning and the queue

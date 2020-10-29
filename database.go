@@ -400,3 +400,26 @@ func RemoveChannelFromDBAllTables(channel string) error {
 	}
 	return err
 }
+
+//FixDatabaseTableCharset This fixes an error that happened with an update
+func FixDatabaseTableCharset() error {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	tables := []string{"patrons", "channels", "boosted", "banned_subs", "queue"}
+
+	for _, table := range tables {
+		_, err = db.Exec("ALTER TABLE ? CONVERT TO CHARACTER SET utf8mb4", table)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
