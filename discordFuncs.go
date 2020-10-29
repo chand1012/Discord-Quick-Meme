@@ -63,14 +63,21 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 func successSendRoutine(discord *discordgo.Session, channel string, sub string, textone string, texttwo string, score int32) {
 	_, err := discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+textone+"\n"+texttwo+"\nScore: "+humanize.Comma(int64(score)))
 	if err != nil {
-		if strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeUnknownChannel)) {
+		if strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeUnknownChannel)) || strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeMissingAccess)) {
 			fmt.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
 			err = RemoveChannelFromDBAllTables(channel)
 			if err != nil {
 				fmt.Println(err)
 			}
+		} else if strings.Contains(err.Error(), "Must be 2000 or fewer in length.") {
+			fmt.Println(err)
+			_, err = discord.ChannelMessageSend(channel, "Sorry, but the requested content is too long to be sent via Discord. Please try again.")
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
-			fmt.Println("Error posting to channel:", err.Error())
+			fmt.Println("Error posting to channel:")
+			fmt.Println(err)
 		}
 	}
 }
@@ -82,11 +89,14 @@ func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
 
 // nsfw subreddit not allowed routine
 func nsfwSendRoutine(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Make sure that the channel is marked as \"NSFW\".")
 }
 
 func errSendRoutine(discord *discordgo.Session, channel string, err error) {
 	discord.ChannelMessageSend(channel, "Critical Error!\nThere was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
+	if strings.Contains(err.Error(), "1267") {
+		go FixDatabaseTableCharset()
+	}
 }
 
 // gets a media post and sends it

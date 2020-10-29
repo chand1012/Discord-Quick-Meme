@@ -450,3 +450,27 @@ func SetGuildStatus(guild string, proxyEnable bool, proxyMode int8) error {
 
 	return err
 }
+
+//FixDatabaseTableCharset This fixes an error that happened with an update
+func FixDatabaseTableCharset() error {
+	db, err := initDB()
+
+	defer db.Close()
+
+	if err != nil {
+		return err
+	}
+
+	tables := []string{"patrons", "channels", "boosted", "banned_subs", "queue"}
+
+	for _, table := range tables {
+		_, err = db.Exec("ALTER TABLE " + table + " CONVERT TO CHARACTER SET utf8mb4")
+
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	return nil
+}
