@@ -327,11 +327,13 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 		}
 
 		_, err = insert.Exec(channel, nsfwInt, interval, subs)
-		insert.Close()
+		if err == sql.ErrNoRows {
+			return nil
+		}
+
+		defer insert.Close()
 	}
-	if err == sql.ErrNoRows {
-		return nil
-	}
+
 	return err
 }
 
