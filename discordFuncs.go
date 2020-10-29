@@ -210,7 +210,7 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 func successSendRoutine(discord *discordgo.Session, channel string, sub string, textone string, texttwo string, score int32) {
 	_, err := discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+textone+"\n"+texttwo+"\nScore: "+humanize.Comma(int64(score)))
 	if err != nil {
-		if strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeUnknownChannel)) {
+		if strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeUnknownChannel)) || strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeMissingAccess)) {
 			fmt.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
 			err = RemoveChannelFromDBAllTables(channel)
 			if err != nil {
@@ -229,7 +229,7 @@ func bannedSendRoutine(discord *discordgo.Session, channel string, sub string) {
 
 // nsfw subreddit not allowed routine
 func nsfwSendRoutine(discord *discordgo.Session, channel string) {
-	discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Name sure that the channel is marked as \"NSFW\".")
+	discord.ChannelMessageSend(channel, "Error!\nToo many tries to not find NSFW post, maybe that Subreddit is filled with them? Hint: Make sure that the channel is marked as \"NSFW\".")
 }
 
 func errSendRoutine(discord *discordgo.Session, channel string, err error) {
