@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
-	"math/rand"
-	"os"
 	"regexp"
 	"strconv"
 	"sync"
@@ -197,37 +193,6 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 			fmt.Println("Done.")
 		}
 	}
-}
-
-func lockFileEqu(input []byte) (bool, error) {
-	data, err := ioutil.ReadFile("./thread.lock")
-	if err != nil {
-		return false, err
-	}
-	if bytes.Equal(input, data) {
-		return true, nil
-	}
-	return false, nil
-}
-
-func lockFileExists() bool {
-	info, err := os.Stat("./thread.lock")
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func lockFileCreate() ([]byte, error) {
-	fileData := make([]byte, 8)
-	_, err := rand.Read(fileData) // skipcq: GSC-G404
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = ioutil.WriteFile("./thread.lock", fileData, 0644)
-	return fileData, err
 }
 
 func resetQueueState(channel string) {
