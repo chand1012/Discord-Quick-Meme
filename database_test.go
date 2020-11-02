@@ -45,7 +45,6 @@ func TestCharsetRecovery(t *testing.T) {
 	}
 }
 
-// need tests for subreddit banning and the queue
 func TestSubRedditBanning(t *testing.T) {
 	testChannel := "0000000000"
 	testSub := "imgoingtohellforthis" // this sub died, gonna use it for testing
@@ -72,3 +71,5 @@ func TestSubRedditBanning(t *testing.T) {
 		t.Errorf("There was an error removing banned subreddit: %v", err)
 	}
 }
+
+// need tests for the queue
