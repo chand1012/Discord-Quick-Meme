@@ -46,3 +46,29 @@ func TestCharsetRecovery(t *testing.T) {
 }
 
 // need tests for subreddit banning and the queue
+func TestSubRedditBanning(t *testing.T) {
+	testChannel := "0000000000"
+	testSub := "imgoingtohellforthis" // this sub died, gonna use it for testing
+
+	err := SetBannedSubreddit(testChannel, testSub)
+
+	if err != nil {
+		t.Errorf("There was an error setting banned subreddit: %v", err)
+	}
+
+	bannedSubs, err := GetAllBannedSubs(testChannel)
+
+	if err != nil {
+		t.Errorf("There was an error getting banned subreddit: %v", err)
+	}
+
+	if bannedSubs[0] != testSub {
+		t.Errorf("Unexpected values, expected %s but got %s", testSub, bannedSubs[0])
+	}
+
+	err = RemoveBannedSubreddit(testChannel, testSub)
+
+	if err != nil {
+		t.Errorf("There was an error removing banned subreddit: %v", err)
+	}
+}

@@ -14,6 +14,11 @@ func TestTOPGGConnection(t *testing.T) {
 
 	topKey := os.Getenv("TOPGG")
 
+	if topKey == "" {
+		t.Log("No key was specified, skipping test.")
+		return
+	}
+
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", "https://top.gg/api/bots/"+testBotID, nil)
