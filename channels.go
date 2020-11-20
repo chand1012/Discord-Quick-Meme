@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -55,6 +54,7 @@ func getAllChannelNames() {
 }
 
 // GetChannelData gets channel name and NSFW status
+// Unlike 'GetChannelFromDB', this will check the cache first
 func GetChannelData(discord *discordgo.Session, channelID string, guildID string) (string, bool) {
 	fmt.Println("Getting channel data....")
 
@@ -81,8 +81,8 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 		return name, nsfw
 	}
 
-	if err != nil && err != sql.ErrNoRows {
-		return channelID, false
+	if err != nil {
+		fmt.Println("Channel not found in database, getting from Discord....")
 	}
 
 	channels, err := discord.GuildChannels(guildID)
