@@ -64,3 +64,19 @@ func TestChannelDataGetter(t *testing.T) {
 		t.Errorf("Error removing channel from database: %v", err)
 	}
 }
+
+func TestGetAllChannelNames(t *testing.T) {
+	ServerMap = make(map[string]string)
+	NSFWMap = make(map[string]bool)
+
+	getAllChannelNames()
+
+	if len(ServerMap) == 0 {
+		t.Errorf("Error getting all channel names: ServerMap is empty.")
+	}
+
+	if len(NSFWMap) == 0 {
+		t.Errorf("Error getting all channel NSFW statuses: NSFWMap is empty.")
+	}
+
+}
