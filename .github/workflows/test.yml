@@ -28,6 +28,8 @@ jobs:
 
     - name: Runs Unit Tests
       run: |
+       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
+       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
        export TOPGG="${{ secrets.TOPGG }}"
        export DB="${{ secrets.DB }}"
        export DBUSER="${{ secrets.DBUSER }}"
