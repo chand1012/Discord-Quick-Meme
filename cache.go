@@ -106,11 +106,6 @@ func PopulateCache() {
 	CachePopulating = false
 }
 
-// AddToCache adds post to cache
-func AddToCache(sub string, addPosts []QuickPost) {
-	PostCache[sub] = addPosts
-}
-
 // ClearCache clears the cache
 func ClearCache() {
 	PostCache = make(map[string][]QuickPost)

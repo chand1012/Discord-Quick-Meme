@@ -145,7 +145,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
 		} else {
-			AddToCache(sub, gottenPosts)
+			PostCache[sub] = gottenPosts
 			CacheTime = time.Now().Unix() + 1800
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
