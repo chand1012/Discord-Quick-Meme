@@ -1,6 +1,8 @@
 name: Build and Test Bot
 on: 
-  [push]
+  push:
+    branches-ignore:
+      - 'working'
 jobs:
 
   build:
@@ -26,29 +28,16 @@ jobs:
        docker pull chand1012/mrisa:master
        docker run -p 5000:5000 -d chand1012/mrisa:master
 
-    - name: Runs Unit Tests
+    - name: Runs Unit and Benchmark Tests
       run: |
        export REDDIT_ID="${{ secrets.REDDIT_ID }}"
        export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
+       export DB="${{ secrets.DB }}"
+       export DBUSER="${{ secrets.DBUSER }}"
+       export DBHOST="${{ secrets.DBHOST }}"
+       export DBPASSWD="${{ secrets.DBPASSWD }}"
+       export DBPORT="${{ secrets.DBPORT }}"
        export TOPGG="${{ secrets.TOPGG }}"
-       export DB="${{ secrets.DB }}"
-       export DBUSER="${{ secrets.DBUSER }}"
-       export DBHOST="${{ secrets.DBHOST }}"
-       export DBPASSWD="${{ secrets.DBPASSWD }}"
-       export DBPORT="${{ secrets.DBPORT }}"
-       export TEST_CHANNEL="${{ secrets.TEST_CHANNEL }}"
-       export TEST_GUILD="${{ secrets.TEST_GUILD }}"
-       go test -run ''
-    
-    - name: Runs Benchmark Tests
-      run: |
-       export REDDIT_ID="${{ secrets.REDDIT_ID }}"
-       export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
-       export DB="${{ secrets.DB }}"
-       export DBUSER="${{ secrets.DBUSER }}"
-       export DBHOST="${{ secrets.DBHOST }}"
-       export DBPASSWD="${{ secrets.DBPASSWD }}"
-       export DBPORT="${{ secrets.DBPORT }}"
        export TEST_CHANNEL="${{ secrets.TEST_CHANNEL }}"
        export TEST_GUILD="${{ secrets.TEST_GUILD }}"
        go test -bench=.
