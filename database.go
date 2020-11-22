@@ -59,7 +59,7 @@ func AddChannelToDB(channel string, nsfw bool, name string, guildID string) erro
 
 	} else if err == sql.ErrNoRows {
 		fmt.Println("Adding new entry...")
-		insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name, guild, time) VALUES (?, ?, ?, ?)")
+		insert, err := db.Prepare("INSERT INTO channels (channelID, nsfw, name, guild, time) VALUES (?, ?, ?, ?, ?)")
 
 		if err != nil {
 			fmt.Println(err)
