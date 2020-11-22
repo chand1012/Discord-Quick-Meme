@@ -9,10 +9,10 @@ import (
 
 // TestChannelDB tests the channel database operations
 func TestChannelDB(t *testing.T) {
-	testChannel := "0000000000"
+	testChannel := "test" + randString(14)
 	testNSFW := true
 	name := "testChannel"
-	guildID := "111111111111111"
+	guildID := "test" + randString(14)
 	err := AddChannelToDB(testChannel, testNSFW, name, guildID)
 
 	if err != nil && err != sql.ErrNoRows {
@@ -46,7 +46,7 @@ func TestCharsetRecovery(t *testing.T) {
 }
 
 func TestSubRedditBanning(t *testing.T) {
-	testChannel := "0000000000"
+	testChannel := "test" + randString(14)
 	testSub := "imgoingtohellforthis" // this sub died, gonna use it for testing
 
 	err := SetBannedSubreddit(testChannel, testSub)

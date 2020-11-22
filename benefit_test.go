@@ -9,8 +9,8 @@ import (
 // Tests
 
 func TestBenefitsSingle(t *testing.T) {
-	testUserID := "696969696969696969"
-	testGuild := "420420420420420420"
+	testUserID := "test" + randString(14)
+	testGuild := "test" + randString(14)
 
 	// There will be two sub-tests
 	// First one should return sql.ErrNoRows
@@ -65,10 +65,10 @@ func TestBenefitsMulti(t *testing.T) {
 
 	const status = 2
 
-	testUserID := "696969696969696969"
+	testUserID := "test" + randString(14)
 
 	for i := 0; i < 3; i++ {
-		testGuilds = append(testGuilds, randString(18))
+		testGuilds = append(testGuilds, "test"+randString(14))
 	}
 
 	for _, testGuild := range testGuilds {
