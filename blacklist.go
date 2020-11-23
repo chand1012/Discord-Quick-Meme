@@ -28,7 +28,7 @@ func CheckBlacklist(channel string, post QuickPost) bool {
 	cacheLength := len(Blacklist[channel])
 	for _, cachedPost := range Blacklist[channel] {
 		count++
-		if count >= cacheLength {
+		if count > cacheLength {
 			ResetBlacklist()
 			return false
 		}
@@ -37,9 +37,4 @@ func CheckBlacklist(channel string, post QuickPost) bool {
 		}
 	}
 	return false
-}
-
-//AddToBlacklist add post to blacklist
-func AddToBlacklist(channel string, post QuickPost) {
-	Blacklist[channel] = append(Blacklist[channel], post)
 }

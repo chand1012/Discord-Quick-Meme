@@ -48,7 +48,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		// complicated but it makes sense ish
 		if (channelNsfw && !blacklisted && !banned) || (channelNsfw && !nsfw && !blacklisted && !banned) {
 			toggled = true
-			AddToBlacklist(channel, returnPost)
+			Blacklist[channel] = append(Blacklist[channel], returnPost)
 			break
 		} else if !channelNsfw && !nsfw && !blacklisted && !banned {
 			toggled = true
