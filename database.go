@@ -460,6 +460,8 @@ func SetGuildStatus(guild string, proxyEnable bool, proxyMode int8) error {
 
 	_, err = db.Exec("UPDATE boosted SET proxyEnable = ?, proxyMode = ? WHERE guildID = ?", proxy, proxyMode, guild)
 
+	go updateSettingsCache(guild, proxyEnable, proxyMode)
+
 	return err
 }
 

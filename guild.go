@@ -31,3 +31,17 @@ func getServerSettings(discord *discordgo.Session, guildID string) (guildSetting
 
 	return settings, nil
 }
+
+func updateSettingsCache(guild string, proxyEnable bool, proxyMode int8) {
+	settings, ok := SettingsMap[guild]
+
+	if !ok {
+		settings = guildSettings{
+			Supporter: true,
+		}
+	}
+	settings.Proxy = proxyEnable
+	settings.ProxyMode = proxyMode
+
+	SettingsMap[guild] = settings
+}
