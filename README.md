@@ -27,26 +27,7 @@ Soon I will be launching a Patreon, which will get you some cool extra features!
 
 ## To use
 
-### General
-
-- Type `!meme` for a meme.
-- Type `!joke` for a joke.
-- Type `!news` for a random news article.
-- Type `!5050` or `!fiftyfifty` to pull a post from [r/fiftyfifty](https://reddit.com/r/fiftyfifty).
-- List of subreddits for commands can be found [here](https://github.com/chand1012/Discord-Quick-Meme/blob/master/subs.json).
-- A few secret commands if you're willing to look at the source code.
-- Type `!news`, `!link`, `!joke`, `!text`, or `!meme` followed by a subreddit name or a list of names separated with spaces (without the r/) to pull a random top post from that subreddit or from a random subreddit from that list. The `!text` and `!joke` commands post text directly to the chat. The `!link` and `!news` commands get a post that links a website or webpage. Finally, `!meme` get a piece of media, either a photo, a GIF, or a video. Examples: `!joke meanjokes` or `!meme cringetopia cringe`
-- Type `!source` to get the link to the last sent post in a channel. This was changed because people were complaining memes were coming up twice. This is because Discord shows previews of web content, to remedy this I make the link to the post a requested option, rather than removing it completely.
-- Typing `!revsearch` will search the web for the most recently posted PNG or JPEG file in the chat. This is done via Google Reverse Image Search. The search will prioritize results from Reddit, but if a Reddit result cannot be found, Google will return similar images and phrases, which are then put into the chat. **Disclaimer**: Google Reverse Image Search is best at finding simple objects, so don't be surprised if it has issues attempting to find your memes.
-
-### Admins
-
-- If you are a server admin, add a role called `Memebot Admin` to your roles. This role allows you to use the `ban`, `unban`, `subscribe`, and `unsubscribe` commands. 
-- The `ban` and `unban` commands allow you ban certain subreddits on either just a channel or the entire server. To ban a subreddit, run the command `!quickmeme ban <mode> <subreddit>` , where mode is either `server` or `channel`. Just replace `ban` with `unban` to do the reverse effect.
-    - Typing `!quickmeme getbanned <mode>`, where `<mode>` is either `server` or `channel` will give you a list of the banned subreddits on either the whole server or just the channel the command was executed on. This command can be executed by both admins and regular users.
-- The `subscribe` command allows the bot to periodically post memes in the channel of your choice. The command syntax is `!quickmeme subscribe <interval> <subreddit1>,<subreddit2>,...`. Some examples of intervals are `1h` (hourly), `6h`, `12h`, `1d` (daily), and `1w` (weekly).<sup>There is a maximum time interval of one week and a minimum of 15 minutes.</sup> You can add as many subreddits as you want to the custom command, as long as your command is under 2000 characters (Discord's rule, not mine), and random one will be pulled from your list. The subreddits are separated with _commas_, **not** spaces. If you use spaces you will get an error.
-    - To unsubscribe, simply type `!quickmeme unsubscribe` and the bot will stop sending messages in that channel until prompted again.
-    - The bot checks the queue every ten seconds, so many of the messages will not be exactly on-the-dot every hour, but should be within a minute or two.
+Usage information can be found on the [Wiki](https://github.com/chand1012/Discord-Quick-Meme/wiki).
 
 ## Support
 
@@ -70,3 +51,5 @@ If any support is needed, please post an Issue on the Issues page on Github or j
 If its offline, I am probably working on it.
 
 Icon by my friend, Mel. All rights to the logo/icon are reserved.
+
+Discord-Quick-Meme is not affiliated with Reddit or Discord.

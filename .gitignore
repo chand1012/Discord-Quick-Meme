@@ -35,6 +35,6 @@ test/*
 Dockerfile2
 
 test.sh
-
+run.sh
 thread.lock
 *.patch
