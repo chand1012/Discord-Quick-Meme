@@ -172,6 +172,10 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 				fmt.Println(err)
 			}
 			err = DeleteMemeQueue(channel)
+
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		if interval < minTime {
@@ -182,6 +186,10 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 				fmt.Println(err)
 			}
 			err = DeleteMemeQueue(channel)
+
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		queueItem.Time = time.Now().Unix() + int64(interval.Seconds())

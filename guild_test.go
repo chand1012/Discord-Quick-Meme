@@ -37,6 +37,10 @@ func TestServerSettings(t *testing.T) {
 
 	_, err = getServerSettings(discord, testGuild)
 
+	if err != nil {
+		t.Errorf("There was an error getting the server settings for guild %s: %v", testGuild, err)
+	}
+
 	testTwoEnd := GetMillis()
 	testTwo := testTwoEnd - testTwoStart
 
