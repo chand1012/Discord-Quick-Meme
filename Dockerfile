@@ -5,6 +5,7 @@ COPY . .
 RUN go get -d -v ./...
 RUN CGO_ENABLED=0 go build -v -o GoDiscordBot
 
+#skipcq: DOK-DL3007
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /go/src/app/GoDiscordBot .
