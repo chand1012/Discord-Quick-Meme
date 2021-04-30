@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  reviewers:
+  - chand1012
+  assignees:
+  - chand1012
+  ignore:
+  - dependency-name: github.com/bwmarrin/discordgo
+    versions:
+    - 0.23.1
