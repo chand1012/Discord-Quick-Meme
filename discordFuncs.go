@@ -241,9 +241,6 @@ func nsfwSendRoutine(discord *discordgo.Session, channel string) {
 
 func errSendRoutine(discord *discordgo.Session, channel string, err error) {
 	discord.ChannelMessageSend(channel, "Critical Error!\nThere was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
-	if strings.Contains(err.Error(), "1267") {
-		go FixDatabaseTableCharset()
-	}
 }
 
 // loop routine that gets posts from the cache.

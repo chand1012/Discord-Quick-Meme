@@ -13,15 +13,17 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // QueueObj data structure for the queue
 type QueueObj struct {
-	Interval   string   `json:"interval"`
-	Time       int64    `json:"time"`
-	Type       string   `json:"type"`
-	SubReddits []string `json:"subreddit"`
-	NSFW       bool     `json:"nsfw"`
+	Interval   string             `json:"interval"`
+	Time       int64              `json:"time"`
+	Type       string             `json:"type"`
+	SubReddits []string           `json:"subreddit"`
+	NSFW       bool               `json:"nsfw"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
 }
 
 func queueThread(discord *discordgo.Session) {
