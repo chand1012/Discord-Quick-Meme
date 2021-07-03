@@ -3,8 +3,8 @@ on:
   [push]
 jobs:
 
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
 
@@ -30,22 +30,15 @@ jobs:
 
     - name: Runs Unit Tests
       run: |
-       export TOPGG="${{ secrets.TOPGG }}"
-       export DB="${{ secrets.DB }}"
-       export DBUSER="${{ secrets.DBUSER }}"
-       export DBHOST="${{ secrets.DBHOST }}"
-       export DBPASSWD="${{ secrets.DBPASSWD }}"
-       export DBPORT="${{ secrets.DBPORT }}"
+       export MONGO_DATABASE="test"
+       export MONGO_CONNECT_STR=${{ secrets.MONGO_CONNECT_STR }}
        go test -run ''
     
     - name: Runs Benchmark Tests
       run: |
        export REDDIT_ID="${{ secrets.REDDIT_ID }}"
        export REDDIT_SECRET="${{ secrets.REDDIT_SECRET }}"
-       export DB="${{ secrets.DB }}"
-       export DBUSER="${{ secrets.DBUSER }}"
-       export DBHOST="${{ secrets.DBHOST }}"
-       export DBPASSWD="${{ secrets.DBPASSWD }}"
-       export DBPORT="${{ secrets.DBPORT }}"
+       export MONGO_DATABASE="test"
+       export MONGO_CONNECT_STR=${{ secrets.MONGO_CONNECT_STR }}
        go test -bench=.
     

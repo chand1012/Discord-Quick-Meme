@@ -80,7 +80,7 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 		"channel": channel,
 	}
 
-	err := channelCache.FindOne(context.TODO(), filter, options.FindOne()).Decode(&channelObject)
+	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
 
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
@@ -101,14 +101,14 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 			},
 		}
 
-		_, err = channelCache.UpdateOne(context.TODO(), filter, update)
+		_, err = channelCache.UpdateOne(dbContext, filter, update)
 	} else if err == mongo.ErrNoDocuments {
 		fmt.Println("Adding new entry...")
 		channelObject.ChannelID = channel
 		channelObject.Name = name
 		channelObject.Nsfw = nsfw
 		channelObject.Time = time.Now().Unix()
-		_, err = channelCache.InsertOne(context.TODO(), channelObject)
+		_, err = channelCache.InsertOne(dbContext, channelObject)
 	}
 	fmt.Println("Done adding to DB.")
 	return err
@@ -128,7 +128,7 @@ func GetChannelFromDB(channel string) (bool, string, error) {
 		"channel": channel,
 	}
 
-	err := channelCache.FindOne(context.TODO(), filter, options.FindOne()).Decode(&channelObject)
+	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
 
 	if err != nil {
 		return false, "", err
@@ -151,7 +151,7 @@ func RemoveChannelFromDB(channel string) error {
 		"channel": channel,
 	}
 
-	_, err := channelCache.DeleteOne(context.TODO(), filter)
+	_, err := channelCache.DeleteOne(dbContext, filter)
 
 	return err
 }
@@ -174,7 +174,7 @@ func UpdateChannelTime(channel string) error {
 		},
 	}
 
-	_, err := channelCache.UpdateOne(context.TODO(), filter, update)
+	_, err := channelCache.UpdateOne(dbContext, filter, update)
 
 	return err
 
@@ -195,7 +195,7 @@ func RemoveDormantChannels() error {
 		},
 	}
 
-	_, err := channelCache.DeleteMany(context.TODO(), filter)
+	_, err := channelCache.DeleteMany(dbContext, filter)
 
 	return err
 }
@@ -214,7 +214,7 @@ func SetBannedSubreddit(channel string, subreddit string) error {
 	bannedSub.ChannelID = channel
 	bannedSub.Sub = subreddit
 
-	_, err := bannedSubs.InsertOne(context.TODO(), bannedSub)
+	_, err := bannedSubs.InsertOne(dbContext, bannedSub)
 
 	return err
 
@@ -234,7 +234,7 @@ func RemoveBannedSubreddit(channel string, subreddit string) error {
 		"subreddit": subreddit,
 	}
 
-	_, err := bannedSubs.DeleteOne(context.TODO(), filter)
+	_, err := bannedSubs.DeleteOne(dbContext, filter)
 
 	return err
 }
@@ -245,8 +245,8 @@ func GetAllBannedSubs(channel string) ([]string, error) {
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")l, err
-	
+	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
+
 	filter := bson.M{
 		"channel": channel,
 	}
@@ -270,93 +270,116 @@ func GetAllBannedSubs(channel string) ([]string, error) {
 	}
 
 	return subs, nil
-	
+
 }
 
 // GetMemeQueue gets data for the meme queue for the specified channel
 func GetMemeQueue(channel string) (QueueObj, error) {
 	var queue QueueObj
-	var subString string
 
-	
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
+
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+
+	filter := bson.M{
+		"channel": channel,
+	}
+
+	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
+
+	if err != nil {
+		return QueueObj{}, err
+	}
+
+	return queue, nil
 }
 
 // DeleteMemeQueue clears the meme queue for the specified channel
 func DeleteMemeQueue(channel string) error {
-	db, err := initDB()
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
 
-	defer db.Close()
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
 
-	if err != nil {
-		return err
+	filter := bson.M{
+		"channel": channel,
 	}
 
-	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
+	_, err := memeQueue.DeleteOne(dbContext, filter)
 
 	return err
 }
 
 // SetMemeQueue sets the meme queue for the channel
 func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error {
-	db, err := initDB()
+	var queue QueueObj
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
 
-	defer db.Close()
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+
+	filter := bson.M{
+		"channel":  channel,
+		"nsfw":     nsfw,
+		"interval": interval,
+		"subs":     subs,
+	}
+
+	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
 
 	if err != nil {
-		return err
-	}
-
-	var nsfwInt int
-
-	if nsfw {
-		nsfwInt = 1
-	} else {
-		nsfwInt = 0
-	}
-
-	output, err := db.Prepare("SELECT channelID from queue WHERE channelID = ?")
-	defer output.Close()
-
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	err = output.QueryRow(channel).Scan(&channel)
-
-	if err == nil {
-		// update
-		_, err = db.Exec("UPDATE queue SET nsfw = ?, timeInterval = ?, subreddits = ? WHERE channelID = ?", nsfwInt, interval, subs, channel)
-
-	} else if err == sql.ErrNoRows {
-		// this isn't working.
-		// Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'interval, subreddits) VALUES (?, ?, ?, ?)' at line 1
-		insert, err := db.Prepare("INSERT INTO queue (channelID, nsfw, timeInterval, subreddits) VALUES (?, ?, ?, ?)")
-		if err != nil {
-			fmt.Println(err)
+		if err != mongo.ErrNoDocuments {
 			return err
 		}
+	}
 
-		_, err = insert.Exec(channel, nsfwInt, interval, subs)
-		insert.Close()
+	if err == mongo.ErrNoDocuments {
+		queue.Channel = channel
+		queue.NSFW = nsfw
+		queue.Interval = interval
+		queue.SubReddits = strings.Split(subs, ",")
+
+		_, err = memeQueue.InsertOne(dbContext, queue)
+	} else {
+		update := bson.M{
+			"$set": bson.M{
+				"nsfw":     nsfw,
+				"interval": interval,
+				"subs":     subs,
+			},
+		}
+
+		_, err = memeQueue.UpdateOne(dbContext, filter, update)
 	}
-	if err == sql.ErrNoRows {
-		return nil
-	}
+
 	return err
+
 }
 
 // UpdateMemeQueueTime updates the time for a queue item.
 func UpdateMemeQueueTime(channel string, setTime int64) error {
 
-	db, err := initDB()
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
 
-	defer db.Close()
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
 
-	if err != nil {
-		return err
+	filter := bson.M{
+		"channel": channel,
 	}
 
-	_, err = db.Exec("UPDATE queue SET time = ? WHERE channelID = ?", setTime, channel)
+	update := bson.M{
+		"$set": bson.M{
+			"time": setTime,
+		},
+	}
+
+	_, err := memeQueue.UpdateOne(dbContext, filter, update)
 
 	return err
 }
@@ -364,56 +387,68 @@ func UpdateMemeQueueTime(channel string, setTime int64) error {
 // GetAllQueueChannels gets all of the queue channels
 func GetAllQueueChannels() ([]string, error) {
 
-	db, err := initDB()
+	var channels []string
 
-	defer db.Close()
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
+
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+
+	cursor, err := memeQueue.Find(dbContext, bson.M{})
 
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := db.Query("SELECT channelID FROM queue")
-
-	var channels []string
-	var channel string
-
-	for rows.Next() {
-		err = rows.Scan(&channel)
-		if err != nil {
+	for cursor.Next(dbContext) {
+		var queue QueueObj
+		if err = cursor.Decode(&queue); err != nil {
 			return nil, err
 		}
-		channels = append(channels, channel)
+		channels = append(channels, queue.Channel)
 	}
 
-	return channels, err
+	return channels, nil
 }
 
 //RemoveChannelFromDBAllTables removes a channel from all tables in the database. For examples such as if someone deletes a guild or channel
 func RemoveChannelFromDBAllTables(channel string) error {
-	db, err := initDB()
 
-	defer db.Close()
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
+
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
+	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
+
+	filter := bson.M{
+		"channel": channel,
+	}
+
+	_, err := memeQueue.DeleteMany(dbContext, filter)
 
 	if err != nil {
-		return err
+		if err != mongo.ErrNoDocuments {
+			return err
+		}
 	}
 
-	_, err = db.Exec("DELETE FROM queue WHERE channelID = ?", channel)
+	_, err = bannedSubs.DeleteMany(dbContext, filter)
 
-	if err != nil && err != sql.ErrNoRows {
-		return err
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			return err
+		}
 	}
 
-	_, err = db.Exec("DELETE FROM channels WHERE channelID = ?", channel)
+	_, err = channelCache.DeleteMany(dbContext, filter)
 
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	_, err = db.Exec("DELETE FROM banned_subs WHERE channelID = ?", channel)
-
-	if err == sql.ErrNoRows {
+	if err == mongo.ErrNoDocuments {
 		return nil
 	}
+
 	return err
+
 }
