@@ -14,47 +14,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// gets all channel names via the database
-func getAllChannelNames() {
-	fmt.Println("Getting current channel names and NSFW status...")
-	starttime := GetMillis()
-
-	db, err := initDB()
-
-	defer db.Close()
-
-	if err != nil {
-		return
-	}
-
-	rows, err := db.Query("SELECT channelID, nsfw, name FROM channels")
-
-	if err != nil {
-		return
-	}
-
-	var channel string
-	var nsfwInt int
-	var nsfw bool
-	var name string
-
-	for rows.Next() {
-		err = rows.Scan(&channel, &nsfwInt, &name)
-
-		if nsfwInt == 1 {
-			nsfw = true
-		} else {
-			nsfw = false
-		}
-
-		ServerMap[channel] = name
-		NSFWMap[channel] = nsfw
-	}
-	endtime := GetMillis()
-	t := endtime - starttime
-	fmt.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
-}
-
 // GetChannelData gets channel name and NSFW status
 func GetChannelData(discord *discordgo.Session, channelID string, guildID string) (string, bool) {
 	fmt.Println("Getting channel data....")

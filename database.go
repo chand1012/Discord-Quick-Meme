@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -53,17 +53,39 @@ func ConnectMongo() (*mongo.Client, context.Context) {
 
 }
 
-func initDB() (*sql.DB, error) {
-	connectionStr := getDBEnv()
-	db, err := sql.Open("mysql", connectionStr)
+// GetAllChannelNames gets all channel names
+func GetAllChannelNames() {
+	fmt.Println("Getting all current channel names and NSFW statuses...")
+	starttime := GetMillis()
+
+	dbClient, dbContext := ConnectMongo()
+	defer dbClient.Disconnect(dbContext)
+	defer dbContext.Done()
+
+	var channelObjects []Channel
+	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
+
+	cursor, err := channelCache.Find(dbContext, bson.M{}, options.Find())
 
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return
 	}
 
-	err = db.Ping()
+	err = cursor.All(dbContext, &channelObjects)
 
-	return db, err
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, channelObject := range channelObjects {
+		ServerMap[channelObject.ChannelID] = channelObject.Name
+		NSFWMap[channelObject.ChannelID] = channelObject.Nsfw
+	}
+	endtime := GetMillis()
+	t := endtime - starttime
+	fmt.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
 }
 
 // AddChannelToDB adds a channel to the database
