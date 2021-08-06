@@ -31,7 +31,7 @@ type BannedSub struct {
 }
 
 func ConnectMongo() (*mongo.Client, context.Context) {
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGODB_CONNECT_STR")))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_CONNECT_STR")))
 
 	if err != nil {
 		log.Fatal(err)
@@ -77,7 +77,7 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
@@ -125,7 +125,7 @@ func GetChannelFromDB(channel string) (bool, string, error) {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
@@ -148,7 +148,7 @@ func RemoveChannelFromDB(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	_, err := channelCache.DeleteOne(dbContext, filter)
@@ -165,7 +165,7 @@ func UpdateChannelTime(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	update := bson.M{
@@ -230,7 +230,7 @@ func RemoveBannedSubreddit(channel string, subreddit string) error {
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 
 	filter := bson.M{
-		"channel":   channel,
+		"channelid": channel,
 		"subreddit": subreddit,
 	}
 
@@ -248,7 +248,7 @@ func GetAllBannedSubs(channel string) ([]string, error) {
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	cursor, err := bannedSubs.Find(dbContext, filter)
@@ -284,7 +284,7 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
@@ -305,7 +305,7 @@ func DeleteMemeQueue(channel string) error {
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	_, err := memeQueue.DeleteOne(dbContext, filter)
@@ -323,10 +323,10 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
 
 	filter := bson.M{
-		"channel":  channel,
-		"nsfw":     nsfw,
-		"interval": interval,
-		"subs":     subs,
+		"channelid": channel,
+		"nsfw":      nsfw,
+		"interval":  interval,
+		"subs":      subs,
 	}
 
 	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
@@ -370,7 +370,7 @@ func UpdateMemeQueueTime(channel string, setTime int64) error {
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	update := bson.M{
@@ -424,7 +424,7 @@ func RemoveChannelFromDBAllTables(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channel": channel,
+		"channelid": channel,
 	}
 
 	_, err := memeQueue.DeleteMany(dbContext, filter)
