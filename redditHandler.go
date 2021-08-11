@@ -13,9 +13,7 @@ import (
 // Replaces the "reddit.NewBotFromAgentFile" with a simple function call. Uses
 // getRedditEnv and gets data from environment
 func initBot() (reddit.Bot, error) {
-	var agent agentFile
-
-	agent = getRedditEnv()
+	var agent agentFile = getRedditEnv()
 
 	app := reddit.App{
 		ID:       agent.ClientID,
@@ -38,7 +36,7 @@ func initBot() (reddit.Bot, error) {
 func GuessPostType(post *reddit.Post) string {
 	selfText := post.SelfText
 	urlContent := post.URL
-	if len(selfText) == 0 {
+	if selfText == "" {
 		urlItems := []string{".jpg", ".png", ".jpeg", "gfycat", "youtube", "youtu.be", "gif", "gifv"}
 		if !strings.Contains(urlContent, "v.redd.it") && ContainsAnySubstring(urlContent, urlItems) {
 			return "media"
@@ -168,8 +166,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 // MinScore Formula for calculating effective minimum score.
 func MinScore(posts []QuickPost) int32 {
 	var total int32
-	var n int
-	n = len(posts)
+	var n int = len(posts)
 	for _, post := range posts {
 		total += post.Score
 	}
@@ -189,9 +186,7 @@ func getSubFromPermalink(permalink string) string {
 func getAllSubsFromMap() []string {
 	var allSubs []string
 	for _, value := range SubMap {
-		for _, sub := range value {
-			allSubs = append(allSubs, sub)
-		}
+		allSubs = append(allSubs, value...)
 	}
 	return allSubs
 }

@@ -198,7 +198,7 @@ func lockFileEqu(input []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if bytes.Compare(input, data) == 0 {
+	if bytes.Equal(input, data) {
 		return true, nil
 	}
 	return false, nil
