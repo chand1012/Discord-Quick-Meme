@@ -216,8 +216,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			discord.ChannelMessageSend(channel, "Error getting source of meme: "+err.Error())
 			return
 		}
-	case command == "!revsearch":
-		imageSearchCommand(discord, channel)
 	case command == "!quickmeme":
 		var subcommand string
 		if len(commandContent) > 1 {

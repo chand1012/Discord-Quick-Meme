@@ -16,10 +16,8 @@ func initBot() (reddit.Bot, error) {
 	var agent agentFile = getRedditEnv()
 
 	app := reddit.App{
-		ID:       agent.ClientID,
-		Secret:   agent.ClientSecret,
-		Username: agent.Username,
-		Password: agent.Password,
+		ID:     agent.ClientID,
+		Secret: agent.ClientSecret,
 	}
 
 	bot, err := reddit.NewBot(

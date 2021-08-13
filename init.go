@@ -19,8 +19,6 @@ func getRedditEnv() agentFile {
 	agent.UserAgent = "DiscordQuickMemeBot"
 	agent.ClientID = os.Getenv("REDDIT_ID")
 	agent.ClientSecret = os.Getenv("REDDIT_SECRET")
-	agent.Username = os.Getenv("REDDIT_USERNAME")
-	agent.Password = os.Getenv("REDDIT_PASSWORD")
 
 	if agent.ClientID == "" || agent.ClientSecret == "" {
 		fmt.Println("Cannot continue, Reddit client ID or Secret not set.")
