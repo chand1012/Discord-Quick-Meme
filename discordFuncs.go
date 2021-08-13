@@ -87,7 +87,7 @@ func getBuzzWord(discord *discordgo.Session, channel string) error {
 // send routine for embedded messages
 func embedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
 	rand.Seed(time.Now().Unix())
-	randColor := rand.Intn(0xffffff)
+	randColor := rand.Intn(0xffffff) // skipcq
 	embed := &discordgo.MessageEmbed{
 		Author:      &discordgo.MessageEmbedAuthor{},
 		Color:       randColor,

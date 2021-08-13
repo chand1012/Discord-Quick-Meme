@@ -214,7 +214,7 @@ func lockFileExists() bool {
 
 func lockFileCreate() ([]byte, error) {
 	fileData := make([]byte, 8)
-	rand.Read(fileData)
+	rand.Read(fileData) // skipcq
 	err := ioutil.WriteFile("./thread.lock", fileData, 0644)
 	return fileData, err
 }

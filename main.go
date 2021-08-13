@@ -200,7 +200,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		subs = SubMap["hentai"]
 		getMediaPost(discord, channel, nsfw, subs, "hot")
 	case command == "!all":
-		randchoice := rand.Intn(4)
+		randchoice := rand.Intn(4) // skipcq
 		switch randchoice {
 		case 0:
 			getLinkPost(discord, channel, nsfw, []string{"all"}, "")
