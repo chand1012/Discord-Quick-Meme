@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -31,27 +30,6 @@ func getRedditEnv() agentFile {
 	return agent
 }
 
-func getRedisEnv() (string, string, int) {
-	var redisDB int
-	var err error
-	redisAddr := os.Getenv("REDIS_ADDR")
-	redisPasswd := os.Getenv("REDIS_PASSWORD")
-	redisDBRaw := os.Getenv("REDIS_DB")
-	if redisAddr == "" {
-		redisAddr = "127.0.0.1:6379"
-	}
-	if redisDBRaw == "" {
-		redisDB = 0
-	} else {
-		redisDB, err = strconv.Atoi(redisDBRaw)
-		if err != nil {
-			redisDB = 0
-		}
-	}
-
-	return redisAddr, redisPasswd, redisDB
-}
-
 func getDataEnv() (string, string, string, []string) { // discord token, topgg key, mode, comma seperated list of admin ids
 	token := os.Getenv("DISCORD_TOKEN")
 	topKey := os.Getenv("TOPGG")
@@ -68,19 +46,4 @@ func getDataEnv() (string, string, string, []string) { // discord token, topgg k
 		mode = "prod"
 	}
 	return token, topKey, mode, admins
-}
-
-func getDBEnv() string { // returns the string that the DB can use
-	user := os.Getenv("DBUSER")
-	password := os.Getenv("DBPASSWD")
-	database := os.Getenv("DB")
-	host := os.Getenv("DBHOST")
-	port := os.Getenv("DBPORT")
-	if port == "" {
-		port = "3306"
-	}
-
-	endstr := user + ":" + password + "@tcp(" + host + ":" + port + ")" + "/" + database
-
-	return endstr
 }
