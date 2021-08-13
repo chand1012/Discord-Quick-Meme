@@ -39,3 +39,4 @@ run.sh
 thread.lock
 *.patch
 .secrets
+.env
