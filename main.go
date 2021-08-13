@@ -13,10 +13,9 @@ import (
 )
 
 var (
-	commandPrefix string
-	botID         string
-	adminIDs      []string
-	topgg         string
+	botID    string
+	adminIDs []string
+	topgg    string
 	// CacheTime stores cache timer value
 	CacheTime int64
 	//BlacklistTime stores the blacklist time for all of the channels
@@ -99,10 +98,9 @@ func main() {
 		panic(err)
 	}
 	defer discord.Close()
-	commandPrefix = "!"
 	fmt.Println("Discord-Quick-Meme is starting up.")
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
 	// Clean up
@@ -129,7 +127,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	}
 	go updateStatus(discord)
 	go queueThread(discord)
-	go getAllChannelNames()
+	go GetAllChannelNames()
 }
 
 // handes incoming commands
@@ -202,7 +200,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		subs = SubMap["hentai"]
 		getMediaPost(discord, channel, nsfw, subs, "hot")
 	case command == "!all":
-		randchoice := rand.Intn(4)
+		randchoice := rand.Intn(4) // skipcq
 		switch randchoice {
 		case 0:
 			getLinkPost(discord, channel, nsfw, []string{"all"}, "")

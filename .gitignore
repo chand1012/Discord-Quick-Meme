@@ -38,3 +38,4 @@ test.sh
 run.sh
 thread.lock
 *.patch
+.secrets

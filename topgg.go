@@ -26,6 +26,12 @@ func updateServerCount(uCount int64, topKey string) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("POST", "https://top.gg/api/bots/"+botID+"/stats", bytes.NewBuffer(data))
+
+	if err != nil {
+		fmt.Println("There was an error while creating the request:", err)
+		return
+	}
+
 	req.Header.Set("Authorization", topKey)
 	req.Header.Set("Content-Type", "application/json")
 

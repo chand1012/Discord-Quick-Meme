@@ -14,47 +14,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// gets all channel names via the database
-func getAllChannelNames() {
-	fmt.Println("Getting current channel names and NSFW status...")
-	starttime := GetMillis()
-
-	db, err := initDB()
-
-	defer db.Close()
-
-	if err != nil {
-		return
-	}
-
-	rows, err := db.Query("SELECT channelID, nsfw, name FROM channels")
-
-	if err != nil {
-		return
-	}
-
-	var channel string
-	var nsfwInt int
-	var nsfw bool
-	var name string
-
-	for rows.Next() {
-		err = rows.Scan(&channel, &nsfwInt, &name)
-
-		if nsfwInt == 1 {
-			nsfw = true
-		} else {
-			nsfw = false
-		}
-
-		ServerMap[channel] = name
-		NSFWMap[channel] = nsfw
-	}
-	endtime := GetMillis()
-	t := endtime - starttime
-	fmt.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
-}
-
 // GetChannelData gets channel name and NSFW status
 func GetChannelData(discord *discordgo.Session, channelID string, guildID string) (string, bool) {
 	fmt.Println("Getting channel data....")
@@ -108,59 +67,6 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 	return channelID, false
 }
 
-// gets a channel name from the cache, otherwise searches all channels on server that send the message
-func getChannelName(discord *discordgo.Session, channelID string, guildID string) string {
-	fmt.Println("Getting channel name....")
-	if value, ok := ServerMap[channelID]; ok {
-		fmt.Println("Value cached.")
-		return value
-	}
-	starttime := GetMillis()
-	channels, err := discord.GuildChannels(guildID)
-	if err != nil {
-		fmt.Println("Error getting channel name: ", err)
-		return channelID
-	}
-	for _, channel := range channels {
-		if channel.ID == channelID {
-			ServerMap[channelID] = channel.Name
-			endtime := GetMillis()
-			t := endtime - starttime
-			fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
-			go AddChannelToDB(channel.ID, channel.NSFW, channel.Name)
-			return channel.Name
-		}
-	}
-
-	return channelID
-}
-
-func getChannelNSFW(discord *discordgo.Session, channelID string, guildID string) bool {
-	fmt.Println("Getting channel NSFW status....")
-	if value, ok := NSFWMap[channelID]; ok {
-		fmt.Println("Value cached.")
-		return value
-	}
-	starttime := GetMillis()
-	channels, err := discord.GuildChannels(guildID)
-	if err != nil {
-		fmt.Println("Error getting channel NSFW status: ", err)
-		return false
-	}
-	for _, channel := range channels {
-		if channel.ID == channelID {
-			NSFWMap[channelID] = channel.NSFW
-			endtime := GetMillis()
-			t := endtime - starttime
-			fmt.Println("Time to get channel NSFW Status: " + strconv.FormatInt(t, 10) + "ms")
-			return channel.NSFW
-		}
-	}
-
-	return false
-
-}
-
 // updates the bot status
 func updateStatus(discord *discordgo.Session) {
 	servers := discord.State.Guilds
@@ -181,7 +87,7 @@ func getBuzzWord(discord *discordgo.Session, channel string) error {
 // send routine for embedded messages
 func embedSendRoutine(discord *discordgo.Session, channel string, sub string, title string, url string, score int32) {
 	rand.Seed(time.Now().Unix())
-	randColor := rand.Intn(0xffffff)
+	randColor := rand.Intn(0xffffff) // skipcq
 	embed := &discordgo.MessageEmbed{
 		Author:      &discordgo.MessageEmbedAuthor{},
 		Color:       randColor,
@@ -241,9 +147,6 @@ func nsfwSendRoutine(discord *discordgo.Session, channel string) {
 
 func errSendRoutine(discord *discordgo.Session, channel string, err error) {
 	discord.ChannelMessageSend(channel, "Critical Error!\nThere was a critical error. "+err.Error()+" Please report this if possible to the Github page: https://github.com/chand1012/Discord-Quick-Meme/issues")
-	if strings.Contains(err.Error(), "1267") {
-		go FixDatabaseTableCharset()
-	}
 }
 
 // loop routine that gets posts from the cache.

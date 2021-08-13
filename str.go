@@ -85,17 +85,6 @@ func timeStrToSeconds(stamp string) int64 {
 	return finalTime
 }
 
-// I am sure there is a more efficient way to do this
-// but this works
-func interfaceToStringSlice(inter interface{}) []string {
-	var stringSlice []string
-	interString := fmt.Sprintf("%v", inter)
-	re, _ := regexp.Compile("[^0-9a-zA-Z ]")
-	interString = re.ReplaceAllString(interString, "")
-	stringSlice = strings.Split(interString, " ")
-	return stringSlice
-}
-
 func matchRegexList(expressions []string, testStr string) bool {
 	for _, item := range expressions {
 		compiled, err := regexp.Compile(item)

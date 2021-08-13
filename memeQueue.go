@@ -13,15 +13,18 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // QueueObj data structure for the queue
 type QueueObj struct {
-	Interval   string   `json:"interval"`
-	Time       int64    `json:"time"`
-	Type       string   `json:"type"`
-	SubReddits []string `json:"subreddit"`
-	NSFW       bool     `json:"nsfw"`
+	Interval   string             `json:"interval"`
+	Time       int64              `json:"time"`
+	Type       string             `json:"type"`
+	SubReddits []string           `json:"subreddit"`
+	NSFW       bool               `json:"nsfw"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	Channel    string             `json:"channel"`
 }
 
 func queueThread(discord *discordgo.Session) {
@@ -195,7 +198,7 @@ func lockFileEqu(input []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if bytes.Compare(input, data) == 0 {
+	if bytes.Equal(input, data) {
 		return true, nil
 	}
 	return false, nil
@@ -211,7 +214,7 @@ func lockFileExists() bool {
 
 func lockFileCreate() ([]byte, error) {
 	fileData := make([]byte, 8)
-	rand.Read(fileData)
+	rand.Read(fileData) // skipcq
 	err := ioutil.WriteFile("./thread.lock", fileData, 0644)
 	return fileData, err
 }
