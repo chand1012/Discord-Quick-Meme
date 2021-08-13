@@ -50,6 +50,12 @@ func GuessPostType(post *reddit.Post) string {
 // PingReddit tests reddit connection
 func PingReddit() error {
 	bot, err := initBot()
+
+	if err != nil {
+		fmt.Println("Error pinging Reddit:", err)
+		return err
+	}
+
 	_, err = bot.Listing("/r/all", "")
 	if err != nil {
 		fmt.Println("Error pinging Reddit:", err)
