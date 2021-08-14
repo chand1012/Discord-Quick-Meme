@@ -106,6 +106,7 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
+			fmt.Println(err)
 			return err
 		}
 	}
@@ -133,6 +134,7 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 		_, err = channelCache.InsertOne(dbContext, channelObject)
 	}
 	fmt.Println("Done adding to DB.")
+	fmt.Println(err)
 	return err
 }
 

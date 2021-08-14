@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // QueueObj data structure for the queue
@@ -84,7 +84,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 	minTime := time.Minute * 15
 
 	queueItem, err := GetMemeQueue(channel)
-	if err == sql.ErrNoRows {
+	if err == mongo.ErrNoDocuments {
 		return
 	}
 	if err != nil {

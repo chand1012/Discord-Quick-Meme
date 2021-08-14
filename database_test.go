@@ -1,8 +1,9 @@
 package main
 
 import (
-	"database/sql"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Tests
@@ -15,7 +16,7 @@ func TestChannelDB(t *testing.T) {
 
 	err := AddChannelToDB(testChannel, testNSFW, name)
 
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && err != mongo.ErrNoDocuments {
 		t.Errorf("There was an error adding to the channel DB, %v", err)
 	}
 

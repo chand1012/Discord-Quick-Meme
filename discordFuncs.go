@@ -2,7 +2,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -11,7 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
-	_ "github.com/go-sql-driver/mysql"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // GetChannelData gets channel name and NSFW status
@@ -41,7 +40,7 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 		return name, nsfw
 	}
 
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && err != mongo.ErrNoDocuments {
 		return channelID, false
 	}
 
@@ -460,7 +459,7 @@ func delQueueRoutine(discord *discordgo.Session, channel string) {
 	fmt.Println("Deleting channel", channel)
 	err := DeleteMemeQueue(channel)
 	fmt.Println("Checking for errors...")
-	if err == sql.ErrNoRows {
+	if err == mongo.ErrNoDocuments {
 		discord.ChannelMessageSend(channel, "Error, this channel isn't subscribed.")
 		return
 	}
