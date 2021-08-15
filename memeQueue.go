@@ -139,6 +139,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		if err != nil {
 			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
+			DeleteMemeQueue(channel)
 			return
 		}
 
@@ -147,6 +148,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		if err != nil {
 			fmt.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
+			DeleteMemeQueue(channel)
 			return
 		}
 
