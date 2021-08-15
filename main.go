@@ -10,6 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -52,6 +53,7 @@ var (
 
 // main loop
 func main() {
+	godotenv.Load()
 	var err error
 	var key string
 	var adminRawIDs []string

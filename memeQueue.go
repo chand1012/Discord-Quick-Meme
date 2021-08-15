@@ -24,7 +24,7 @@ type QueueObj struct {
 	SubReddits []string           `json:"subreddit"`
 	NSFW       bool               `json:"nsfw"`
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
-	Channel    string             `json:"channel"`
+	Channel    string             `json:"channelid"`
 }
 
 func queueThread(discord *discordgo.Session) {

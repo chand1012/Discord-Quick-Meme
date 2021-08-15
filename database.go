@@ -99,7 +99,7 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channelID": channel,
 	}
 
 	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
@@ -149,7 +149,7 @@ func GetChannelFromDB(channel string) (bool, string, error) {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channelID": channel,
 	}
 
 	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
@@ -172,7 +172,7 @@ func RemoveChannelFromDB(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channelID": channel,
 	}
 
 	_, err := channelCache.DeleteOne(dbContext, filter)
@@ -189,7 +189,7 @@ func UpdateChannelTime(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channelID": channel,
 	}
 
 	update := bson.M{
@@ -254,7 +254,7 @@ func RemoveBannedSubreddit(channel string, subreddit string) error {
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channelID": channel,
 		"subreddit": subreddit,
 	}
 
@@ -272,7 +272,7 @@ func GetAllBannedSubs(channel string) ([]string, error) {
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channelID": channel,
 	}
 
 	cursor, err := bannedSubs.Find(dbContext, filter)
@@ -305,13 +305,13 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channel": channel,
 	}
 
-	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
+	err := memeQueue.FindOne(dbContext, filter, options.FindOne()).Decode(&queue)
 
 	if err != nil {
 		return QueueObj{}, err
@@ -326,10 +326,10 @@ func DeleteMemeQueue(channel string) error {
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channel": channel,
 	}
 
 	_, err := memeQueue.DeleteOne(dbContext, filter)
@@ -344,13 +344,13 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channelid": channel,
-		"nsfw":      nsfw,
-		"interval":  interval,
-		"subs":      subs,
+		"channel":  channel,
+		"nsfw":     nsfw,
+		"interval": interval,
+		"subs":     subs,
 	}
 
 	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
@@ -391,10 +391,10 @@ func UpdateMemeQueueTime(channel string, setTime int64) error {
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channel": channel,
 	}
 
 	update := bson.M{
@@ -417,7 +417,7 @@ func GetAllQueueChannels() ([]string, error) {
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	cursor, err := memeQueue.Find(dbContext, bson.M{})
 
@@ -443,12 +443,12 @@ func RemoveChannelFromDBAllTables(channel string) error {
 	defer dbClient.Disconnect(dbContext)
 	defer dbContext.Done()
 
-	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queues")
+	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelid": channel,
+		"channel": channel,
 	}
 
 	_, err := memeQueue.DeleteMany(dbContext, filter)
@@ -457,6 +457,10 @@ func RemoveChannelFromDBAllTables(channel string) error {
 		if err != mongo.ErrNoDocuments {
 			return err
 		}
+	}
+
+	filter = bson.M{
+		"channelID": channel,
 	}
 
 	_, err = bannedSubs.DeleteMany(dbContext, filter)
