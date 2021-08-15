@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -10,6 +11,7 @@ import (
 
 // TestChannelDB tests the channel database operations
 func TestChannelDB(t *testing.T) {
+	godotenv.Load()
 	testChannel := "0000000000"
 	testNSFW := true
 	name := "testChannel"

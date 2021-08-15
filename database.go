@@ -99,7 +99,10 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelID": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+		},
 	}
 
 	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
@@ -117,10 +120,10 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 		filter = bson.M{"_id": bson.M{"$eq": channelObject.ID}}
 		update := bson.M{
 			"$set": bson.M{
-				"channel": channelObject.ChannelID,
-				"nsfw":    channelObject.Nsfw,
-				"time":    channelObject.Time,
-				"name":    channelObject.Name,
+				"channelID": channelObject.ChannelID,
+				"nsfw":      channelObject.Nsfw,
+				"time":      channelObject.Time,
+				"name":      channelObject.Name,
 			},
 		}
 
@@ -134,7 +137,6 @@ func AddChannelToDB(channel string, nsfw bool, name string) error {
 		_, err = channelCache.InsertOne(dbContext, channelObject)
 	}
 	fmt.Println("Done adding to DB.")
-	fmt.Println(err)
 	return err
 }
 
@@ -149,7 +151,10 @@ func GetChannelFromDB(channel string) (bool, string, error) {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelID": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+		},
 	}
 
 	err := channelCache.FindOne(dbContext, filter, options.FindOne()).Decode(&channelObject)
@@ -172,7 +177,10 @@ func RemoveChannelFromDB(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelID": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+		},
 	}
 
 	_, err := channelCache.DeleteOne(dbContext, filter)
@@ -189,7 +197,10 @@ func UpdateChannelTime(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channelID": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+		},
 	}
 
 	update := bson.M{
@@ -254,7 +265,7 @@ func RemoveBannedSubreddit(channel string, subreddit string) error {
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 
 	filter := bson.M{
-		"channelID": channel,
+		"channelID": &channel,
 		"subreddit": subreddit,
 	}
 
@@ -272,7 +283,10 @@ func GetAllBannedSubs(channel string) ([]string, error) {
 	bannedSubs := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("banned_subs")
 
 	filter := bson.M{
-		"channelID": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+		},
 	}
 
 	cursor, err := bannedSubs.Find(dbContext, filter)
@@ -308,7 +322,11 @@ func GetMemeQueue(channel string) (QueueObj, error) {
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channel": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+			{"channel": &channel},
+		},
 	}
 
 	err := memeQueue.FindOne(dbContext, filter, options.FindOne()).Decode(&queue)
@@ -329,7 +347,11 @@ func DeleteMemeQueue(channel string) error {
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channel": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+			{"channel": &channel},
+		},
 	}
 
 	_, err := memeQueue.DeleteOne(dbContext, filter)
@@ -347,10 +369,10 @@ func SetMemeQueue(channel string, nsfw bool, interval string, subs string) error
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channel":  channel,
-		"nsfw":     nsfw,
-		"interval": interval,
-		"subs":     subs,
+		"channel":  &channel,
+		"nsfw":     &nsfw,
+		"interval": &interval,
+		"subs":     &subs,
 	}
 
 	err := memeQueue.FindOne(dbContext, filter).Decode(&queue)
@@ -394,7 +416,11 @@ func UpdateMemeQueueTime(channel string, setTime int64) error {
 	memeQueue := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("queue")
 
 	filter := bson.M{
-		"channel": channel,
+		"$or": []bson.M{
+			{"channelID": &channel},
+			{"channelid": &channel},
+			{"channel": &channel},
+		},
 	}
 
 	update := bson.M{
@@ -448,7 +474,7 @@ func RemoveChannelFromDBAllTables(channel string) error {
 	channelCache := dbClient.Database(os.Getenv("MONGO_DATABASE")).Collection("channels")
 
 	filter := bson.M{
-		"channel": channel,
+		"channel": &channel,
 	}
 
 	_, err := memeQueue.DeleteMany(dbContext, filter)

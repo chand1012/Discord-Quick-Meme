@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/joho/godotenv"
+)
 
 // Testing
 // Nothing here yet
@@ -9,6 +13,7 @@ import "testing"
 
 // BenchmarkRedditConnection testing reddit speed
 func BenchmarkRedditConnection(b *testing.B) {
+	godotenv.Load()
 	for i := 0; i < b.N; i++ {
 		_ = PingReddit()
 	}
