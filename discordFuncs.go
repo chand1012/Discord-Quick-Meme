@@ -70,7 +70,10 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 func updateStatus(discord *discordgo.Session) {
 	servers := discord.State.Guilds
 	serverCount := int64(len(servers))
-	err := discord.UpdateStatus(0, "on "+humanize.Comma(serverCount)+" servers")
+	statusData := discordgo.UpdateStatusData{
+		Status: "Memeing on "+humanize.Comma(serverCount)+" servers.",
+	}
+	err := discord.UpdateStatusComplex(statusData)
 	if err != nil {
 		fmt.Println("Error updating the status: ", err)
 	}
