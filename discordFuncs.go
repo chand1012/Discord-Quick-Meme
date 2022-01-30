@@ -208,7 +208,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 }
 
 // gets a media post and sends it
-func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
+func MediaPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
 	var url string
 	var title string
@@ -233,7 +233,7 @@ func getMediaPost(discord *discordgo.Session, channel string, channelNsfw bool, 
 }
 
 // gets a text post and sends it
-func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
+func TextPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
 	var text string
 	var title string
@@ -253,7 +253,7 @@ func getTextPost(discord *discordgo.Session, channel string, channelNsfw bool, s
 }
 
 // gets a link post and sends it
-func getLinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
+func LinkPost(discord *discordgo.Session, channel string, channelNsfw bool, subs []string, sort string) {
 	var score int32
 	var url string
 	var title string

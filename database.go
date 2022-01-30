@@ -89,7 +89,7 @@ func GetAllChannelNames() {
 }
 
 // AddChannelToDB adds a channel to the database
-func AddChannelToDB(channel string, nsfw bool, name string) error {
+func AddChannelToDB(channel string, nsfw bool, name string) error { // skipcq RVV-A0006
 
 	dbClient, dbContext := ConnectMongo()
 	defer dbClient.Disconnect(dbContext)

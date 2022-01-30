@@ -163,53 +163,53 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	switch {
 	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
-		getMediaPost(discord, channel, nsfw, subs, "hot")
+		MediaPost(discord, channel, nsfw, subs, "hot")
 	case command == "!meme" && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
 			discord.ChannelMessageSend(channel, ErrorMsg)
 			return
 		}
-		getMediaPost(discord, channel, nsfw, subs, "hot")
+		MediaPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!joke" || command == "!text") && len(commandContent) == 1:
 		subs = SubMap["text"]
-		getTextPost(discord, channel, nsfw, subs, "hot")
+		TextPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!joke" || command == "!text") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
 			discord.ChannelMessageSend(channel, ErrorMsg)
 			return
 		}
-		getTextPost(discord, channel, nsfw, subs, "hot")
+		TextPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!news" || command == "!link") && len(commandContent) == 1:
 		subs = SubMap["news"]
-		getLinkPost(discord, channel, nsfw, subs, "hot")
+		LinkPost(discord, channel, nsfw, subs, "hot")
 	case (command == "!news" || command == "!link") && len(commandContent) >= 2:
 		subs = textFilterSlice(commandContent[1:])
 		if subs == nil {
 			discord.ChannelMessageSend(channel, ErrorMsg)
 			return
 		}
-		getLinkPost(discord, channel, nsfw, subs, "hot")
+		LinkPost(discord, channel, nsfw, subs, "hot")
 	case command == "!fiftyfifty" || command == "!5050":
 		subs = []string{"fiftyfifty"}
-		getLinkPost(discord, channel, nsfw, subs, "hot")
+		LinkPost(discord, channel, nsfw, subs, "hot")
 	case commandContent[0] == "!buzzword":
 		getBuzzWord(discord, channel)
 	case commandContent[0] == "!hentai":
 		// This is still only here because a friend of mine
 		// suggested this and I am a nice person
 		subs = SubMap["hentai"]
-		getMediaPost(discord, channel, nsfw, subs, "hot")
+		MediaPost(discord, channel, nsfw, subs, "hot")
 	case command == "!all":
 		randchoice := rand.Intn(4) // skipcq
 		switch randchoice {
 		case 0:
-			getLinkPost(discord, channel, nsfw, []string{"all"}, "")
+			LinkPost(discord, channel, nsfw, []string{"all"}, "")
 		case 1:
-			getTextPost(discord, channel, nsfw, []string{"all"}, "")
+			TextPost(discord, channel, nsfw, []string{"all"}, "")
 		default:
-			getMediaPost(discord, channel, nsfw, []string{"all"}, "")
+			MediaPost(discord, channel, nsfw, []string{"all"}, "")
 		}
 	case command == "!source":
 		err := getSource(discord, channel)

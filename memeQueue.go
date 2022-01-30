@@ -112,11 +112,11 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 
 		switch queueItem.Type {
 		case "text":
-			getTextPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+			TextPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		case "link":
-			getLinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+			LinkPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		default:
-			getMediaPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
+			MediaPost(discord, channel, queueItem.NSFW, queueItem.SubReddits, "hot")
 		}
 		letters, err := regexp.Compile("[^a-zA-Z]+")
 
