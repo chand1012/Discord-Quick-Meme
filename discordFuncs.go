@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -15,28 +16,28 @@ import (
 
 // GetChannelData gets channel name and NSFW status
 func GetChannelData(discord *discordgo.Session, channelID string, guildID string) (string, bool) {
-	fmt.Println("Getting channel data....")
+	log.Println("Getting channel data....")
 
 	name, nok := ServerMap[channelID]
 	nsfw, wok := NSFWMap[channelID]
 
 	if nok && wok {
-		fmt.Println("Values cached.")
+		log.Println("Values cached.")
 		return name, nsfw
 	}
 
 	starttime := GetMillis()
 
-	fmt.Println("Checking database....")
+	log.Println("Checking database....")
 	nsfw, name, err := GetChannelFromDB(channelID)
 
 	if err == nil {
-		fmt.Println("Channel found in database, adding to RAM....")
+		log.Println("Channel found in database, adding to RAM....")
 		ServerMap[channelID] = name
 		NSFWMap[channelID] = nsfw
 		endtime := GetMillis()
 		t := endtime - starttime
-		fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
+		log.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
 		return name, nsfw
 	}
 
@@ -47,7 +48,7 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 	channels, err := discord.GuildChannels(guildID)
 
 	if err != nil {
-		fmt.Println("Error getting channel data: ", err)
+		log.Println("Error getting channel data: ", err)
 		return channelID, false
 	}
 
@@ -57,7 +58,7 @@ func GetChannelData(discord *discordgo.Session, channelID string, guildID string
 			NSFWMap[channelID] = channel.NSFW
 			endtime := GetMillis()
 			t := endtime - starttime
-			fmt.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
+			log.Println("Time to get channel name: " + strconv.FormatInt(t, 10) + "ms")
 			go AddChannelToDB(channel.ID, channel.NSFW, channel.Name)
 			return channel.Name, channel.NSFW
 		}
@@ -71,11 +72,11 @@ func updateStatus(discord *discordgo.Session) {
 	servers := discord.State.Guilds
 	serverCount := int64(len(servers))
 	statusData := discordgo.UpdateStatusData{
-		Status: "Memeing on "+humanize.Comma(serverCount)+" servers.",
+		Status: "Memeing on " + humanize.Comma(serverCount) + " servers.",
 	}
 	err := discord.UpdateStatusComplex(statusData)
 	if err != nil {
-		fmt.Println("Error updating the status: ", err)
+		log.Println("Error updating the status: ", err)
 	}
 }
 
@@ -103,13 +104,13 @@ func embedSendRoutine(discord *discordgo.Session, channel string, sub string, ti
 	_, err := discord.ChannelMessageSendEmbed(channel, embed)
 	if err != nil {
 		if strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeUnknownChannel)) {
-			fmt.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
+			log.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
 			err = RemoveChannelFromDBAllTables(channel)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		} else {
-			fmt.Println("Error posting to channel:", err.Error())
+			log.Println("Error posting to channel:", err.Error())
 		}
 	}
 }
@@ -119,20 +120,20 @@ func successSendRoutine(discord *discordgo.Session, channel string, sub string, 
 	_, err := discord.ChannelMessageSend(channel, "From r/"+sub+"\n"+textone+"\n"+texttwo+"\nScore: "+humanize.Comma(int64(score)))
 	if err != nil {
 		if strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeUnknownChannel)) || strings.Contains(err.Error(), fmt.Sprint(discordgo.ErrCodeMissingAccess)) {
-			fmt.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
+			log.Println("Channel either was deleted or the bot does not have access to it. Removing all entries from database.")
 			err = RemoveChannelFromDBAllTables(channel)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		} else if strings.Contains(err.Error(), "Must be 2000 or fewer in length.") {
-			fmt.Println(err)
+			log.Println(err)
 			_, err = discord.ChannelMessageSend(channel, "Sorry, but the requested content is too long to be sent via Discord. Please try again.")
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		} else {
-			fmt.Println("Error posting to channel:")
-			fmt.Println(err)
+			log.Println("Error posting to channel:")
+			log.Println(err)
 		}
 	}
 }
@@ -164,7 +165,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 	toggled := false
 	bannedSubs, err := GetAllBannedSubs(channel)
 	if err != nil {
-		fmt.Println("Error getting banned subreddits: ", err)
+		log.Println("Error getting banned subreddits: ", err)
 	}
 	for i := 0; i < 10; i++ {
 		returnPost, sub = GetPost(subs, 100, sort, postType)
@@ -181,7 +182,7 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 		nsfw = returnPost.Nsfw
 
 		if nsfw {
-			fmt.Println("Post is NSFW.")
+			log.Println("Post is NSFW.")
 		}
 
 		// complicated but it makes sense ish
@@ -194,9 +195,9 @@ func getPostLoop(subs []string, postType string, channel string, channelNsfw boo
 			break
 		} else {
 			if !blacklisted && !banned {
-				fmt.Println("Channel is not NSFW but post is NSFW, retrying....")
+				log.Println("Channel is not NSFW but post is NSFW, retrying....")
 			} else if banned {
-				fmt.Println("Channel banned sub " + sub + ", retrying...")
+				log.Println("Channel banned sub " + sub + ", retrying...")
 				if i == 9 {
 					bannedToggle = true
 				}
@@ -412,7 +413,7 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 			bannedSubs, err := GetAllBannedSubs(chat.ID)
 			if err != nil {
 				discord.ChannelMessageSend(channel, ErrorMsg)
-				fmt.Println(err)
+				log.Println(err)
 				break
 			}
 			msgString := strings.Join(bannedSubs, ", ")
@@ -424,7 +425,7 @@ func getbannedSubRoutine(discord *discordgo.Session, channel string, commandCont
 		bannedSubs, err := GetAllBannedSubs(channel)
 		if err != nil {
 			discord.ChannelMessageSend(channel, ErrorMsg)
-			fmt.Println(err)
+			log.Println(err)
 		} else {
 			msgString := strings.Join(bannedSubs, ", ")
 			discord.ChannelMessageSend(channel, "Subs banned on this channel:\n"+msgString)
@@ -447,7 +448,7 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 
 		err = SetMemeQueue(channel, channelNsfw, interval, commandContent[3])
 		if err != nil {
-			fmt.Println("There was an error setting the Queue: " + err.Error())
+			log.Println("There was an error setting the Queue: " + err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -459,20 +460,20 @@ func setQueueRoutine(discord *discordgo.Session, channel string, commandContent 
 }
 
 func delQueueRoutine(discord *discordgo.Session, channel string) {
-	fmt.Println("Deleting channel", channel)
+	log.Println("Deleting channel", channel)
 	err := DeleteMemeQueue(channel)
-	fmt.Println("Checking for errors...")
+	log.Println("Checking for errors...")
 	if err == mongo.ErrNoDocuments {
 		discord.ChannelMessageSend(channel, "Error, this channel isn't subscribed.")
 		return
 	}
 	if err != nil {
-		fmt.Println("There was an error removing an item from the queue: ", err)
+		log.Println("There was an error removing an item from the queue: ", err)
 		errSendRoutine(discord, channel, err)
 		return
 	}
 	discord.ChannelMessageSend(channel, "You have successfully unsubscribed this channel from memes.")
-	fmt.Println("Done.")
+	log.Println("Done.")
 }
 
 func helpRoutine(discord *discordgo.Session, channel string) {

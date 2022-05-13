@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -50,13 +50,13 @@ func PingReddit() error {
 	bot, err := initBot()
 
 	if err != nil {
-		fmt.Println("Error pinging Reddit:", err)
+		log.Println("Error pinging Reddit:", err)
 		return err
 	}
 
 	_, err = bot.Listing("/r/all", "")
 	if err != nil {
-		fmt.Println("Error pinging Reddit:", err)
+		log.Println("Error pinging Reddit:", err)
 	}
 	return err
 }
@@ -80,11 +80,11 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 	cachePosts, success = GetFromCache(sub)
 	now := time.Now().Unix()
 	if now >= CacheTime && !CachePopulating {
-		fmt.Println("Clearing Cache...")
+		log.Println("Clearing Cache...")
 		ClearCache()
 		success = false
 		CacheTime = time.Now().Unix() + 3600
-		fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
+		log.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 		CachePopulating = true
 		go PopulateCache()
 	}
@@ -92,14 +92,14 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 		starttime := GetMillis()
 		bot, err := initBot()
 		if err != nil {
-			fmt.Println("Error creating new Reddit bot:", err)
+			log.Println("Error creating new Reddit bot:", err)
 			return QuickPost{}, ""
 		}
 		rand.Seed(time.Now().Unix())
-		fmt.Println("Adding r/" + sub + " to cache.")
+		log.Println("Adding r/" + sub + " to cache.")
 		harvest, err := bot.Listing("/r/"+sub+"/"+sort, "") // the bot is locking up here
 		if err != nil {
-			fmt.Println("Error getting posts from sub '", sub, "':", err)
+			log.Println("Error getting posts from sub '", sub, "':", err)
 			return QuickPost{}, sub
 		}
 		lengthPosts := len(harvest.Posts)
@@ -140,7 +140,7 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 				Nsfw:      false,
 				Permalink: "/r/" + sub + "/",
 			}
-			fmt.Println("Nothing to cache! Discarding....")
+			log.Println("Nothing to cache! Discarding....")
 		} else if ContainsAnySubstring(sub, subList) {
 			s = rand.Intn(gottenLength)
 			returnPost = gottenPosts[s]
@@ -151,10 +151,10 @@ func GetPost(subs []string, limit int, sort string, mode string) (QuickPost, str
 			returnPost = gottenPosts[s]
 			endtime := GetMillis()
 			t := endtime - starttime
-			fmt.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
+			log.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
 		}
 	} else {
-		fmt.Println("Found r/" + sub + " in cache.")
+		log.Println("Found r/" + sub + " in cache.")
 		minScore := MinScore(cachePosts)
 		for i := 0; i < len(cachePosts); i++ {
 			s := rand.Intn(len(cachePosts))

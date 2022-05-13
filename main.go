@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -75,18 +75,17 @@ func main() {
 	discord, err := discordgo.New("Bot " + key)
 
 	if err != nil {
-		fmt.Println("Error creating Discord bot!")
-		panic(err) // if it errors out at all in this init phase, its not gonna work anyway.
+		log.Fatalln("Error creating Discord bot!", err.Error())
 	}
 
 	user, err := discord.User("@me")
 	if err != nil {
-		panic(err)
+		log.Fatalln("Error creating Discord bot!", err.Error())
 	}
 	for _, admin := range adminRawIDs {
 		a, err := discord.User(admin)
 		if err != nil {
-			fmt.Println("WARNING: No admin IDs set, debug will not work!")
+			log.Println("WARNING: No admin IDs set, debug will not work!")
 			break
 		}
 		adminIDs = append(adminIDs, a.ID)
@@ -96,24 +95,23 @@ func main() {
 	discord.AddHandler(readyHandler)
 	err = discord.Open()
 	if err != nil {
-		fmt.Println("Error opening Discord connection!")
-		panic(err)
+		log.Fatalln("Error creating Discord bot!", err.Error())
 	}
 	defer discord.Close()
-	fmt.Println("Discord-Quick-Meme is starting up.")
+	log.Println("Discord-Quick-Meme is starting up.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
 	// Clean up
-	fmt.Println("Cleaning up ..")
+	log.Println("Cleaning up ..")
 	if lockFileExists() {
 		err = os.Remove("./thread.lock")
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}
-	fmt.Println("Cleanly shutdown.")
+	log.Println("Cleanly shutdown.")
 }
 
 // handles bot initialization
@@ -123,7 +121,7 @@ func readyHandler(discord *discordgo.Session, ready *discordgo.Ready) {
 	PopulateCache()
 	ResetBlacklist()
 	serverCount := int64(len(servers))
-	fmt.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers.")
+	log.Println("Discord-Quick-Meme has started on " + humanize.Comma(serverCount) + " servers.")
 	if RunMode == "prod" { // only run if production
 		go updateServerCount(serverCount, topgg)
 	}
@@ -151,7 +149,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	canUserPost := updateChannelTimer(channel)
 	if !canUserPost {
 		if RequestCount[channel] == 6 {
-			fmt.Println("Channel " + channel + "is sending a lot of requests, limiting their input for 60 seconds.")
+			log.Println("Channel " + channel + "is sending a lot of requests, limiting their input for 60 seconds.")
 		}
 		if RequestCount[channel] > 10 {
 			discord.ChannelMessageSend(channel, "You're sending a lot of requests, how about you slow it down a bit? All requests from this channel will be ignored for 60 seconds.")
@@ -159,7 +157,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		return
 	}
 	channelName, nsfw := GetChannelData(discord, channel, guildID)
-	fmt.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
+	log.Println("Command '" + content + "' from " + user.Username + " on " + channelName + " (" + channel + ")")
 	switch {
 	case command == "!meme" && len(commandContent) == 1:
 		subs = SubMap["memes"]
@@ -214,7 +212,7 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 	case command == "!source":
 		err := getSource(discord, channel)
 		if err != nil {
-			fmt.Println("Error getting source of meme:", err)
+			log.Println("Error getting source of meme:", err)
 			discord.ChannelMessageSend(channel, "Error getting source of meme: "+err.Error())
 			return
 		}
@@ -227,8 +225,8 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 		}
 		subcommand = textFilter(subcommand)
 		if !stringInSlice(user.ID, adminIDs) && !isUserMemeBotAdmin(discord, guildID, user) {
-			fmt.Println("Intruder tried to execute admin only command:")
-			fmt.Println(user.Username)
+			log.Println("Intruder tried to execute admin only command:")
+			log.Println(user.Username)
 		} else if stringInSlice(user.ID, adminIDs) {
 			switch subcommand {
 			case "ban":
@@ -265,6 +263,6 @@ func commandHandler(discord *discordgo.Session, message *discordgo.MessageCreate
 			}
 		}
 	}
-	fmt.Println("Posted.")
+	log.Println("Posted.")
 
 }

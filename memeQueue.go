@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
 	"regexp"
@@ -29,13 +29,13 @@ type QueueObj struct {
 
 func queueThread(discord *discordgo.Session) {
 
-	fmt.Println("Starting Queue Processing thread.")
-	fmt.Println("Generating lock file.")
+	log.Println("Starting Queue Processing thread.")
+	log.Println("Generating lock file.")
 	testData, err := lockFileCreate()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Thread started.")
+	log.Println("Thread started.")
 	for {
 
 		var wg sync.WaitGroup
@@ -43,18 +43,18 @@ func queueThread(discord *discordgo.Session) {
 		fileEqual, err := lockFileEqu(testData)
 
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			break
 		}
 
 		if !fileEqual {
-			fmt.Println("New processing thread started, killing old thread.")
+			log.Println("New processing thread started, killing old thread.")
 			break
 		}
 
 		keys, err := GetAllQueueChannels()
 		if err != nil {
-			fmt.Println("Error running worker queue: ", err.Error())
+			log.Println("Error running worker queue: ", err.Error())
 			continue
 		}
 
@@ -71,7 +71,7 @@ func queueThread(discord *discordgo.Session) {
 		// One of the few times I will use a sleep
 		time.Sleep(time.Second * 10)
 	}
-	fmt.Println("Queue processing thread killed.")
+	log.Println("Queue processing thread killed.")
 }
 
 func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup) {
@@ -88,7 +88,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		return
 	}
 	if err != nil {
-		fmt.Println("Error getting from Queue: ", err.Error())
+		log.Println("Error getting from Queue: ", err.Error())
 	}
 
 	if queueItem.Time <= time.Now().Unix() && !QueueState[channel] {
@@ -108,7 +108,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		// function ends.
 		defer resetQueueState(channel)
 
-		fmt.Println("Posting in", channel, "from queue.")
+		log.Println("Posting in", channel, "from queue.")
 
 		switch queueItem.Type {
 		case "text":
@@ -121,7 +121,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		letters, err := regexp.Compile("[^a-zA-Z]+")
 
 		if err != nil {
-			fmt.Println("Error setting Queue: ", err.Error())
+			log.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -129,7 +129,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		numbers, err := regexp.Compile("[^0-9]+")
 
 		if err != nil {
-			fmt.Println("Error setting Queue: ", err.Error())
+			log.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			return
 		}
@@ -137,7 +137,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		multiplier, err := strconv.ParseFloat(numbers.ReplaceAllString(queueItem.Interval, ""), 64)
 
 		if err != nil {
-			fmt.Println("Error setting Queue: ", err.Error())
+			log.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			DeleteMemeQueue(channel)
 			return
@@ -146,7 +146,7 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		duration := letters.ReplaceAllString(queueItem.Interval, "")
 
 		if err != nil {
-			fmt.Println("Error setting Queue: ", err.Error())
+			log.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 			DeleteMemeQueue(channel)
 			return
@@ -187,10 +187,10 @@ func queueWorker(discord *discordgo.Session, channel string, wg *sync.WaitGroup)
 		err = UpdateMemeQueueTime(channel, queueItem.Time)
 
 		if err != nil {
-			fmt.Println("Error setting Queue: ", err.Error())
+			log.Println("Error setting Queue: ", err.Error())
 			errSendRoutine(discord, channel, err)
 		} else {
-			fmt.Println("Done.")
+			log.Println("Done.")
 		}
 	}
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,6 +12,6 @@ func quickMemeDefault(discord *discordgo.Session, channel string) {
 	servers := discord.State.Guilds
 	//userCount := getNumberOfUsers(discord)
 	msg := "Discord-Quick-Meme is active and ready on " + strconv.Itoa(len(servers)) + " servers."
-	fmt.Println(msg)
+	log.Println(msg)
 	discord.ChannelMessageSend(channel, msg)
 }

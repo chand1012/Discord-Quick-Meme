@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
 
 //ResetBlacklist just guess what this does
 func ResetBlacklist() {
-	fmt.Println("Resetting Blacklist...")
+	log.Println("Resetting Blacklist...")
 	Blacklist = make(map[string][]QuickPost)
 	BlacklistTime = time.Now().Unix() + (3600 * 3)
-	fmt.Println("New Blacklist time is " + strconv.FormatInt(BlacklistTime, 10))
+	log.Println("New Blacklist time is " + strconv.FormatInt(BlacklistTime, 10))
 }
 
 // UpdateBlacklistTime updates clears the blacklist and updates the time

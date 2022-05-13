@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -21,7 +21,7 @@ func getRedditEnv() agentFile {
 	agent.ClientSecret = os.Getenv("REDDIT_SECRET")
 
 	if agent.ClientID == "" || agent.ClientSecret == "" {
-		fmt.Println("Cannot continue, Reddit client ID or Secret not set.")
+		log.Fatalln("Cannot continue, Reddit client ID or Secret not set.")
 		os.Exit(1)
 	}
 
@@ -37,8 +37,7 @@ func getDataEnv() (string, string, string, []string) { // discord token, topgg k
 	admins := strings.Split(adminsRaw, ",")
 
 	if token == "" {
-		fmt.Println("Cannot continue, no Discord token specified.")
-		os.Exit(1)
+		log.Fatalln("Cannot continue, no Discord token specified.")
 	}
 	if mode == "" {
 		mode = "prod"

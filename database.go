@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -55,7 +54,7 @@ func ConnectMongo() (*mongo.Client, context.Context) {
 
 // GetAllChannelNames gets all channel names
 func GetAllChannelNames() {
-	fmt.Println("Getting all current channel names and NSFW statuses...")
+	log.Println("Getting all current channel names and NSFW statuses...")
 	starttime := GetMillis()
 
 	dbClient, dbContext := ConnectMongo()
@@ -68,14 +67,14 @@ func GetAllChannelNames() {
 	cursor, err := channelCache.Find(dbContext, bson.M{}, options.Find())
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
 	err = cursor.All(dbContext, &channelObjects)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -85,7 +84,7 @@ func GetAllChannelNames() {
 	}
 	endtime := GetMillis()
 	t := endtime - starttime
-	fmt.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
+	log.Println("Time to get all current channel names and NSFW status: " + strconv.FormatInt(t, 10) + "ms")
 }
 
 // AddChannelToDB adds a channel to the database
@@ -109,13 +108,13 @@ func AddChannelToDB(channel string, nsfw bool, name string) error { // skipcq RV
 
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
-			fmt.Println(err)
+			log.Println(err)
 			return err
 		}
 	}
 
 	if err == nil { // if there is no error that means that the entry must be updated. Ideally this won't happen often.
-		fmt.Println("Already in database, updating existing record...")
+		log.Println("Already in database, updating existing record...")
 		channelObject.Time = time.Now().Unix()
 		filter = bson.M{"_id": bson.M{"$eq": channelObject.ID}}
 		update := bson.M{
@@ -129,14 +128,14 @@ func AddChannelToDB(channel string, nsfw bool, name string) error { // skipcq RV
 
 		_, err = channelCache.UpdateOne(dbContext, filter, update)
 	} else if err == mongo.ErrNoDocuments {
-		fmt.Println("Adding new entry...")
+		log.Println("Adding new entry...")
 		channelObject.ChannelID = channel
 		channelObject.Name = name
 		channelObject.Nsfw = nsfw
 		channelObject.Time = time.Now().Unix()
 		_, err = channelCache.InsertOne(dbContext, channelObject)
 	}
-	fmt.Println("Done adding to DB.")
+	log.Println("Done adding to DB.")
 	return err
 }
 

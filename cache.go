@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,17 +33,17 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 	var gotPost QuickPost
 	bot, err := initBot()
 	if err != nil {
-		fmt.Println("Error creating Bot: ", err)
+		log.Println("Error creating Bot: ", err)
 		return
 	}
 	harvest, err := bot.Listing("/r/"+sub+"/hot/", "")
 	if err != nil {
 		if strings.Contains(err.Error(), "400") {
-			fmt.Println("Error 400. Subreddit that caused the issue:")
-			fmt.Println(sub)
+			log.Println("Error 400. Subreddit that caused the issue:")
+			log.Println(sub)
 			return
 		}
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	for _, post := range harvest.Posts {
@@ -75,9 +75,9 @@ func AddToCacheWorker(sub string, wg *sync.WaitGroup, send chan<- []QuickPost) {
 // PopulateCache spawns workers to add posts to the cache
 func PopulateCache() {
 	SubMap = SubExtract("subs.json")
-	fmt.Println("Populating base post cache...")
+	log.Println("Populating base post cache...")
 	CacheTime = time.Now().Unix() + 3600
-	fmt.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
+	log.Println("New cache time is " + strconv.FormatInt(CacheTime, 10))
 	starttime := GetMillis()
 	subs := getAllSubsFromMap()
 	var wg sync.WaitGroup
@@ -102,7 +102,7 @@ func PopulateCache() {
 	}
 	endtime := GetMillis()
 	t := endtime - starttime
-	fmt.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
+	log.Println("Took " + strconv.FormatInt(t, 10) + "ms to add to cache.")
 	CachePopulating = false
 }
 
