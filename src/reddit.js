@@ -1,4 +1,5 @@
-import { memes } from './subs.json';
+import { SUBS } from './constants';
+import { IMAGE_FILE_ENDINGS } from './constants';
 
 /**
  * Reach out to the reddit API, and get the first page of results from
@@ -6,6 +7,25 @@ import { memes } from './subs.json';
  * and return a random result.
  * @returns The url of an image or video which is cute.
  */
+
+const guessPostHint = (post) => {
+  // check if the url has any of the image file endings
+  const hasImageFileEnding = IMAGE_FILE_ENDINGS.some((ending) =>
+    post.url.endsWith(ending)
+  );
+
+  if (hasImageFileEnding) {
+    return 'image';
+  }
+
+  if (post.url.includes('youtube.com') || post?.is_video) {
+    return 'video';
+  }
+  if (post.selftext !== '') {
+    return 'text';
+  }
+  return 'link';
+};
 
 const formatPost = (post, subreddit) => {
   return {
@@ -24,6 +44,7 @@ const formatPost = (post, subreddit) => {
     sub: subreddit,
     score: post.data.score,
     is_video: post.data?.is_video,
+    hint: post.data?.post_hint || guessPostHint(post.data),
   };
 };
 
@@ -102,6 +123,7 @@ export const getCuteUrl = async () => {
 
 export const getMeme = async () => {
   // choose a random subreddit from the memes list
+  const { memes } = SUBS;
   const randomSubreddit = memes[Math.floor(Math.random() * memes.length)];
   return getRandomMediaPost(randomSubreddit);
 };

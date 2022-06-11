@@ -1,6 +1,6 @@
 name = "testbot"
 main = "./src/server.js"
-type = "javascript"
+# type = "javascript"
 compatibility_date = "2022-02-26"
 
 account_id = "c8c30db3dddc4ad31065d336368c7905"

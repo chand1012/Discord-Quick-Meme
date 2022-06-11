@@ -16,6 +16,14 @@
 export const MEME_COMMAND = {
   name: 'meme',
   description: 'Get a random meme from reddit.',
+  options: [
+    {
+      name: 'subreddit',
+      description: 'The subreddit to get a meme from.',
+      required: false,
+      type: 3,
+    },
+  ],
 };
 
 export const NEWS_COMMAND = {

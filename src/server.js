@@ -46,17 +46,18 @@ router.post('/', async (request, env) => {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (message.data.name.toLowerCase()) {
       case MEME_COMMAND.name.toLowerCase(): {
-        // this errors out for no reason, need to investigate
         console.log('handling meme request');
         const data = await getMeme();
+        console.log('got meme');
         const embed = formatEmbed(data);
+        console.log('formatted embed');
         const respData = {
           type: 4,
           data: {
             embeds: [embed],
           },
         };
-        console.log(respData);
+        console.log('constructed object');
         return new JsonResponse(respData);
       }
       default:

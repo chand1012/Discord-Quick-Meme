@@ -37,10 +37,10 @@ export const constructVideoEmbed = constructImageEmbed;
 export const constructThumbnailEmbed = constructImageEmbed;
 
 export const constructField = (name, value, inline = false) => {
-  if (name.length > 256) {
+  if (name?.length > 256) {
     throw new Error('Name must be less than 256 characters');
   }
-  if (value.length > 1024) {
+  if (value?.length > 1024) {
     throw new Error('Value must be less than 1024 characters');
   }
   return {
@@ -55,7 +55,7 @@ export const constructFooter = (
   iconUrl = undefined,
   proxyIconUrl = undefined
 ) => {
-  if (text.length > 2048) {
+  if (text?.length > 2048) {
     throw new Error('Text must be less than 2048 characters');
   }
   return {
@@ -81,10 +81,10 @@ const constructEmbed = (
   }
 ) => {
   // YOU CAN ONLY SPECIFY ONE OF THE OPTIONAL OBJECTS
-  if (title.length > 256) {
+  if (title?.length > 256) {
     throw new Error('Title must be less than 256 characters');
   }
-  if (description.length > 4096) {
+  if (description?.length > 4096) {
     throw new Error('Description must be less than 4096 characters');
   }
   if (objects?.fields.length > 25) {
