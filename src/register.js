@@ -1,4 +1,4 @@
-import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
+import commands, { MEME_COMMAND } from './commands.js';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 
@@ -67,7 +67,8 @@ async function registerCommands(url) {
       Authorization: `Bot ${token}`,
     },
     method: 'PUT',
-    body: JSON.stringify([AWW_COMMAND, INVITE_COMMAND]),
+    // body: JSON.stringify(commands),
+    body: JSON.stringify([MEME_COMMAND]),
   });
 
   if (response.ok) {

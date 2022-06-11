@@ -13,7 +13,9 @@
     "fix": "eslint --fix '**/*.js'",
     "lint": "eslint '**/*.js'",
     "register": "node src/register.js",
-    "publish": "wrangler publish"
+    "publish": "wrangler publish",
+    "get_commands": "node src/get_commands.js",
+    "remove_commands": "node src/rm_commands.js"
   },
   "keywords": [],
   "author": "Chandler Lofland <chandler@chand1012.dev>",

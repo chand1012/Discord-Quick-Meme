@@ -3,15 +3,15 @@
  * and registration.
  */
 
-export const AWW_COMMAND = {
-  name: 'awwww',
-  description: 'Drop some cuteness on this channel.',
-};
+// export const AWW_COMMAND = {
+//   name: 'awwww',
+//   description: 'Drop some cuteness on this channel.',
+// };
 
-export const INVITE_COMMAND = {
-  name: 'invite',
-  description: 'Get an invite link to add the bot to your server',
-};
+// export const INVITE_COMMAND = {
+//   name: 'invite',
+//   description: 'Get an invite link to add the bot to your server',
+// };
 
 export const MEME_COMMAND = {
   name: 'meme',
@@ -57,3 +57,15 @@ export const HENTAI_COMMAND = {
   name: 'hentai',
   description: 'Get a random hentai from reddit. Requires an NSFW channel.',
 };
+
+export default [
+  MEME_COMMAND,
+  NEWS_COMMAND,
+  JOKE_COMMAND,
+  FIFTY_FIFTY_COMMAND,
+  ALL_COMMAND,
+  TEXT_COMMAND,
+  BUZZWORD_COMMAND,
+  LINK_COMMAND,
+  HENTAI_COMMAND,
+];

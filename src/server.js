@@ -9,10 +9,11 @@ import {
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
-import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
-import { getCuteUrl } from './reddit.js';
-import JsonResponse from './jsonResponse.js';
-import { REDIRECT_URL } from './constants.js';
+import { MEME_COMMAND } from './commands';
+import { getMeme } from './reddit';
+import JsonResponse from './jsonResponse';
+import { REDIRECT_URL } from './constants';
+import formatEmbed from './formatEmbed';
 
 const router = Router();
 
@@ -44,26 +45,19 @@ router.post('/', async (request, env) => {
   if (message.type === InteractionType.APPLICATION_COMMAND) {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (message.data.name.toLowerCase()) {
-      case AWW_COMMAND.name.toLowerCase(): {
-        console.log('handling cute request');
-        const cuteUrl = await getCuteUrl();
-        return new JsonResponse({
+      case MEME_COMMAND.name.toLowerCase(): {
+        // this errors out for no reason, need to investigate
+        console.log('handling meme request');
+        const data = await getMeme();
+        const embed = formatEmbed(data);
+        const respData = {
           type: 4,
           data: {
-            content: cuteUrl,
+            embeds: [embed],
           },
-        });
-      }
-      case INVITE_COMMAND.name.toLowerCase(): {
-        const applicationId = env.DISCORD_APPLICATION_ID;
-        const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${applicationId}&scope=applications.commands`;
-        return new JsonResponse({
-          type: 4,
-          data: {
-            content: INVITE_URL,
-            flags: 64,
-          },
-        });
+        };
+        console.log(respData);
+        return new JsonResponse(respData);
       }
       default:
         console.error('Unknown Command');

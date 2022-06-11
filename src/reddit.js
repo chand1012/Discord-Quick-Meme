@@ -12,12 +12,18 @@ const formatPost = (post, subreddit) => {
     title: post.data.title,
     permalink: `https://reddit.com${post.data.permalink}`,
     content:
+      post.data?.selftext ||
       post.data?.media?.reddit_video?.fallback_url ||
       post.data?.secure_media?.reddit_video?.fallback_url ||
       post.data?.url,
-    nsfw: post.dzata.over_18,
+    media_url:
+      post.data?.media?.reddit_video?.fallback_url ||
+      post.data?.secure_media?.reddit_video?.fallback_url ||
+      post.data?.url,
+    nsfw: post.data.over_18,
     sub: subreddit,
     score: post.data.score,
+    is_video: post.data?.is_video,
   };
 };
 
@@ -94,7 +100,7 @@ export const getCuteUrl = async () => {
   return getRandomMediaPost('aww');
 };
 
-export const getMemeUrl = async () => {
+export const getMeme = async () => {
   // choose a random subreddit from the memes list
   const randomSubreddit = memes[Math.floor(Math.random() * memes.length)];
   return getRandomMediaPost(randomSubreddit);
