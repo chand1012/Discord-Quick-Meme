@@ -1,5 +1,6 @@
 import { SUBS } from './constants';
 import { IMAGE_FILE_ENDINGS } from './constants';
+import { getSubCache, setSubCache } from './subCache';
 
 /**
  * Reach out to the reddit API, and get the first page of results from
@@ -48,11 +49,27 @@ const formatPost = (post, subreddit) => {
   };
 };
 
-export const getRandomTextPost = async (subreddit) => {
+export const getRedditData = async (subreddit) => {
+  const cachedData = await getSubCache(subreddit);
+  if (cachedData) {
+    return JSON.parse(cachedData);
+  }
+
   const response = await fetch(
-    `https://www.reddit.com/r/${subreddit}/hot.json`
+    `https://www.reddit.com/r/${subreddit}/hot.json`,
+    {
+      headers: {
+        'User-Agent': 'quickmeme-bot',
+      },
+    }
   );
   const data = await response.json();
+  await setSubCache(subreddit, JSON.stringify(data));
+  return data;
+};
+
+export const getRandomTextPost = async (subreddit) => {
+  const data = await getRedditData(subreddit);
   const posts = data.data.children.map((post) => {
     if (post.selftext) {
       return formatPost(post, subreddit);
@@ -63,15 +80,7 @@ export const getRandomTextPost = async (subreddit) => {
 };
 
 export const getRandomMediaPost = async (subreddit) => {
-  const response = await fetch(
-    `https://www.reddit.com/r/${subreddit}/hot.json`,
-    {
-      headers: {
-        'User-Agent': 'quickmeme-bot',
-      },
-    }
-  );
-  const data = await response.json();
+  const data = await getRedditData(subreddit);
   const posts = data.data.children.map((post) => {
     if (post.is_gallery) {
       return '';
@@ -90,15 +99,7 @@ export const getRandomMediaPost = async (subreddit) => {
 };
 
 export const getRandomLinkPost = async (subreddit) => {
-  const response = await fetch(
-    `https://www.reddit.com/r/${subreddit}/hot.json`,
-    {
-      headers: {
-        'User-Agent': 'quickmeme-bot',
-      },
-    }
-  );
-  const data = await response.json();
+  const data = await getRedditData(subreddit);
   const posts = data.data.children
     .map((post) => {
       const domain = post.data.domain;
