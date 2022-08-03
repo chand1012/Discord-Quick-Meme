@@ -8,7 +8,5 @@ require (
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/turnage/graw v0.0.0-20200402055641-24814308bfff
-	go.mongodb.org/mongo-driver v1.5.3
-	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
-	golang.org/x/sys v0.0.0-20201009025420-dfb3f7c4e634 // indirect
+	go.mongodb.org/mongo-driver v1.10.1
 )
