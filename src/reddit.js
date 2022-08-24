@@ -2,13 +2,6 @@ import { SUBS } from './constants';
 import { IMAGE_FILE_ENDINGS } from './constants';
 import { getSubCache, setSubCache } from './subCache';
 
-/**
- * Reach out to the reddit API, and get the first page of results from
- * r/aww. Filter out posts without readily available images or videos,
- * and return a random result.
- * @returns The url of an image or video which is cute.
- */
-
 const guessPostHint = (post) => {
   // check if the url has any of the image file endings
   const hasImageFileEnding = IMAGE_FILE_ENDINGS.some((ending) =>
@@ -68,39 +61,64 @@ export const getRedditData = async (subreddit, env) => {
   return data;
 };
 
-export const getRandomTextPost = async (subreddit, env) => {
+export const getRandomTextPost = async (subreddit, env, nsfw = false) => {
   const data = await getRedditData(subreddit, env);
-  const posts = data.data.children.map((post) => {
-    if (post.selftext) {
-      return formatPost(post, subreddit);
-    }
-  });
+  const posts = data.data.children
+    .filter((post) => {
+      if (post.data.over_18 && !nsfw) {
+        return false;
+      }
+      return true;
+    })
+    .map((post) => {
+      if (post.selftext) {
+        return formatPost(post, subreddit);
+      }
+    });
+  if (posts.length === 0) {
+    return null;
+  }
   const post = posts[Math.floor(Math.random() * posts.length)];
   return post;
 };
 
-export const getRandomMediaPost = async (subreddit, env) => {
-  const data = await getRedditData(subreddit, env);
-  const posts = data.data.children.map((post) => {
-    if (post.is_gallery) {
-      return '';
-    }
-    if (
-      post.data?.media?.reddit_video?.fallback_url ||
-      post.data?.secure_media?.reddit_video?.fallback_url ||
-      post.data?.url
-    ) {
-      return formatPost(post, subreddit);
-    }
-  });
-  const randomIndex = Math.floor(Math.random() * posts.length);
-  const randomPost = posts[randomIndex];
-  return randomPost;
-};
-
-export const getRandomLinkPost = async (subreddit, env) => {
+export const getRandomMediaPost = async (subreddit, env, nsfw = false) => {
   const data = await getRedditData(subreddit, env);
   const posts = data.data.children
+    .filter((post) => {
+      if (post.data.over_18 && !nsfw) {
+        return false;
+      }
+      return true;
+    })
+    .map((post) => {
+      if (post.is_gallery) {
+        return '';
+      }
+      if (
+        post.data?.media?.reddit_video?.fallback_url ||
+        post.data?.secure_media?.reddit_video?.fallback_url ||
+        post.data?.url
+      ) {
+        return formatPost(post, subreddit);
+      }
+    });
+  if (posts.length === 0) {
+    return null;
+  }
+  const post = posts[Math.floor(Math.random() * posts.length)];
+  return post;
+};
+
+export const getRandomLinkPost = async (subreddit, env, nsfw = false) => {
+  const data = await getRedditData(subreddit, env);
+  const posts = data.data.children
+    .filter((post) => {
+      if (post.data.over_18 && !nsfw) {
+        return false;
+      }
+      return true;
+    })
     .map((post) => {
       const domain = post.data.domain;
       if (
@@ -113,9 +131,11 @@ export const getRandomLinkPost = async (subreddit, env) => {
       return formatPost(post, subreddit);
     })
     .filter((post) => post !== null);
-  const randomIndex = Math.floor(Math.random() * posts.length);
-  const randomPost = posts[randomIndex];
-  return randomPost;
+  if (posts.length === 0) {
+    return null;
+  }
+  const post = posts[Math.floor(Math.random() * posts.length)];
+  return post;
 };
 
 export const getCuteUrl = async (env) => {

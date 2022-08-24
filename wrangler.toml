@@ -13,9 +13,3 @@ kv_namespaces = [
 [[rules]]
 type = "ESModule"
 globs = ["**/*.js"]
-
-# [secrets]
-# DISCORD_TOKEN
-# DISCORD_PUBLIC_KEY
-# DISCORD_APPLICATION_ID
-# DISCORD_TEST_GUILD_ID

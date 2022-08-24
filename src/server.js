@@ -10,16 +10,13 @@ import {
   verifyKey,
 } from 'discord-interactions';
 import { MEME_COMMAND } from './commands';
-import { getMeme } from './reddit';
+import { getMeme, getRandomMediaPost } from './reddit';
 import JsonResponse from './jsonResponse';
 import { REDIRECT_URL } from './constants';
 import formatEmbed from './formatEmbed';
 
 const router = Router();
 
-/**
- * A simple :wave: hello page to verify the worker is working.
- */
 // eslint-disable-next-line no-unused-vars
 router.get('/', (request, env) => {
   return Response.redirect(REDIRECT_URL);
@@ -46,7 +43,13 @@ router.post('/', async (request, env) => {
     switch (message.data.name.toLowerCase()) {
       case MEME_COMMAND.name.toLowerCase(): {
         console.log('handling meme request');
-        const data = await getMeme(env);
+        let data;
+        if (message.data?.options?.[0]?.value) {
+          const subreddit = message.data.options[0].value;
+          data = await getRandomMediaPost(subreddit, env);
+        } else {
+          data = await getMeme(env);
+        }
         console.log('got meme');
         const embed = formatEmbed(data);
         console.log('formatted embed');

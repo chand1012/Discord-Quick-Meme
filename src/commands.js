@@ -29,15 +29,36 @@ export const MEME_COMMAND = {
 export const NEWS_COMMAND = {
   name: 'news',
   description: 'Get the latest news from reddit.',
+  options: [
+    {
+      name: 'subreddit',
+      description: 'The subreddit to get news from.',
+      required: false,
+      type: 3,
+    },
+  ],
 };
 
 export const JOKE_COMMAND = {
   name: 'joke',
   description: 'Get a random joke from reddit.',
+  options: [
+    {
+      name: 'subreddit',
+      description: 'The subreddit to get a joke from.',
+      required: false,
+      type: 3,
+    },
+  ],
+};
+
+export const FIFTY_50_COMMAND = {
+  name: '5050',
+  description: 'Get a random 50/50 from reddit.',
 };
 
 export const FIFTY_FIFTY_COMMAND = {
-  name: '5050',
+  name: 'fiftyfifty',
   description: 'Get a random 50/50 from reddit.',
 };
 
@@ -49,6 +70,14 @@ export const ALL_COMMAND = {
 export const TEXT_COMMAND = {
   name: 'text',
   description: 'Get a random text post from reddit.',
+  options: [
+    {
+      name: 'subreddit',
+      description: 'The subreddit to get a text post from.',
+      required: false,
+      type: 3,
+    },
+  ],
 };
 
 export const BUZZWORD_COMMAND = {
@@ -59,6 +88,14 @@ export const BUZZWORD_COMMAND = {
 export const LINK_COMMAND = {
   name: 'link',
   description: 'Get a random link from reddit.',
+  options: [
+    {
+      name: 'subreddit',
+      description: 'The subreddit to get a link from.',
+      required: false,
+      type: 3,
+    },
+  ],
 };
 
 export const HENTAI_COMMAND = {
@@ -70,6 +107,7 @@ export default [
   MEME_COMMAND,
   NEWS_COMMAND,
   JOKE_COMMAND,
+  FIFTY_50_COMMAND,
   FIFTY_FIFTY_COMMAND,
   ALL_COMMAND,
   TEXT_COMMAND,

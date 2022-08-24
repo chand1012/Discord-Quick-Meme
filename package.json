@@ -6,14 +6,14 @@
   "private": true,
   "main": "src/server.js",
   "scripts": {
-    "start": "npm run dev",
+    "start": "yarn dev",
     "dev": "wrangler dev src/server.js",
     "tunnel": "lt --port 8787",
     "test": "c8 mocha test",
     "fix": "eslint --fix '**/*.js'",
     "lint": "eslint '**/*.js'",
-    "register": "node src/register.js",
-    "publish": "wrangler publish",
+    "register_commands": "node src/register.js",
+    "push": "wrangler publish",
     "get_commands": "node src/get_commands.js",
     "remove_commands": "node src/rm_commands.js"
   },
