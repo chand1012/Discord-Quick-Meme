@@ -4,10 +4,10 @@
 
 /* eslint-disable no-undef */
 
-export const setSubCache = async (subreddit, data) => {
-  await REDDIT_CACHE.put(subreddit, data, { expirationTtl: 3600 });
+export const setSubCache = async (subreddit, data, env) => {
+  await env.REDDIT_CACHE.put(subreddit, data, { expirationTtl: 3600 });
 };
 
-export const getSubCache = async (subreddit) => {
-  return REDDIT_CACHE.get(subreddit);
+export const getSubCache = async (subreddit, env) => {
+  return env.REDDIT_CACHE.get(subreddit);
 };

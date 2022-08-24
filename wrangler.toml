@@ -6,21 +6,13 @@ compatibility_date = "2022-02-26"
 account_id = "c8c30db3dddc4ad31065d336368c7905"
 workers_dev = true
 
+kv_namespaces = [
+  { title = "REDDIT_CACHE", binding = "REDDIT_CACHE", id = "fe9ae9dbe6704ab695ea23bf14ab064c", preview_id = "aa143dd9bb9e41c2aeebb1251e01e343" },
+]
+
 [[rules]]
 type = "ESModule"
 globs = ["**/*.js"]
-
-[env.dev]
-
-kv_namespaces = [
-  { binding = "REDDIT_CACHE", id = "fe9ae9dbe6704ab695ea23bf14ab064c" },
-]
-
-[env.production]
-
-kv_namespaces = [
-  { binding = "REDDIT_CACHE", id = "aa143dd9bb9e41c2aeebb1251e01e343" },
-]
 
 # [secrets]
 # DISCORD_TOKEN

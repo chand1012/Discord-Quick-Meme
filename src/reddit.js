@@ -49,8 +49,8 @@ const formatPost = (post, subreddit) => {
   };
 };
 
-export const getRedditData = async (subreddit) => {
-  const cachedData = await getSubCache(subreddit);
+export const getRedditData = async (subreddit, env) => {
+  const cachedData = await getSubCache(subreddit, env);
   if (cachedData) {
     return JSON.parse(cachedData);
   }
@@ -64,12 +64,12 @@ export const getRedditData = async (subreddit) => {
     }
   );
   const data = await response.json();
-  await setSubCache(subreddit, JSON.stringify(data));
+  await setSubCache(subreddit, JSON.stringify(data), env);
   return data;
 };
 
-export const getRandomTextPost = async (subreddit) => {
-  const data = await getRedditData(subreddit);
+export const getRandomTextPost = async (subreddit, env) => {
+  const data = await getRedditData(subreddit, env);
   const posts = data.data.children.map((post) => {
     if (post.selftext) {
       return formatPost(post, subreddit);
@@ -79,8 +79,8 @@ export const getRandomTextPost = async (subreddit) => {
   return post;
 };
 
-export const getRandomMediaPost = async (subreddit) => {
-  const data = await getRedditData(subreddit);
+export const getRandomMediaPost = async (subreddit, env) => {
+  const data = await getRedditData(subreddit, env);
   const posts = data.data.children.map((post) => {
     if (post.is_gallery) {
       return '';
@@ -98,8 +98,8 @@ export const getRandomMediaPost = async (subreddit) => {
   return randomPost;
 };
 
-export const getRandomLinkPost = async (subreddit) => {
-  const data = await getRedditData(subreddit);
+export const getRandomLinkPost = async (subreddit, env) => {
+  const data = await getRedditData(subreddit, env);
   const posts = data.data.children
     .map((post) => {
       const domain = post.data.domain;
@@ -118,13 +118,13 @@ export const getRandomLinkPost = async (subreddit) => {
   return randomPost;
 };
 
-export const getCuteUrl = async () => {
-  return getRandomMediaPost('aww');
+export const getCuteUrl = async (env) => {
+  return getRandomMediaPost('aww', env);
 };
 
-export const getMeme = async () => {
+export const getMeme = async (env) => {
   // choose a random subreddit from the memes list
   const { memes } = SUBS;
   const randomSubreddit = memes[Math.floor(Math.random() * memes.length)];
-  return getRandomMediaPost(randomSubreddit);
+  return getRandomMediaPost(randomSubreddit, env);
 };

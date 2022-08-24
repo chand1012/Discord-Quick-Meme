@@ -32,7 +32,6 @@ router.get('/', (request, env) => {
  */
 router.post('/', async (request, env) => {
   const message = await request.json();
-  console.log(message);
   if (message.type === InteractionType.PING) {
     // The `PING` message is used during the initial webhook handshake, and is
     // required to configure the webhook in the developer portal.
@@ -47,7 +46,7 @@ router.post('/', async (request, env) => {
     switch (message.data.name.toLowerCase()) {
       case MEME_COMMAND.name.toLowerCase(): {
         console.log('handling meme request');
-        const data = await getMeme();
+        const data = await getMeme(env);
         console.log('got meme');
         const embed = formatEmbed(data);
         console.log('formatted embed');
