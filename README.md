@@ -1,20 +1,8 @@
-# Discord-Quick-Meme
+# Discord-Quick-Meme has reached EoL. Thank you for all your support!
 
-[![Discord Bots](https://top.gg/api/widget/status/438381344943374346.svg)](https://top.gg/bot/438381344943374346) [![Discord Bots](https://top.gg/api/widget/servers/438381344943374346.svg)](https://top.gg/bot/438381344943374346) ![Build and Test Bot](https://github.com/chand1012/Discord-Quick-Meme/workflows/Build%20and%20Test%20Bot/badge.svg) ![Go Version](https://img.shields.io/github/go-mod/go-version/chand1012/Discord-Quick-Meme/master) [![](https://img.shields.io/discord/626209936262823937)](https://discord.gg/YNnp9uy)
+All source code will remain open source and free for anyone to use and modify.
 
 A discord bot that sends Reddit memes and news to a channel.
-
-## To add
-
-If you are a server owner, just click [here](https://discordapp.com/oauth2/authorize?client_id=438381344943374346&scope=bot) and select your channel to add the bot to your channel.
-
-## To use
-
-Usage information can be found on the [Wiki](https://github.com/chand1012/Discord-Quick-Meme/wiki).
-
-## Support
-
-If any support is needed, please post an Issue on the Issues page on Github or join my support server found [here](https://discord.gg/YNnp9uy).
 
 ## Additional Random Info and Facts
 
